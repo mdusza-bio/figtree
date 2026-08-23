@@ -223,3 +223,14 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   poprzednie ustawienia; przycisk zmienia się w *Undo preset*. Plan:
   `doc/sesja_C_preset_undo.md`.
 - [ ] 6.5 🟢 **Etap 5 (mysz/klawiatura)** — plan: `doc/sesja_D_mysz.md`.
+
+- [ ] 6.6 🟡 **Min tip spacing nie wystarcza przy drzewach „drabinkowych"** —
+  zgłoszone 2026-08-23 ze zrzutem ekranu: mimo Min tip spacing = 30, etykiety
+  poparcia (bootstrap) nadal się nakładają w miejscach, gdzie drzewo dokłada
+  po jednym takson na raz (długi łańcuch kladów 2-elementowych, np.
+  *Lamproderma aeneum* Ron2281 → Ron1658 → Ron2295 → …). Przyczyna: Min tip
+  spacing pilnuje odstępu między **liśćmi**, a węzły wewnętrzne (na których
+  wisi numer poparcia) leżą tam, gdzie wypada środek między dziećmi — przy
+  takiej topologii kilka węzłów wewnętrznych mieści się w przestrzeni węższej
+  niż wysokość samej etykiety liczby, niezależnie od odstępu liści. Plan:
+  `doc/sesja_E_min_node_spacing.md`.
