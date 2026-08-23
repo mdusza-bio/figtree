@@ -82,34 +82,38 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         return treePane.getTree();
     }
 
-    protected String getLabel(Tree tree, Node node) {
-        if (displayAttribute.equalsIgnoreCase(NAMES)) {
-            if (getIntent() == PainterIntent.TIP) {
-                Taxon taxon = tree.getTaxon(node);
-                if (taxon != null) {
-                    if (textDecorator != null) {
-                        textDecorator.setItem(taxon);
-                    }
-                    String name = (String)taxon.getAttribute("!name");
-                    if (name != null) {
-                        return name;
-                    }
-                    return taxon.getName();
-                } else {
-                    String name = (String)node.getAttribute("!name");
-                    if (name != null) {
-                        return name;
-                    }
-                    return null;
+    /**
+     * The raw (unformatted) name of a node/taxon, exactly as it is in the tree.
+     * Returns null if there is no name to display.
+     */
+    protected String getRawName(Tree tree, Node node) {
+        if (getIntent() == PainterIntent.TIP) {
+            Taxon taxon = tree.getTaxon(node);
+            if (taxon != null) {
+                if (textDecorator != null) {
+                    textDecorator.setItem(taxon);
                 }
-
-            } else {
-                String name = (String)node.getAttribute("!name");
+                String name = (String)taxon.getAttribute("!name");
                 if (name != null) {
                     return name;
                 }
-                return null;
+                return taxon.getName();
             }
+        }
+        return (String)node.getAttribute("!name");
+    }
+
+    /**
+     * The displayed name split into parts (on whitespace, after hide patterns and
+     * underscore replacement). Foundation for styling individual parts of a name.
+     */
+    public String[] getLabelParts(Tree tree, Node node) {
+        return labelFormatter.getParts(getRawName(tree, node));
+    }
+
+    protected String getLabel(Tree tree, Node node) {
+        if (displayAttribute.equalsIgnoreCase(NAMES)) {
+            return labelFormatter.format(getRawName(tree, node));
         }
 
         if (displayAttribute.equalsIgnoreCase(SOLID_BOX)) {
@@ -331,6 +335,27 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         boxSize = size;
         firePainterChanged();
     }
+
+    public LabelFormatter getLabelFormatter() {
+        return labelFormatter;
+    }
+
+    public void setReplaceUnderscores(boolean replaceUnderscores) {
+        labelFormatter.setReplaceUnderscores(replaceUnderscores);
+        firePainterChanged();
+    }
+
+    public void setHideParts(String hideParts) {
+        labelFormatter.setHideParts(hideParts);
+        firePainterChanged();
+    }
+
+    public void setHideRegex(String hideRegex) {
+        labelFormatter.setHideRegex(hideRegex);
+        firePainterChanged();
+    }
+
+    private final LabelFormatter labelFormatter = new LabelFormatter();
 
     private double preferredWidth;
     private double preferredHeight;

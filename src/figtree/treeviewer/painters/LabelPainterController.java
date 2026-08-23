@@ -29,6 +29,8 @@ import jam.panels.OptionsPanel;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.DecimalFormat;
@@ -67,6 +69,11 @@ public class LabelPainterController extends AbstractController {
     public static final String SIGNIFICANT_DIGITS_KEY = "significantDigits";
     public static final String BOX_SIZE = "boxSize";
     public static final String TIP_PATH = "tipPath";
+
+    // MyFigTree: display-only name formatting
+    public static final String REPLACE_UNDERSCORES_KEY = "replaceUnderscores";
+    public static final String HIDE_PARTS_KEY = "hideParts";
+    public static final String HIDE_REGEX_KEY = "hideRegex";
 
     // The defaults if there is nothing in the preferences
     public static String DEFAULT_FONT_NAME = "sansserif";
@@ -226,6 +233,32 @@ public class LabelPainterController extends AbstractController {
             tipPathCheck = null;
         }
 
+        // MyFigTree: display-only name formatting controls
+        replaceUnderscoresCheck = new JCheckBox("Replace '_' with space");
+        replaceUnderscoresCheck.setSelected(intent == LabelPainter.PainterIntent.TIP);
+        labelPainter.setReplaceUnderscores(replaceUnderscoresCheck.isSelected());
+        replaceUnderscoresCheck.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                labelPainter.setReplaceUnderscores(replaceUnderscoresCheck.isSelected());
+            }
+        });
+
+        hidePartsText = new JTextField("", 10);
+        hidePartsText.setToolTipText("Comma-separated text to remove from names, e.g. EBOV|,_contig1");
+        hidePartsText.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { labelPainter.setHideParts(hidePartsText.getText()); }
+            public void removeUpdate(DocumentEvent e) { labelPainter.setHideParts(hidePartsText.getText()); }
+            public void changedUpdate(DocumentEvent e) { labelPainter.setHideParts(hidePartsText.getText()); }
+        });
+
+        hideRegexText = new JTextField("", 10);
+        hideRegexText.setToolTipText("Regular expression; matching text is removed from names");
+        hideRegexText.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
+            public void removeUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
+            public void changedUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
+        });
+
 //        labelPainter.addPainterListener(new PainterListener() {
 //            public void painterChanged() {
 //
@@ -249,6 +282,9 @@ public class LabelPainterController extends AbstractController {
             label7 = optionsPanel.addComponentWithLabel("Box Size:", boxSizeSpinner);
             optionsPanel.addComponent(tipPathCheck, true);
         }
+        optionsPanel.addComponent(replaceUnderscoresCheck, true);
+        final JLabel label8 = optionsPanel.addComponentWithLabel("Hide parts:", hidePartsText);
+        final JLabel label9 = optionsPanel.addComponentWithLabel("Hide regex:", hideRegexText);
 
         addComponent(label1);
         addComponent(displayAttributeCombo);
@@ -268,6 +304,11 @@ public class LabelPainterController extends AbstractController {
             addComponent(boxSizeSpinner);
             addComponent(tipPathCheck);
         }
+        addComponent(replaceUnderscoresCheck);
+        addComponent(label8);
+        addComponent(hidePartsText);
+        addComponent(label9);
+        addComponent(hideRegexText);
         enableComponents(titleCheckBox.isSelected());
 
         titleCheckBox.addChangeListener(new ChangeListener() {
@@ -321,6 +362,19 @@ public class LabelPainterController extends AbstractController {
             boxSizeSpinner.setValue((Integer) settings.get(key + "." + BOX_SIZE));
             tipPathCheck.setSelected((Boolean) settings.get(key + "." + TIP_PATH));
         }
+        // MyFigTree keys: may be absent in files saved by the original FigTree
+        Object replace = settings.get(key + "." + REPLACE_UNDERSCORES_KEY);
+        if (replace instanceof Boolean) {
+            replaceUnderscoresCheck.setSelected((Boolean) replace);
+        }
+        Object hideParts = settings.get(key + "." + HIDE_PARTS_KEY);
+        if (hideParts != null) {
+            hidePartsText.setText(hideParts.toString());
+        }
+        Object hideRegex = settings.get(key + "." + HIDE_REGEX_KEY);
+        if (hideRegex != null) {
+            hideRegexText.setText(hideRegex.toString());
+        }
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -336,6 +390,9 @@ public class LabelPainterController extends AbstractController {
             settings.put(key + "." + BOX_SIZE, boxSizeSpinner.getValue());
             settings.put(key + "." + TIP_PATH, tipPathCheck.isSelected());
         }
+        settings.put(key + "." + REPLACE_UNDERSCORES_KEY, replaceUnderscoresCheck.isSelected());
+        settings.put(key + "." + HIDE_PARTS_KEY, hidePartsText.getText());
+        settings.put(key + "." + HIDE_REGEX_KEY, hideRegexText.getText());
     }
 
     public String getTitle() {
@@ -356,6 +413,10 @@ public class LabelPainterController extends AbstractController {
     private final JSpinner digitsSpinner;
     private final JSpinner boxSizeSpinner;
     private final JCheckBox tipPathCheck;
+
+    private final JCheckBox replaceUnderscoresCheck;
+    private final JTextField hidePartsText;
+    private final JTextField hideRegexText;
 
     private final String title;
     private final String key;

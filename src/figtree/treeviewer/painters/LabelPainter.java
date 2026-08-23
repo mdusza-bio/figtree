@@ -125,6 +125,20 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 		// Do nothing
 	}
 
+	// Display-only name formatting (MyFigTree): overridden by BasicLabelPainter
+
+	public void setReplaceUnderscores(boolean replaceUnderscores) {
+		// Do nothing
+	}
+
+	public void setHideParts(String hideParts) {
+		// Do nothing
+	}
+
+	public void setHideRegex(String hideRegex) {
+		// Do nothing
+	}
+
 	public void setVisible(boolean visible) {
 	    this.visible = visible;
 	    firePainterChanged();

@@ -16,8 +16,8 @@ Legenda: 🟢 mała zmiana (jedna sesja) · 🟡 średnia · 🔴 duża / do roz
 
 - [x] 0.1 🟢 Zmiana wyświetlanej nazwy programu na „MyFigTree" w tytule okna
   (plik `src/figtree/application/FigTreeApplication.java`), żeby odróżnić od
-  zwykłego FigTree. *(zmiana jest w plikach, jeszcze nie zacommitowana)*
-- [ ] 0.2 🟢 Pierwszy commit forka: CLAUDE.md, build.bat, run.bat, ta kolejka.
+  zwykłego FigTree.
+- [x] 0.2 🟢 Pierwszy commit forka: CLAUDE.md, build.bat, run.bat, ta kolejka.
 
 ---
 
@@ -30,16 +30,16 @@ Gdzie w kodzie: `src/figtree/treeviewer/painters/BasicLabelPainter.java`,
 metoda `getLabel()` — tu decyduje się, jaki tekst trafia na etykietę. Ważne:
 zmieniamy tylko **wyświetlanie**, plik z drzewem zostaje nietknięty.
 
-- [ ] 1.1 🟢 **Opcja „zamień `_` na spację"** w panelu *Tip Labels*
+- [x] 1.1 🟢 **Opcja „zamień `_` na spację"** w panelu *Tip Labels*
   (checkbox). Najprostsza, natychmiast widoczna zmiana.
-- [ ] 1.2 🟢 **Ukrywanie prefiksów / sufiksów.** Pole tekstowe w panelu, gdzie
+- [x] 1.2 🟢 **Ukrywanie prefiksów / sufiksów.** Pole tekstowe w panelu, gdzie
   wpisujesz co wyciąć (np. `EBOV|`, `_contig1`). Może być kilka wzorców
   oddzielonych przecinkiem. Opcjonalnie: pole na wyrażenie regularne dla
   bardziej zaawansowanych przypadków.
-- [ ] 1.3 🟢 **Zapamiętywanie tych ustawień w pliku `.tree`** (blok FigTree w
+- [x] 1.3 🟢 **Zapamiętywanie tych ustawień w pliku `.tree`** (blok FigTree w
   NEXUS-ie, pliki `FigTreeNexusImporter/Exporter.java`), żeby po ponownym
   otwarciu drzewa nie ustawiać wszystkiego od nowa.
-- [ ] 1.4 🟡 **Podział nazwy na części** (np. `rodzaj gatunek numer` po spacjach
+- [x] 1.4 🟡 **Podział nazwy na części** (np. `rodzaj gatunek numer` po spacjach
   lub `|`) — fundament pod etap 3, gdzie każda część dostanie własny styl.
 
 ---
