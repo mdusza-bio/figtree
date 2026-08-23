@@ -7,6 +7,7 @@
 package figtree.treeviewer.painters;
 
 import figtree.treeviewer.AttributeColourController;
+import figtree.treeviewer.ExtendedTreeViewer;
 import figtree.treeviewer.ControllerOptionsPanel;
 import figtree.treeviewer.TreeViewer;
 import figtree.treeviewer.decorators.ColourDecorator;
@@ -17,7 +18,11 @@ import jam.panels.OptionsPanel;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 public class GroupBarController extends AbstractController {
@@ -114,7 +119,17 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        // Etap 6.3: assigning a group to a whole clade at once, instead of Annotate tip by tip
+        assignButton = new JButton("Assign to selection...");
+        assignButton.putClientProperty("JComponent.sizeVariant", "small");
+        assignButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                assignToSelection(treeViewer);
+            }
+        });
+
         final JLabel label1 = optionsPanel.addComponentWithLabel("Attribute:", attributeCombo);
+        optionsPanel.addSpanningComponent(assignButton);
         final JLabel label2 = optionsPanel.addComponentWithLabel("Bar width:", barWidthSpinner);
         final JLabel label3 = optionsPanel.addComponentWithLabel("Gap from labels:", gapSpinner);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
@@ -140,6 +155,80 @@ public class GroupBarController extends AbstractController {
                 painter.setBarsVisible(titleCheckBox.isSelected());
             }
         });
+    }
+
+    /**
+     * MyFigTree (Etap 6.3): asks for an attribute name and a value and puts them on every tip of the
+     * current selection - select a clade and the whole group is labelled in one go, instead of using
+     * Annotate tip by tip.
+     */
+    private void assignToSelection(TreeViewer treeViewer) {
+
+        if (!(treeViewer instanceof ExtendedTreeViewer)) {
+            return;
+        }
+
+        JComboBox nameCombo = new JComboBox();
+        nameCombo.setEditable(true);
+        Set<String> names = new LinkedHashSet<String>();
+        for (int i = 0; i < attributeCombo.getItemCount(); i++) {
+            Object item = attributeCombo.getItemAt(i);
+            if (item != null && item.toString().length() > 0 && !item.toString().startsWith("!")) {
+                names.add(item.toString());
+            }
+        }
+        names.add(lastAssignedName);
+        for (String name : names) {
+            nameCombo.addItem(name);
+        }
+        Object selected = attributeCombo.getSelectedItem();
+        nameCombo.setSelectedItem(selected != null && selected.toString().length() > 0 ?
+                selected.toString() : lastAssignedName);
+
+        JTextField valueField = new JTextField(lastAssignedValue, 16);
+
+        OptionsPanel dialogPanel = new OptionsPanel(6, 6);
+        dialogPanel.addComponentWithLabel("Attribute:", nameCombo);
+        dialogPanel.addComponentWithLabel("Value:", valueField);
+
+        int result = JOptionPane.showConfirmDialog(optionsPanel, dialogPanel,
+                "Assign to Selection", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        Object nameItem = nameCombo.getSelectedItem();
+        String name = nameItem == null ? "" : nameItem.toString().trim();
+        String value = valueField.getText().trim();
+
+        if (name.length() == 0 || value.length() == 0) {
+            JOptionPane.showMessageDialog(optionsPanel,
+                    "Both an attribute name (such as family) and a value\n" +
+                            "(such as Trichiaceae) are needed.",
+                    "Assign to Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int count = ((ExtendedTreeViewer) treeViewer).annotateSelectedTaxa(name, value);
+
+        if (count == 0) {
+            JOptionPane.showMessageDialog(optionsPanel,
+                    "Nothing is selected in the tree.\n\n" +
+                            "Select a clade (or some tip labels) first - every tip of the\n" +
+                            "selection then gets " + name + " = " + value + ".",
+                    "Assign to Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        lastAssignedName = name;
+        lastAssignedValue = value;
+
+        attributeCombo.setSelectedItem(name);
+        if (!titleCheckBox.isSelected()) {
+            titleCheckBox.setSelected(true);
+        }
     }
 
     private void enableBackgroundComponents() {
@@ -234,6 +323,10 @@ public class GroupBarController extends AbstractController {
 
     private final JCheckBox titleCheckBox;
     private final OptionsPanel optionsPanel;
+
+    private final JButton assignButton;
+    private String lastAssignedName = "group";
+    private String lastAssignedValue = "";
 
     private final JComboBox attributeCombo;
     private final JSpinner barWidthSpinner;
