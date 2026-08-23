@@ -199,3 +199,27 @@ linie ~221–229), więc na Windowsie nie działają w ogóle. Zostaje tylko suw
 - [ ] 5.3 🟢 **Rozsuwanie „wokół kursora"**: po Ctrl+kółku przewinąć widok tak,
   żeby gałąź pod kursorem została w tym samym miejscu ekranu (inaczej drzewo
   ucieka w dół). Zrobić po 5.1, jeśli będzie przeszkadzać.
+
+---
+
+## Etap 6 — poprawki po pierwszym przeklikaniu (feedback 2026-08-23)
+
+Każdy punkt ma własny plan sesji w `doc/sesja_*.md` — można je robić
+niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
+
+- [ ] 6.1 🟡 **Mądrzejsza kursywa** — „pierwsze N części" nie wystarcza: *Trichia
+  sordida* var. *sordidoides* MA12345 ma 4 części nazwy, a *Trichia lutescens*
+  MA83355 tylko 2. Zamiast liczby: kursywa „do pierwszej części wyglądającej jak
+  numer" + lista słów bez kursywy (`var.`, `subsp.`, `f.`, `sp.`, `cf.`, `aff.`).
+  Plan: `doc/sesja_A_kursywa.md`.
+- [ ] 6.2 🟢 **Szablon etykiet — wyjaśnić albo usunąć.** Opis z przykładami w
+  `doc/szablon_etykiet.md`; decyzja po przeczytaniu. Jeśli 6.1 załatwia
+  potrzeby, pole *Advanced template* usuwamy z panelu.
+- [ ] 6.3 🟡 **Group Bars nic nie pokazują** — bo liście nie mają atrybutu
+  „rodzina". FigTree nie zna rodzin; trzeba je podać. Plan: wczytywanie
+  z prostego pliku tekstowego `nazwa<TAB>rodzina` + przypisywanie z zaznaczenia.
+  Plan: `doc/sesja_B_group_bars.md`.
+- [ ] 6.4 🟢 **Cofanie presetu publikacyjnego** — przed zastosowaniem zapamiętać
+  poprzednie ustawienia; przycisk zmienia się w *Undo preset*. Plan:
+  `doc/sesja_C_preset_undo.md`.
+- [ ] 6.5 🟢 **Etap 5 (mysz/klawiatura)** — plan: `doc/sesja_D_mysz.md`.
