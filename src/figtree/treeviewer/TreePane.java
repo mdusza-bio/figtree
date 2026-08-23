@@ -1253,6 +1253,28 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return legendPainter;
     }
 
+    // MyFigTree: group bars / clade backgrounds (Etap 4.3 / 4.4)
+    public void setGroupBarPainter(GroupBarPainter groupBarPainter) {
+        groupBarPainter.addPainterListener(this);
+        this.groupBarPainter = groupBarPainter;
+        recalibrate();
+        repaint();
+    }
+
+    public GroupBarPainter getGroupBarPainter() {
+        return groupBarPainter;
+    }
+
+    /** The transform from tree-layout space to screen space (valid after calibration). */
+    public AffineTransform getTreeTransform() {
+        return transform;
+    }
+
+    /** Screen-space bounds of the tip labels (valid after calibration). */
+    public Map<Node, Shape> getTipLabelBounds() {
+        return tipLabelBounds;
+    }
+
     public float getLabelSpacing() {
         return labelXOffset;
     }
@@ -1669,6 +1691,11 @@ public class TreePane extends JComponent implements PainterListener, Printable {
             }
         }
 
+        // MyFigTree: clade backgrounds go underneath everything in the tree
+        if (groupBarPainter != null && groupBarPainter.isVisible(this)) {
+            groupBarPainter.paintBackgrounds(g2, this);
+        }
+
         // Paint backgrounds
         if (nodeBackgroundDecorator != null) {
             for (Node node : treeLayoutCache.getNodeAreaMap().keySet() ) {
@@ -1894,6 +1921,12 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                     }
                 }
             }
+        }
+
+        // MyFigTree: group bars to the right of the tip labels
+        if (groupBarPainter != null && groupBarPainter.isVisible(this)) {
+            groupBarPainter.paintBars(g2, this);
+            g2.setTransform(oldTransform);
         }
 
         // Paint node labels
@@ -2133,6 +2166,15 @@ public class TreePane extends JComponent implements PainterListener, Printable {
             final double w2 = legendPainter.getPreferredWidth();
             legendBounds = new Rectangle2D.Double(0.0, 0.0, w2, height);
             leftPanelBounds.add(legendBounds);
+        }
+
+        // MyFigTree: reserve space on the right for the group bars
+        rightPanelBounds = new Rectangle2D.Double();
+        if (groupBarPainter != null) {
+            final double w3 = groupBarPainter.getRequiredRightWidth(g2, this);
+            if (w3 > 0.0) {
+                rightPanelBounds = new Rectangle2D.Double(width - w3, 0.0, w3, height);
+            }
         }
 
         final double availableW = width - insets.left - insets.right;
@@ -2643,6 +2685,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
     private ScaleGridPainter scaleGridPainter = null;
 
     private LegendPainter legendPainter = null;
+    private GroupBarPainter groupBarPainter = null;
     private Rectangle2D legendBounds = new Rectangle2D.Double();
 
     private Rectangle2D topPanelBounds = new Rectangle2D.Double();

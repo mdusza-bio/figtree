@@ -51,6 +51,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
     private static final String CURVATURE_KEY = "curvature";
     private static final String ALIGN_TIP_LABELS_KEY = "alignTipLabels";
     private static final String MIN_TIP_SPACING_KEY = "minTipSpacing";
+    private static final String MAX_BRANCH_LENGTH_KEY = "maxBranchLength";
 
     public RectilinearTreeLayoutController(final RectilinearTreeLayout treeLayout, final TreeViewer treeViewer) {
         this.treeLayout = treeLayout;
@@ -109,6 +110,18 @@ public class RectilinearTreeLayoutController extends AbstractController {
             }
         });
         optionsPanel.addComponentWithLabel("Min tip spacing:", minTipSpacingSpinner);
+
+        // MyFigTree: cap very long branches and draw a "//" break mark on them
+        maxBranchLengthSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1.0E9, 0.01));
+        maxBranchLengthSpinner.setToolTipText("Branches longer than this (tree-length units) are drawn shortened with a // mark (0 = off)");
+        maxBranchLengthSpinner.setEditor(new JSpinner.NumberEditor(maxBranchLengthSpinner, "0.####"));
+        maxBranchLengthSpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                double value = ((Number) maxBranchLengthSpinner.getValue()).doubleValue();
+                treeLayout.setMaxBranchLength(value);
+            }
+        });
+        optionsPanel.addComponentWithLabel("Shorten branches longer than:", maxBranchLengthSpinner);
     }
 
     public JComponent getTitleComponent() {
@@ -136,6 +149,10 @@ public class RectilinearTreeLayoutController extends AbstractController {
         if (spacing instanceof Number) {
             minTipSpacingSpinner.setValue(((Number) spacing).doubleValue());
         }
+        Object maxLength = settings.get(RECTILINEAR_LAYOUT_KEY + "." + MAX_BRANCH_LENGTH_KEY);
+        if (maxLength instanceof Number) {
+            maxBranchLengthSpinner.setValue(((Number) maxLength).doubleValue());
+        }
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -143,6 +160,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + CURVATURE_KEY, curvatureSlider.getValue());
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + ALIGN_TIP_LABELS_KEY, alignTipLabelsCheck.isSelected());
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + MIN_TIP_SPACING_KEY, ((Number) minTipSpacingSpinner.getValue()).doubleValue());
+        settings.put(RECTILINEAR_LAYOUT_KEY + "." + MAX_BRANCH_LENGTH_KEY, ((Number) maxBranchLengthSpinner.getValue()).doubleValue());
     }
 
     private final JLabel titleLabel;
@@ -152,6 +170,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
     private final JSlider curvatureSlider;
     private final JCheckBox alignTipLabelsCheck;
     private final JSpinner minTipSpacingSpinner;
+    private final JSpinner maxBranchLengthSpinner;
 
     private final RectilinearTreeLayout treeLayout;
 

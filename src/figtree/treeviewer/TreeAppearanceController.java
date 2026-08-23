@@ -23,7 +23,10 @@ package figtree.treeviewer;
 import figtree.treeviewer.painters.AttributeComboHelper;
 import figtree.treeviewer.painters.AttributeComboHelperListener;
 import figtree.treeviewer.painters.NodeShapePainter;
+import jam.controlpalettes.ControlPalette;
 import jam.controlpalettes.ControllerListener;
+import jebl.evolution.graphs.Node;
+import jebl.evolution.trees.Tree;
 import jam.controlpalettes.AbstractController;
 import jam.panels.OptionsPanel;
 
@@ -222,6 +225,94 @@ public class TreeAppearanceController extends AbstractController {
             }
         });
 
+        // MyFigTree: one-click "publication style" preset (needs the control palette,
+        // see setControlPalette(); the button stays disabled until it is provided)
+        optionsPanel.addSeparator();
+        publicationPresetButton = new JButton("Publication preset");
+        publicationPresetButton.setToolTipText("Apply publication-style settings: serif 10pt tip labels with italic genus/species, " +
+                "underscores as spaces, aligned tips, 1pt branches, support values >= 50 below branch, dots on nodes >= 95, white background");
+        publicationPresetButton.setEnabled(false);
+        publicationPresetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                applyPublicationPreset();
+            }
+        });
+        optionsPanel.addSpanningComponent(publicationPresetButton);
+    }
+
+    /**
+     * Gives this controller access to the whole palette so the preset button can
+     * change settings of all the other panels (via their setSettings()).
+     */
+    public void setControlPalette(ControlPalette controlPalette) {
+        this.controlPalette = controlPalette;
+        publicationPresetButton.setEnabled(controlPalette != null);
+    }
+
+    /** Name of the support-value attribute (internal node "label"), or null if the tree has none. */
+    private String findSupportAttribute() {
+        java.util.List<Tree> trees = treeViewer.getTrees();
+        if (trees == null) {
+            return null;
+        }
+        for (Tree tree : trees) {
+            for (Node node : tree.getInternalNodes()) {
+                if (node.getAttribute("label") != null) {
+                    return "label";
+                }
+            }
+        }
+        return null;
+    }
+
+    private void applyPublicationPreset() {
+        if (controlPalette == null) {
+            return;
+        }
+        // Start from the current values of every panel so all keys are present,
+        // then override the ones that make up the "publication style".
+        Map<String, Object> settings = new HashMap<String, Object>();
+        controlPalette.getSettings(settings);
+
+        String supportAttribute = findSupportAttribute();
+
+        // Appearance
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_COLOUR_KEY, Color.WHITE);
+        settings.put(CONTROLLER_KEY + "." + FOREGROUND_COLOUR_KEY, Color.BLACK);
+        settings.put(CONTROLLER_KEY + "." + BRANCH_LINE_WIDTH_KEY, 1.0);
+
+        // Tip labels: serif 10pt, first two parts (genus, species) italic, underscores -> spaces
+        settings.put("tipLabels.isShown", Boolean.TRUE);
+        settings.put("tipLabels.fontName", "Times New Roman");
+        settings.put("tipLabels.fontSize", 10);
+        settings.put("tipLabels.fontStyle", Font.PLAIN);
+        settings.put("tipLabels.italicParts", 2);
+        settings.put("tipLabels.replaceUnderscores", Boolean.TRUE);
+
+        // Node labels: support values >= 50, below the branch, 8pt
+        if (supportAttribute != null) {
+            settings.put("nodeLabels.isShown", Boolean.TRUE);
+            settings.put("nodeLabels.displayAttribute", supportAttribute);
+        }
+        settings.put("nodeLabels.fontName", "Times New Roman");
+        settings.put("nodeLabels.fontSize", 8);
+        settings.put("nodeLabels.fontStyle", Font.PLAIN);
+        settings.put("nodeLabels.showThreshold", "50");
+        settings.put("nodeLabels.position", "BELOW_BRANCH");
+
+        // Node shapes: black dots on nodes with support >= 95 (off when there is no support value)
+        settings.put("nodeShapeInternal.isShown", supportAttribute != null);
+        settings.put("nodeShapeInternal.shapeType", "CIRCLE");
+        settings.put("nodeShapeInternal.size", 4.0);
+        settings.put("nodeShapeInternal.thresholdAttribute", supportAttribute == null ? "None" : supportAttribute);
+        settings.put("nodeShapeInternal.showThreshold", "95");
+        settings.put("nodeShapeExternal.isShown", Boolean.FALSE);
+
+        // Layout: rectangular with aligned tip labels
+        settings.put("layout.layoutType", "RECTILINEAR");
+        settings.put("rectilinearLayout.alignTipLabels", Boolean.TRUE);
+
+        controlPalette.setSettings(settings);
     }
 
     private void setupBranchDecorators() {
@@ -327,6 +418,9 @@ public class TreeAppearanceController extends AbstractController {
 
     private final JLabel titleLabel;
     private final OptionsPanel optionsPanel;
+
+    private final JButton publicationPresetButton;
+    private ControlPalette controlPalette = null;
 
     private final JComboBox branchColourAttributeCombo;
     private final JCheckBox branchColourGradientCheck;

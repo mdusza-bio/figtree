@@ -744,6 +744,10 @@ public class DefaultTreeViewer extends TreeViewer {
         treePane.setScaleGridPainter(scaleGridPainter);
     }
 
+    public void setGroupBarPainter(GroupBarPainter groupBarPainter) {
+        treePane.setGroupBarPainter(groupBarPainter);
+    }
+
     public void setLegendPainter(LegendPainter legendPainter) {
         treePane.setLegendPainter(legendPainter);
 //        legendPainter.setupAttributes(trees);

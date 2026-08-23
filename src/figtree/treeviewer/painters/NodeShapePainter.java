@@ -44,6 +44,7 @@ public class NodeShapePainter extends NodePainter {
 
 
     public static final String FIXED = "Fixed";
+    public static final String NONE = "None";
     public static final double MAX_SIZE = 4.0;
     public static final double MIN_SIZE = 0.0;
 
@@ -233,7 +234,48 @@ public class NodeShapePainter extends NodePainter {
         firePainterChanged();
     }
 
+    /**
+     * Only draw shapes on nodes whose threshold attribute is a number >= showThreshold.
+     * A null threshold (or no attribute) disables the filter.
+     */
+    public void setShowThreshold(String thresholdAttribute, Double showThreshold) {
+        this.thresholdAttribute = thresholdAttribute;
+        this.showThreshold = showThreshold;
+        firePainterChanged();
+    }
+
+    public String getThresholdAttribute() {
+        return thresholdAttribute;
+    }
+
+    public Double getShowThreshold() {
+        return showThreshold;
+    }
+
+    private boolean passesThreshold(Node node) {
+        if (showThreshold == null || thresholdAttribute == null || thresholdAttribute.equals(NONE)) {
+            return true;
+        }
+        Object value = node.getAttribute(thresholdAttribute);
+        Double number = null;
+        if (value instanceof Number) {
+            number = ((Number) value).doubleValue();
+        } else if (value instanceof String) {
+            try {
+                number = Double.parseDouble(((String) value).trim());
+            } catch (NumberFormatException e) {
+                number = null;
+            }
+        }
+        // nodes without a (numeric) value get no shape
+        return number != null && number >= showThreshold;
+    }
+
     private Shape createNodeShape(Node node, double x, double y) {
+
+        if (!passesThreshold(node)) {
+            return null;
+        }
 
         double size = maxSize;
 
@@ -297,6 +339,8 @@ public class NodeShapePainter extends NodePainter {
     private ShapeType shapeType = ShapeType.CIRCLE;
     private ScaleType scaleType = ScaleType.WIDTH;
     private String sizeAttribute = null;
+    private String thresholdAttribute = null;
+    private Double showThreshold = null;
 
     private boolean external = true;
     private boolean internal = true;

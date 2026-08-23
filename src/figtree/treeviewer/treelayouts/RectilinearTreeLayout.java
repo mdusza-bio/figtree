@@ -53,6 +53,52 @@ public class RectilinearTreeLayout extends AbstractTreeLayout {
 
     private double maxXPosition;
 
+    // MyFigTree: branches longer than this (in tree-length units) are drawn at this
+    // length with a "//" break mark; 0 = off
+    private double maxBranchLength = 0.0;
+
+    public double getMaxBranchLength() {
+        return maxBranchLength;
+    }
+
+    public void setMaxBranchLength(double maxBranchLength) {
+        this.maxBranchLength = maxBranchLength;
+        fireTreeLayoutChanged();
+    }
+
+    private boolean isShortened(RootedTree tree, Node node) {
+        return maxBranchLength > 0.0 && tree.getLength(node) > maxBranchLength;
+    }
+
+    /** The length used for drawing: the real branch length, capped at maxBranchLength. */
+    private double drawnLength(RootedTree tree, Node node) {
+        double length = tree.getLength(node);
+        if (maxBranchLength > 0.0 && length > maxBranchLength) {
+            return maxBranchLength;
+        }
+        return length;
+    }
+
+    /**
+     * Adds a "//" break mark to a horizontal branch segment running from x1 (child)
+     * to x0 (parent) at height y. The path is left at the parent end of the gap.
+     */
+    private void appendBreakMark(GeneralPath path, float x1, float x0, float y) {
+        double xm = (x1 + x0) / 2.0;
+        double d = Math.abs(x1 - x0) * 0.08;       // half width of the gap
+        double w = d * 0.6;                          // horizontal extent of each slash
+        double h = yIncrement * 0.3;                 // vertical extent of each slash
+        double dir = x1 > x0 ? 1.0 : -1.0;
+
+        path.lineTo((float) (xm + dir * d), y);
+        // two slanted strokes "//" on either side of the gap
+        path.moveTo((float) (xm + dir * d + w), (float) (y - h));
+        path.lineTo((float) (xm + dir * d - w), (float) (y + h));
+        path.moveTo((float) (xm - dir * d + w), (float) (y - h));
+        path.lineTo((float) (xm - dir * d - w), (float) (y + h));
+        path.moveTo((float) (xm - dir * d), y);
+    }
+
 
     public AxisType getXAxisType() {
         return AxisType.CONTINUOUS;
@@ -199,7 +245,7 @@ public class RectilinearTreeLayout extends AbstractTreeLayout {
                         index = children.size() - i - 1;
                     }
                     Node child = children.get(index);
-                    double length = tree.getLength(child);
+                    double length = drawnLength(tree, child);
                     Point2D childPoint = constructNode(tree, child, xPosition, xPosition + length, cache);
                     yPos += childPoint.getY();
                 }
@@ -252,6 +298,9 @@ public class RectilinearTreeLayout extends AbstractTreeLayout {
                             branchPath.lineTo(x0, y0);
                         } else {
                             branchPath.moveTo(x1, y1);
+                            if (isShortened(tree, child)) {
+                                appendBreakMark(branchPath, x1, x0, y1);
+                            }
                             branchPath.lineTo(x0, y1);
                             branchPath.lineTo(x0, y0);
                         }
@@ -636,7 +685,7 @@ public class RectilinearTreeLayout extends AbstractTreeLayout {
             List<Node> children = tree.getChildren(node);
 
             for (Node child : children) {
-                double length = tree.getLength(child);
+                double length = drawnLength(tree, child);
                 getMaxXPosition(tree, child, xPosition + length);
             }
 

@@ -408,6 +408,13 @@ public class MultiPaneTreeViewer extends TreeViewer {
         fireTreeSettingsChanged();
     }
 
+    public void setGroupBarPainter(GroupBarPainter groupBarPainter) {
+        for (TreePane treePane : treePanes) {
+            treePane.setGroupBarPainter(groupBarPainter);
+        }
+        fireTreeSettingsChanged();
+    }
+
     public void setLegendPainter(LegendPainter legendPainter) {
         for (TreePane treePane : treePanes) {
             treePane.setLegendPainter(legendPainter);

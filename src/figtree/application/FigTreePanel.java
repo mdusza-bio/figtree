@@ -70,7 +70,9 @@ public class FigTreePanel extends JPanel {
         AttributeColourController attributeColourController = new AttributeColourController(treeViewer, frame);
         controlPalette.addController(attributeColourController);
 
-        controlPalette.addController(new TreeAppearanceController(treeViewer, frame, attributeColourController));
+        TreeAppearanceController appearanceController = new TreeAppearanceController(treeViewer, frame, attributeColourController);
+        appearanceController.setControlPalette(controlPalette);   // MyFigTree: enables the "Publication preset" button
+        controlPalette.addController(appearanceController);
 
         treesController = new TreesController(treeViewer);
         controlPalette.addController(treesController);
@@ -139,6 +141,11 @@ public class FigTreePanel extends JPanel {
         legendPainter.setVisible(false);
         controlPalette.addController(new LegendPainterController(legendPainter, attributeColourController, treeViewer));
         treeViewer.setLegendPainter(legendPainter);
+
+        // MyFigTree: group bars and clade backgrounds (Etap 4.3 / 4.4)
+        final GroupBarPainter groupBarPainter = new GroupBarPainter();
+        controlPalette.addController(new GroupBarController(groupBarPainter, attributeColourController, treeViewer));
+        treeViewer.setGroupBarPainter(groupBarPainter);
 
         slideOpenPanel = new SlideOpenPanel(treeViewer);
 

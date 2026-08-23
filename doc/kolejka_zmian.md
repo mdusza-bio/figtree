@@ -115,21 +115,47 @@ i nie ma drugiej wartości. Zapis do pliku `.tree` (klucze `tipLabels.italicPart
 
 ## Etap 4 — wygląd drzewa „jak z publikacji"
 
-- [ ] 4.1 🟢 **Kropki na węzłach z wysokim poparciem** (na wzorze: czarne
+- [x] 4.1 🟢 **Kropki na węzłach z wysokim poparciem** (na wzorze: czarne
   kropki przy bootstrap ≥ próg). FigTree ma *Node Shapes*, ale nie da się ich
   warunkować progiem — dodać próg.
-- [ ] 4.2 🟢 **Domyślne ustawienia „do publikacji"** — przycisk / preset:
+- [x] 4.2 🟢 **Domyślne ustawienia „do publikacji"** — przycisk / preset:
   czcionka, grubość linii, wyrównanie etykiet liści, brak tła itd. Zamiast
   klikać 15 rzeczy przy każdym drzewie.
-- [ ] 4.3 🟡 **Pionowe paski grup po prawej** (rodziny, rzędy — jak A/B/C/D/E
+- [x] 4.3 🟡 **Pionowe paski grup po prawej** (rodziny, rzędy — jak A/B/C/D/E
   na wzorze) z nazwą obróconą o 90°. FigTree umie kolorować klady, ale nie
   rysuje takich pasków.
-- [ ] 4.4 🟡 **Kolorowe tła za kladami** (pastelowe prostokąty jak na miniaturze
+- [x] 4.4 🟡 **Kolorowe tła za kladami** (pastelowe prostokąty jak na miniaturze
   w rogu wzoru).
-- [ ] 4.5 🟢 **Łamana gałąź „//"** dla bardzo długich gałęzi (na wzorze:
+- [x] 4.5 🟢 **Łamana gałąź „//"** dla bardzo długich gałęzi (na wzorze:
   *Lycogala* i *Reticularia lycoperdon*), żeby outgroup nie ściskał reszty.
-- [ ] 4.6 🟢 **Eksport: większa kontrola nad PDF/SVG** — rozmiar strony,
+- [x] 4.6 🟢 **Eksport: większa kontrola nad PDF/SVG** — rozmiar strony,
   marginesy, czcionki osadzone, żeby wynik nie wymagał poprawek w Corelu.
+
+Uwagi do 4.3 / 4.4 / 4.6 (zrobione): nowy panel *Group Bars* (tylko układ
+prostokątny; w polarnym/radialnym nic nie rysuje). Checkbox tytułu włącza paski
+po prawej (Attribute, Bar width, Gap from labels, Font size), a sekcja
+*Backgrounds* z własnym Attribute i Opacity (%) rysuje pastelowe prostokąty za
+kladami (od wspólnego przodka liści do prawej krawędzi etykiet). Paski/tła
+powstają dla ciągów sąsiednich liści o tej samej wartości atrybutu (np. `family`);
+kolory biorą się ze schematu *Colour by* dla tego atrybutu. Zapis do `.tree`
+(klucze `groupBars.isShown`, `attribute`, `barWidth`, `gap`, `fontSize`,
+`backgrounds`, `backgroundAttribute`, `backgroundAlpha`). Eksport PDF pokazuje
+najpierw okienko: Page size (Fit to tree = jak dotąd / A4 portrait / A4 landscape),
+Margin (mm) i Embed fonts (osadza czcionki TrueType z folderu systemowego;
+pierwsze użycie trwa kilka sekund). SVG bez zmian.
+
+Uwagi do 4.1 / 4.2 / 4.5: w panelach *Node Shapes* / *Tip Shapes* są pola
+„Threshold attribute" i „Show only if >=" (kropka rysuje się tylko na węzłach,
+których atrybut, np. `label` = bootstrap, jest ≥ progu; klucze
+`nodeShapeInternal.thresholdAttribute`, `nodeShapeInternal.showThreshold`).
+W panelu *Appearance* jest przycisk **Publication preset** — ustawia naraz:
+Times New Roman 10 pt, kursywa 2 pierwszych części nazwy, `_` → spacja,
+wyrównane etykiety liści, linie 1 pt, białe tło, wartości poparcia ≥ 50 pod
+gałęzią (8 pt), czarne kropki przy poparciu ≥ 95 (jeśli drzewo ma atrybut
+`label`). W panelu *Layout* → Rectangular jest „Shorten branches longer than"
+(0 = wyłączone; dłuższe gałęzie rysowane są skrócone do tej długości ze
+znakiem `//`; klucz `rectilinearLayout.maxBranchLength`). Uwaga: skrócona gałąź
+nie zgadza się ze skalą — o to właśnie chodzi w `//`.
 
 ---
 

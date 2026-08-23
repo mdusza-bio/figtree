@@ -1249,10 +1249,23 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         if (dialog.getFile() != null) {
             File file = new File(dialog.getDirectory(), dialog.getFile());
 
+            // MyFigTree (Etap 4.6): page size / margins / embedded fonts for PDF
+            PdfExportOptions pdfOptions = null;
+            if (format == GraphicFormat.PDF) {
+                pdfOptions = showPdfExportOptionsDialog();
+                if (pdfOptions == null) {
+                    return; // cancelled
+                }
+            }
+
             try {
                 OutputStream stream = new FileOutputStream(file);
 
-                exportGraphics(format, treeViewer.getContentPane(), stream);
+                if (format == GraphicFormat.PDF) {
+                    exportPDFFile(treeViewer.getContentPane(), stream, pdfOptions);
+                } else {
+                    exportGraphics(format, treeViewer.getContentPane(), stream);
+                }
 
                 stream.flush();
                 stream.close();
@@ -1334,9 +1347,128 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
     }
 
     public final static void exportPDFFile(JComponent component, OutputStream stream) throws DocumentException {
+        exportPDFFile(component, stream, new PdfExportOptions());
+    }
+
+    // MyFigTree (Etap 4.6) -------------------------------------------------------------------
+
+    /** Options chosen in the small dialog shown before a PDF export. */
+    public static class PdfExportOptions {
+        public enum PageSize {
+            FIT_TO_TREE("Fit to tree"),
+            A4_PORTRAIT("A4 portrait"),
+            A4_LANDSCAPE("A4 landscape");
+
+            PageSize(String name) { this.name = name; }
+            public String toString() { return name; }
+            private final String name;
+        }
+
+        public PageSize pageSize = PageSize.FIT_TO_TREE;
+        public double marginMm = 10.0;
+        public boolean embedFonts = false;
+    }
+
+    private static PdfExportOptions lastPdfOptions = new PdfExportOptions();
+
+    private PdfExportOptions showPdfExportOptionsDialog() {
+        final JComboBox pageSizeCombo = new JComboBox(PdfExportOptions.PageSize.values());
+        pageSizeCombo.setSelectedItem(lastPdfOptions.pageSize);
+        final JSpinner marginSpinner = new JSpinner(new SpinnerNumberModel(lastPdfOptions.marginMm, 0.0, 100.0, 1.0));
+        final JCheckBox embedFontsCheck = new JCheckBox("Embed fonts (TrueType from the system font folder)");
+        embedFontsCheck.setSelected(lastPdfOptions.embedFonts);
+
+        final JLabel marginLabel = new JLabel("Margin (mm):");
+        pageSizeCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean a4 = pageSizeCombo.getSelectedItem() != PdfExportOptions.PageSize.FIT_TO_TREE;
+                marginSpinner.setEnabled(a4);
+                marginLabel.setEnabled(a4);
+            }
+        });
+        boolean a4 = lastPdfOptions.pageSize != PdfExportOptions.PageSize.FIT_TO_TREE;
+        marginSpinner.setEnabled(a4);
+        marginLabel.setEnabled(a4);
+
+        jam.panels.OptionsPanel panel = new jam.panels.OptionsPanel(6, 6);
+        panel.addComponentWithLabel("Page size:", pageSizeCombo);
+        panel.addComponents(marginLabel, false, marginSpinner, false);
+        panel.addSpanningComponent(embedFontsCheck);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Export PDF options",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            return null;
+        }
+
+        PdfExportOptions options = new PdfExportOptions();
+        options.pageSize = (PdfExportOptions.PageSize) pageSizeCombo.getSelectedItem();
+        options.marginMm = ((Number) marginSpinner.getValue()).doubleValue();
+        options.embedFonts = embedFontsCheck.isSelected();
+        lastPdfOptions = options;
+        return options;
+    }
+
+    private static DefaultFontMapper embeddingFontMapper = null;
+
+    /** A font mapper that knows the TrueType fonts installed on this machine, so they get embedded. */
+    private static synchronized DefaultFontMapper getEmbeddingFontMapper() {
+        if (embeddingFontMapper == null) {
+            DefaultFontMapper mapper = new DefaultFontMapper();
+            java.util.List<String> dirs = new ArrayList<String>();
+            String windir = System.getenv("WINDIR");
+            if (windir != null) dirs.add(windir + File.separator + "Fonts");
+            dirs.add(System.getProperty("user.home") + File.separator + "AppData" + File.separator + "Local" + File.separator + "Microsoft" + File.separator + "Windows" + File.separator + "Fonts");
+            dirs.add("/Library/Fonts");
+            dirs.add("/System/Library/Fonts");
+            dirs.add("/usr/share/fonts/truetype");
+            dirs.add(System.getProperty("java.home") + File.separator + "lib" + File.separator + "fonts");
+            for (String dir : dirs) {
+                try {
+                    if (new File(dir).isDirectory()) {
+                        mapper.insertDirectory(dir);
+                    }
+                } catch (RuntimeException e) {
+                    // ignore a broken font directory
+                }
+            }
+            embeddingFontMapper = mapper;
+        }
+        return embeddingFontMapper;
+    }
+
+    public final static void exportPDFFile(JComponent component, OutputStream stream, PdfExportOptions options) throws DocumentException {
         Rectangle2D bounds = component.getBounds();
-        Document document = new Document(new com.itextpdf
-                .text.Rectangle((float)bounds.getWidth(), (float)bounds.getHeight()));
+        final float w = (float) bounds.getWidth();
+        final float h = (float) bounds.getHeight();
+
+        DefaultFontMapper fontMapper = options.embedFonts ? getEmbeddingFontMapper() : new DefaultFontMapper();
+
+        float pageW, pageH, scale, offsetX, offsetY;
+        if (options.pageSize == PdfExportOptions.PageSize.FIT_TO_TREE) {
+            // the original behaviour: the page is exactly the size of the tree panel
+            pageW = w;
+            pageH = h;
+            scale = 1.0f;
+            offsetX = 0.0f;
+            offsetY = 0.0f;
+        } else {
+            com.itextpdf.text.Rectangle a4 = com.itextpdf.text.PageSize.A4;
+            if (options.pageSize == PdfExportOptions.PageSize.A4_LANDSCAPE) {
+                a4 = a4.rotate();
+            }
+            pageW = a4.getWidth();
+            pageH = a4.getHeight();
+            float margin = (float) (options.marginMm * 72.0 / 25.4);
+            float availW = Math.max(1.0f, pageW - 2 * margin);
+            float availH = Math.max(1.0f, pageH - 2 * margin);
+            scale = Math.min(availW / w, availH / h);
+            // centre the tree inside the margins (PDF origin is bottom-left)
+            offsetX = margin + (availW - w * scale) / 2.0f;
+            offsetY = margin + (availH - h * scale) / 2.0f;
+        }
+
+        Document document = new Document(new com.itextpdf.text.Rectangle(pageW, pageH));
         // step 2
         PdfWriter writer;
         writer = PdfWriter.getInstance(document, stream);
@@ -1344,11 +1476,11 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         document.open();
         // step 4
         PdfContentByte cb = writer.getDirectContent();
-        PdfTemplate tp = cb.createTemplate((float)bounds.getWidth(), (float)bounds.getHeight());
-        Graphics2D g2d = tp.createGraphics((float)bounds.getWidth(), (float)bounds.getHeight(), new DefaultFontMapper());
+        PdfTemplate tp = cb.createTemplate(w, h);
+        Graphics2D g2d = tp.createGraphics(w, h, fontMapper);
         component.print(g2d);
         g2d.dispose();
-        cb.addTemplate(tp, 0, 0);
+        cb.addTemplate(tp, scale, 0, 0, scale, offsetX, offsetY);
 
         document.close();
     }

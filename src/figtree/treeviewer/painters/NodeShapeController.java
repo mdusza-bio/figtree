@@ -29,6 +29,8 @@ import jam.panels.OptionsPanel;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,6 +66,8 @@ public class NodeShapeController extends AbstractController {
     public static final String COLOUR_ATTRIBUTE_KEY = "colourAttribute";
     private static final String SHAPE_SIZE_KEY = "size";
     private static final String SHAPE_MIN_SIZE_KEY = "minSize";
+    public static final String THRESHOLD_ATTRIBUTE_KEY = "thresholdAttribute";
+    public static final String SHOW_THRESHOLD_KEY = "showThreshold";
 
     public NodeShapeController(final String title, final NodeType type, final NodeShapePainter nodeShapePainter,
                                final AttributeColourController colourController,
@@ -191,6 +195,26 @@ public class NodeShapeController extends AbstractController {
         final JLabel label9 = optionsPanel.addComponentWithLabel("Outline width:", outlineStrokeCombo);
         final JLabel label10 = optionsPanel.addComponentWithLabel("Outline colour:", outlinePaintCombo);
 
+        // Threshold: draw the shape only on nodes whose attribute is >= a number
+        thresholdAttributeCombo = new JComboBox();
+        thresholdText = new JTextField("", 6);
+        thresholdText.setToolTipText("Draw the shape only if the threshold attribute is >= this number; empty = all nodes");
+        thresholdText.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { applyThreshold(nodeShapePainter); }
+            public void removeUpdate(DocumentEvent e) { applyThreshold(nodeShapePainter); }
+            public void changedUpdate(DocumentEvent e) { applyThreshold(nodeShapePainter); }
+        });
+        optionsPanel.addSeparator();
+        final JLabel label11 = optionsPanel.addComponentWithLabel("Threshold attribute:", thresholdAttributeCombo);
+        final JLabel label12 = optionsPanel.addComponentWithLabel("Show only if >=:", thresholdText);
+
+        new AttributeComboHelper(thresholdAttributeCombo, treeViewer, NodeShapePainter.NONE).addListener(new AttributeComboHelperListener() {
+            @Override
+            public void attributeComboChanged() {
+                applyThreshold(nodeShapePainter);
+            }
+        });
+
         new AttributeComboHelper(colourAttributeCombo, treeViewer, "User selection").addListener(new AttributeComboHelperListener() {
             @Override
             public void attributeComboChanged() {
@@ -248,6 +272,10 @@ public class NodeShapeController extends AbstractController {
         addComponent(outlineStrokeCombo);
         addComponent(label10);
         addComponent(outlinePaintCombo);
+        addComponent(label11);
+        addComponent(thresholdAttributeCombo);
+        addComponent(label12);
+        addComponent(thresholdText);
         enableComponents(titleCheckBox.isSelected());
 
         titleCheckBox.addChangeListener(new ChangeListener() {
@@ -259,6 +287,20 @@ public class NodeShapeController extends AbstractController {
         sizeAttributeCombo.setSelectedItem(NodeShapePainter.FIXED);
     }
 
+
+    private void applyThreshold(NodeShapePainter nodeShapePainter) {
+        String text = thresholdText.getText().trim().replace(',', '.');
+        Double threshold = null;
+        if (text.length() > 0) {
+            try {
+                threshold = Double.valueOf(text);
+            } catch (NumberFormatException e) {
+                threshold = null;
+            }
+        }
+        Object attribute = thresholdAttributeCombo.getSelectedItem();
+        nodeShapePainter.setShowThreshold(attribute == null ? null : attribute.toString(), threshold);
+    }
 
     private void setupOptions() {
 //        optionsPanel.removeAll();
@@ -300,6 +342,11 @@ public class NodeShapeController extends AbstractController {
                 settings.get(key + "." + SIZE_ATTRIBUTE_KEY));
         shapeSizeSpinner.setValue((Double)settings.get(key + "." + SHAPE_SIZE_KEY));
         shapeMinSizeSpinner.setValue((Double) settings.get(key + "." + SHAPE_MIN_SIZE_KEY));
+
+        Object thresholdAttribute = settings.get(key + "." + THRESHOLD_ATTRIBUTE_KEY);
+        thresholdAttributeCombo.setSelectedItem(thresholdAttribute == null ? NodeShapePainter.NONE : thresholdAttribute.toString());
+        Object threshold = settings.get(key + "." + SHOW_THRESHOLD_KEY);
+        thresholdText.setText(threshold == null ? "" : threshold.toString());
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -315,6 +362,8 @@ public class NodeShapeController extends AbstractController {
         settings.put(key + "." + SIZE_ATTRIBUTE_KEY, sizeAttributeCombo.getSelectedItem());
         settings.put(key + "." + SHAPE_SIZE_KEY, shapeSizeSpinner.getValue());
         settings.put(key + "." + SHAPE_MIN_SIZE_KEY, shapeMinSizeSpinner.getValue());
+        settings.put(key + "." + THRESHOLD_ATTRIBUTE_KEY, thresholdAttributeCombo.getSelectedItem());
+        settings.put(key + "." + SHOW_THRESHOLD_KEY, thresholdText.getText().trim());
     }
 
     private final JCheckBox titleCheckBox;
@@ -330,6 +379,8 @@ public class NodeShapeController extends AbstractController {
     private final JSpinner shapeMinSizeSpinner;
     private final JComboBox outlineStrokeCombo;
     private final JComboBox outlinePaintCombo;
+    private final JComboBox thresholdAttributeCombo;
+    private final JTextField thresholdText;
 
     public String getTitle() {
         return title;
