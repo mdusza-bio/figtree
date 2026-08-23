@@ -181,6 +181,19 @@ public class LabelStyle {
         this.addRankDots = addRankDots;
     }
 
+    public boolean isHyphenCollectionNumber() {
+        return hyphenCollectionNumber;
+    }
+
+    /**
+     * @param hyphenCollectionNumber when true, a collection number split over
+     *                               three parts is put back together the way it is
+     *                               cited: "KRAM M 1234" -> "KRAM M-1234"
+     */
+    public void setHyphenCollectionNumber(boolean hyphenCollectionNumber) {
+        this.hyphenCollectionNumber = hyphenCollectionNumber;
+    }
+
     public boolean isUpperCaseIsNumber() {
         return upperCaseIsNumber;
     }
@@ -282,6 +295,59 @@ public class LabelStyle {
         return part;
     }
 
+    /**
+     * Puts a collection number that got split by the underscores back together:
+     * a herbarium code, a single capital letter and a number ("KRAM M 1234")
+     * are cited as "KRAM M-1234". Only used in {@link ItalicMode#UNTIL_NUMBER};
+     * a name that already has the hyphen is left alone.
+     *
+     * @return the parts to draw (the same array when nothing was joined)
+     */
+    private String[] joinCollectionNumber(String[] parts) {
+        if (!hyphenCollectionNumber || italicMode != ItalicMode.UNTIL_NUMBER || parts.length < 3) {
+            return parts;
+        }
+        List<String> joined = new ArrayList<String>(parts.length);
+        int i = 0;
+        while (i < parts.length) {
+            if (i + 2 < parts.length
+                    && isCollectionCode(parts[i])
+                    && isCollectionLetter(parts[i + 1])
+                    && startsWithDigit(parts[i + 2])) {
+                joined.add(parts[i]);
+                joined.add(parts[i + 1] + "-" + parts[i + 2]);
+                i += 3;
+            } else {
+                joined.add(parts[i]);
+                i++;
+            }
+        }
+        return joined.toArray(new String[joined.size()]);
+    }
+
+    /** a herbarium code such as KRAM, MA, BR: at least two letters, all capitals */
+    private static boolean isCollectionCode(String part) {
+        if (part.length() < 2) {
+            return false;
+        }
+        for (int i = 0; i < part.length(); i++) {
+            char c = part.charAt(i);
+            if (!Character.isLetter(c) || !Character.isUpperCase(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** the single capital letter of a sub-collection, e.g. the M of "KRAM M" */
+    private static boolean isCollectionLetter(String part) {
+        return part.length() == 1 && Character.isUpperCase(part.charAt(0));
+    }
+
+    private static boolean startsWithDigit(String part) {
+        return part.length() > 0 && Character.isDigit(part.charAt(0));
+    }
+
     /** the hybrid sign is never followed by a dot */
     private static boolean isHybridMarker(String part) {
         return part.equalsIgnoreCase("x") || part.equals("\u00d7");
@@ -374,7 +440,7 @@ public class LabelStyle {
             case OFF:
                 return true;
             case UNTIL_NUMBER:
-                return italicGroup.isPlain() && !addRankDots;
+                return italicGroup.isPlain() && !addRankDots && !hyphenCollectionNumber;
             default:
                 return italicParts == 0 || italicGroup.isPlain();
         }
@@ -406,15 +472,16 @@ public class LabelStyle {
                 }
             }
         } else {
+            String[] items = joinCollectionNumber(parts);
             // one run per stretch of parts that share the same italic/upright state
-            boolean[] mask = italicMask(parts);
+            boolean[] mask = italicMask(items);
             int i = 0;
-            while (i < parts.length) {
+            while (i < items.length) {
                 int j = i;
-                while (j < parts.length && mask[j] == mask[i]) {
+                while (j < items.length && mask[j] == mask[i]) {
                     j++;
                 }
-                runs.add(makeRun(parts, i, j, mask[i] ? italicGroup : otherGroup, j < parts.length));
+                runs.add(makeRun(items, i, j, mask[i] ? italicGroup : otherGroup, j < items.length));
                 i = j;
             }
         }
@@ -563,7 +630,8 @@ public class LabelStyle {
     private String nonItalicWords = "";
     private final Set<String> nonItalicWordSet = new HashSet<String>();
     private boolean addRankDots = false;
-    private boolean upperCaseIsNumber = false;
+    private boolean upperCaseIsNumber = true;
+    private boolean hyphenCollectionNumber = true;
     private final PartStyle italicGroup = new PartStyle();
     private final PartStyle otherGroup = new PartStyle();
 

@@ -102,6 +102,7 @@ public class LabelPainterController extends AbstractController {
     public static final String NON_ITALIC_WORDS_KEY = "nonItalicWords";
     public static final String ADD_RANK_DOTS_KEY = "addRankDots";
     public static final String UPPER_CASE_NUMBER_KEY = "upperCaseIsNumber";
+    public static final String HYPHEN_NUMBER_KEY = "hyphenCollectionNumber";
 
     private static final String NO_COLOUR = "none";
 
@@ -378,9 +379,14 @@ public class LabelPainterController extends AbstractController {
 
             addRankDotsCheck = new JCheckBox("Add dot");
             addRankDotsCheck.setToolTipText("Draw \"var.\" / \"sp.\" even when the name has no dot");
-            upperCaseNumberCheck = new JCheckBox("ALL CAPS too");
+            upperCaseNumberCheck = new JCheckBox("ALL CAPS");
             upperCaseNumberCheck.setToolTipText("<html>Also stop the italics at an ALL-CAPS part with no digits<br>" +
-                    "(a collection code such as BR).</html>");
+                    "(a herbarium code such as KRAM or BR).</html>");
+            upperCaseNumberCheck.setSelected(style.isUpperCaseIsNumber());
+            hyphenNumberCheck = new JCheckBox("KRAM M-1234");
+            hyphenNumberCheck.setToolTipText("<html>Put a collection number split by the underscores back together<br>" +
+                    "the way it is cited: KRAM M 1234 -> KRAM M-1234.</html>");
+            hyphenNumberCheck.setSelected(style.isHyphenCollectionNumber());
 
             ActionListener italicModeListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -390,6 +396,7 @@ public class LabelPainterController extends AbstractController {
             italicModeCombo.addActionListener(italicModeListener);
             addRankDotsCheck.addActionListener(italicModeListener);
             upperCaseNumberCheck.addActionListener(italicModeListener);
+            hyphenNumberCheck.addActionListener(italicModeListener);
             updateItalicEnabled();
 
             italicCaseCombo = new JComboBox(LabelStyle.Case.values());
@@ -444,6 +451,7 @@ public class LabelPainterController extends AbstractController {
             nonItalicWordsText = null;
             addRankDotsCheck = null;
             upperCaseNumberCheck = null;
+            hyphenNumberCheck = null;
             italicCaseCombo = null;
             otherCaseCombo = null;
             italicBoldCheck = null;
@@ -479,9 +487,11 @@ public class LabelPainterController extends AbstractController {
             addComponent(italicPartsSpinner);
             addComponent(optionsPanel.addComponentWithLabel("Not italic words:", nonItalicWordsText));
             addComponent(nonItalicWordsText);
-            addComponent(optionsPanel.addComponentWithLabel("Rank words:", checkPanel(addRankDotsCheck, upperCaseNumberCheck)));
+            addComponent(optionsPanel.addComponentWithLabel("Rank words:", addRankDotsCheck));
             addComponent(addRankDotsCheck);
+            addComponent(optionsPanel.addComponentWithLabel("Collection number:", checkPanel(upperCaseNumberCheck, hyphenNumberCheck)));
             addComponent(upperCaseNumberCheck);
+            addComponent(hyphenNumberCheck);
             addComponent(optionsPanel.addComponentWithLabel("Case (italic parts):", italicCaseCombo));
             addComponent(italicCaseCombo);
             addComponent(optionsPanel.addComponentWithLabel("Italic parts style:", stylePanel(italicBoldCheck, italicColourButton)));
@@ -581,6 +591,7 @@ public class LabelPainterController extends AbstractController {
         style.setNonItalicWords(nonItalicWordsText.getText());
         style.setAddRankDots(addRankDotsCheck.isSelected());
         style.setUpperCaseIsNumber(upperCaseNumberCheck.isSelected());
+        style.setHyphenCollectionNumber(hyphenNumberCheck.isSelected());
         updateItalicEnabled();
         labelPainter.labelStyleChanged();
     }
@@ -593,6 +604,7 @@ public class LabelPainterController extends AbstractController {
         nonItalicWordsText.setEnabled(untilNumber);
         addRankDotsCheck.setEnabled(untilNumber);
         upperCaseNumberCheck.setEnabled(untilNumber);
+        hyphenNumberCheck.setEnabled(untilNumber);
     }
 
     private void applyGroupStyles() {
@@ -805,6 +817,10 @@ public class LabelPainterController extends AbstractController {
         if (caps instanceof Boolean) {
             upperCaseNumberCheck.setSelected((Boolean) caps);
         }
+        Object hyphen = settings.get(key + "." + HYPHEN_NUMBER_KEY);
+        if (hyphen instanceof Boolean) {
+            hyphenNumberCheck.setSelected((Boolean) hyphen);
+        }
         applyItalicMode();
 
         Object v = settings.get(key + "." + ITALIC_PARTS_KEY);
@@ -859,6 +875,7 @@ public class LabelPainterController extends AbstractController {
         settings.put(key + "." + NON_ITALIC_WORDS_KEY, nonItalicWordsText.getText());
         settings.put(key + "." + ADD_RANK_DOTS_KEY, addRankDotsCheck.isSelected());
         settings.put(key + "." + UPPER_CASE_NUMBER_KEY, upperCaseNumberCheck.isSelected());
+        settings.put(key + "." + HYPHEN_NUMBER_KEY, hyphenNumberCheck.isSelected());
         settings.put(key + "." + ITALIC_PARTS_KEY, italicPartsSpinner.getValue());
         settings.put(key + "." + ITALIC_CASE_KEY, ((LabelStyle.Case) italicCaseCombo.getSelectedItem()).name());
         settings.put(key + "." + ITALIC_BOLD_KEY, italicBoldCheck.isSelected());
@@ -939,6 +956,7 @@ public class LabelPainterController extends AbstractController {
     private final JTextField nonItalicWordsText;
     private final JCheckBox addRankDotsCheck;
     private final JCheckBox upperCaseNumberCheck;
+    private final JCheckBox hyphenNumberCheck;
     private final JComboBox italicCaseCombo;
     private final JComboBox otherCaseCombo;
     private final JCheckBox italicBoldCheck;

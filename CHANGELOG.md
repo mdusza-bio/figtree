@@ -85,8 +85,12 @@ Panel *Tip Labels*:
   części; wielkość liter i końcowa kropka nie mają znaczenia przy dopasowaniu.
 - **Add dot** — dopisuje kropkę: `var` → `var.`, `sp` → `sp.` (w nagłówkach FASTA
   kropek zwykle nie ma). Znak krzyżówki `x` kropki nie dostaje.
-- **ALL CAPS too** — dodatkowo kończy kursywę na części pisanej samymi wielkimi
-  literami bez cyfr (numer typu `BR`). Domyślnie wyłączone.
+- **ALL CAPS** — kończy kursywę także na części pisanej samymi wielkimi literami
+  bez cyfr, np. `KRAM` w numerze `KRAM M-1234`. Domyślnie włączone.
+- **KRAM M-1234** — skleja numer rozbity przez podkreślniki tak, jak się go cytuje:
+  `KRAM M 1234` → `KRAM M-1234` (kod zielnika samymi wielkimi literami + pojedyncza
+  wielka litera + liczba). Nazwy, które już mają myślnik, zostają bez zmian.
+  Domyślnie włączone.
 - Pola nieużywane w wybranym trybie są wyszarzone.
 - **Publication preset** przestawia teraz na *Until first number* z kropkami.
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się

@@ -55,8 +55,14 @@ Opcjonalnie checkbox **Add dot after rank words** — `var` → `var.`, `sp` →
 6. `/compile`, commit „Etap 6.1: kursywa do pierwszego numeru", odhaczyć 6.1,
    dopisać do CHANGELOG.md.
 
-## Do ustalenia z użytkowniczką
+## Ustalone z użytkowniczką (2026-08-23)
 
-- Czy bywają numery bez żadnej cyfry? (wtedy dodatkowa reguła: „część z samych
-  WIELKICH liter").
-- Czy `sp.` ma być prosto (standard botaniczny: tak).
+- **Numery bez żadnej cyfry** — samodzielnych nie ma, ale numery **KRAM M** mają
+  człon `KRAM` bez cyfry, więc reguła „część z samych WIELKICH liter kończy
+  kursywę" jest potrzebna — checkbox **ALL CAPS**, domyślnie włączony.
+- **`sp.` prosto** — tak, plus automatyczna kropka (opcja **Add dot**).
+- **Numery KRAM M** — po drugim `M` zawsze jest myślnik: `Gatunek KRAM M-1234`.
+  Podkreślniki z FASTA rozbijają to na `KRAM M 1234`, więc checkbox
+  **KRAM M-1234** skleja kod zielnika + pojedynczą wielką literę + liczbę
+  z powrotem w `KRAM M-1234`. Domyślnie włączony; nazwa, która już ma myślnik,
+  zostaje nietknięta.
