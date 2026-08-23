@@ -180,3 +180,22 @@ nie zgadza się ze skalą — o to właśnie chodzi w `//`.
 3. 1.4 → 3.1 → 3.2 (kursywa + wielkie litery)
 4. 4.1, 4.2, 4.5
 5. Reszta według potrzeb.
+
+---
+
+## Etap 5 — obsługa myszy i klawiatury (nawigacja bez skakania po interfejsie)
+
+Stan dziś: kółko myszy tylko przewija; skróty zoom/rozsuwanie są zdefiniowane
+klawiszem `meta` (Cmd z Maca — `src/figtree/treeviewer/TreeViewerController.java`,
+linie ~221–229), więc na Windowsie nie działają w ogóle. Zostaje tylko suwak.
+
+- [ ] 5.1 🟢 **Ctrl + kółko = rozsuwanie (Expansion)**, Ctrl + Shift + kółko =
+  zoom. Jeden nasłuch kółka na panelu drzewa podpięty pod istniejące akcje
+  increase/decreaseVerticalExpansion i increase/decreaseZoom. Kółko bez Ctrl
+  zostaje przewijaniem.
+- [ ] 5.2 🟢 **Naprawa skrótów na Windowsie**: zamiast `meta` użyć
+  `Toolkit.getMenuShortcutKeyMask()` (Ctrl na Windows, Cmd na Macu) —
+  Ctrl+`=` / Ctrl+`-` rozsuwanie, Ctrl+Alt+`=`/`-` zoom, Ctrl+0 reset.
+- [ ] 5.3 🟢 **Rozsuwanie „wokół kursora"**: po Ctrl+kółku przewinąć widok tak,
+  żeby gałąź pod kursorem została w tym samym miejscu ekranu (inaczej drzewo
+  ucieka w dół). Zrobić po 5.1, jeśli będzie przeszkadzać.
