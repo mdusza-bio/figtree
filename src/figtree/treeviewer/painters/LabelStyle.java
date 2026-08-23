@@ -181,17 +181,37 @@ public class LabelStyle {
         this.addRankDots = addRankDots;
     }
 
-    public boolean isHyphenCollectionNumber() {
-        return hyphenCollectionNumber;
+    public boolean isFormatCollectionNumber() {
+        return formatCollectionNumber;
     }
 
     /**
-     * @param hyphenCollectionNumber when true, a collection number split over
-     *                               three parts is put back together the way it is
-     *                               cited: "KRAM M 1234" -> "KRAM M-1234"
+     * @param formatCollectionNumber when true, the collection number that the
+     *                               underscores broke into separate parts is put
+     *                               back together the way it is cited, see
+     *                               {@link #collectionNumber}
      */
-    public void setHyphenCollectionNumber(boolean hyphenCollectionNumber) {
-        this.hyphenCollectionNumber = hyphenCollectionNumber;
+    public void setFormatCollectionNumber(boolean formatCollectionNumber) {
+        this.formatCollectionNumber = formatCollectionNumber;
+    }
+
+    public String getDotCodes() {
+        return dotCodes;
+    }
+
+    /**
+     * @param dotCodes collection abbreviations that are cited with a dot, e.g. the
+     *                 CA of "UARK CA. 6-131" (separated by spaces or commas)
+     */
+    public void setDotCodes(String dotCodes) {
+        this.dotCodes = (dotCodes == null ? "" : dotCodes);
+        dotCodeSet.clear();
+        for (String c : this.dotCodes.split("[\\s,]+")) {
+            String code = normaliseWord(c);
+            if (code.length() > 0) {
+                dotCodeSet.add(code);
+            }
+        }
     }
 
     public boolean isUpperCaseIsNumber() {
@@ -296,38 +316,98 @@ public class LabelStyle {
     }
 
     /**
-     * Puts a collection number that got split by the underscores back together:
-     * a herbarium code, a single capital letter and a number ("KRAM M 1234")
-     * are cited as "KRAM M-1234". Only used in {@link ItalicMode#UNTIL_NUMBER};
-     * a name that already has the hyphen is left alone.
-     *
-     * @return the parts to draw (the same array when nothing was joined)
+     * @return the index of the first part that belongs to the collection number
+     *         (parts.length when the name has no number at all)
      */
-    private String[] joinCollectionNumber(String[] parts) {
-        if (!hyphenCollectionNumber || italicMode != ItalicMode.UNTIL_NUMBER || parts.length < 3) {
-            return parts;
+    public int numberStart(String[] parts) {
+        for (int i = 0; i < parts.length; i++) {
+            if (isNumberLike(parts[i])) {
+                return i;
+            }
         }
-        List<String> joined = new ArrayList<String>(parts.length);
-        int i = 0;
-        while (i < parts.length) {
-            if (i + 2 < parts.length
-                    && isCollectionCode(parts[i])
-                    && isCollectionLetter(parts[i + 1])
-                    && startsWithDigit(parts[i + 2])) {
-                joined.add(parts[i]);
-                joined.add(parts[i + 1] + "-" + parts[i + 2]);
-                i += 3;
+        return parts.length;
+    }
+
+    /**
+     * Puts the collection number back together the way it is cited, undoing the
+     * split that the underscores of a FASTA header cause. The parts from
+     * {@code start} on are read as: herbarium codes, then the number itself, then
+     * anything left over (a word such as "new"):
+     * <ul>
+     *     <li>a code that is a single capital letter binds to the number that
+     *         follows it: <code>KRAM M 1156</code> -&gt; <code>KRAM M-1156</code>;</li>
+     *     <li>a code from {@link #getDotCodes()} is written with a dot:
+     *         <code>UARK CA 6 131</code> -&gt; <code>UARK CA. 6-131</code>;</li>
+     *     <li>the pieces of a herbarium number are joined with hyphens:
+     *         <code>UK100 1b</code> -&gt; <code>UK100-1b</code>;</li>
+     *     <li>after a collector's number (a name with capital, small letters and
+     *         digits) the numbers that follow are the parts one collection was
+     *         split into, so they are joined with a slash:
+     *         <code>Ron324 2 3</code> -&gt; <code>Ron324 2/3</code>.</li>
+     * </ul>
+     *
+     * @return the pieces of the number as they are drawn
+     */
+    private List<String> collectionNumber(String[] parts, int start) {
+        List<String> number = new ArrayList<String>();
+        int n = parts.length;
+        if (!formatCollectionNumber) {
+            for (int i = start; i < n; i++) {
+                number.add(parts[i]);
+            }
+            return number;
+        }
+
+        int i = start;
+        // the herbarium codes in front of the number: KRAM, UARK CA, KRAM M-1156
+        while (i < n && isLetterCode(parts[i])) {
+            if (parts[i].length() == 1 && i + 1 < n && startsWithDigit(parts[i + 1])) {
+                number.add(parts[i] + "-" + parts[i + 1]);
+                i += 2;
             } else {
-                joined.add(parts[i]);
+                number.add(withDot(parts[i]));
                 i++;
             }
         }
-        return joined.toArray(new String[joined.size()]);
+
+        // the number itself: everything that still has a digit in it
+        List<String> digits = new ArrayList<String>();
+        while (i < n && containsDigit(parts[i])) {
+            digits.add(parts[i]);
+            i++;
+        }
+        if (!digits.isEmpty()) {
+            int from = 0;
+            String separator = "-";
+            if (isCollectorNumber(digits.get(0))) {
+                // a field number stands on its own; what follows is "2 of 3"
+                number.add(digits.get(0));
+                from = 1;
+                separator = "/";
+            }
+            if (from < digits.size()) {
+                StringBuilder joined = new StringBuilder();
+                for (int k = from; k < digits.size(); k++) {
+                    if (joined.length() > 0) {
+                        joined.append(separator);
+                    }
+                    joined.append(digits.get(k));
+                }
+                number.add(joined.toString());
+            }
+        }
+
+        // whatever is left (e.g. "new") is drawn as it is
+        while (i < n) {
+            number.add(parts[i]);
+            i++;
+        }
+        return number;
     }
 
-    /** a herbarium code such as KRAM, MA, BR: at least two letters, all capitals */
-    private static boolean isCollectionCode(String part) {
-        if (part.length() < 2) {
+    /** a herbarium code such as KRAM, UARK, CA or the M of "KRAM M": capitals only */
+    private static boolean isLetterCode(String part) {
+        if (part.length() == 0) {
             return false;
         }
         for (int i = 0; i < part.length(); i++) {
@@ -339,9 +419,42 @@ public class LabelStyle {
         return true;
     }
 
-    /** the single capital letter of a sub-collection, e.g. the M of "KRAM M" */
-    private static boolean isCollectionLetter(String part) {
-        return part.length() == 1 && Character.isUpperCase(part.charAt(0));
+    /**
+     * @return true for a collector's number such as "Ron324" or "Lado25434":
+     *         a capital, small letters and digits (a herbarium number such as
+     *         UK100 or MA83355 has no small letters)
+     */
+    private static boolean isCollectorNumber(String part) {
+        if (part.length() == 0 || !Character.isUpperCase(part.charAt(0))) {
+            return false;
+        }
+        boolean small = false;
+        boolean digit = false;
+        for (int i = 1; i < part.length(); i++) {
+            char c = part.charAt(i);
+            if (Character.isLowerCase(c)) {
+                small = true;
+            } else if (Character.isDigit(c)) {
+                digit = true;
+            }
+        }
+        return small && digit;
+    }
+
+    private String withDot(String code) {
+        if (code.endsWith(".") || !dotCodeSet.contains(normaliseWord(code))) {
+            return code;
+        }
+        return code + ".";
+    }
+
+    private static boolean containsDigit(String part) {
+        for (int i = 0; i < part.length(); i++) {
+            if (Character.isDigit(part.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean startsWithDigit(String part) {
@@ -440,7 +553,7 @@ public class LabelStyle {
             case OFF:
                 return true;
             case UNTIL_NUMBER:
-                return italicGroup.isPlain() && !addRankDots && !hyphenCollectionNumber;
+                return italicGroup.isPlain() && !addRankDots && !formatCollectionNumber;
             default:
                 return italicParts == 0 || italicGroup.isPlain();
         }
@@ -472,16 +585,17 @@ public class LabelStyle {
                 }
             }
         } else {
-            String[] items = joinCollectionNumber(parts);
-            // one run per stretch of parts that share the same italic/upright state
-            boolean[] mask = italicMask(items);
+            List<String> items = new ArrayList<String>(parts.length);
+            List<Boolean> italic = new ArrayList<Boolean>(parts.length);
+            buildItems(parts, items, italic);
+            // one run per stretch of pieces that share the same italic/upright state
             int i = 0;
-            while (i < items.length) {
+            while (i < items.size()) {
                 int j = i;
-                while (j < items.length && mask[j] == mask[i]) {
+                while (j < items.size() && italic.get(j).equals(italic.get(i))) {
                     j++;
                 }
-                runs.add(makeRun(items, i, j, mask[i] ? italicGroup : otherGroup, j < items.length));
+                runs.add(makeRun(items, i, j, italic.get(i) ? italicGroup : otherGroup, j < items.size()));
                 i = j;
             }
         }
@@ -500,11 +614,37 @@ public class LabelStyle {
         return runs;
     }
 
-    private Run makeRun(String[] parts, int from, int to, PartStyle style, boolean trailingSpace) {
+    /**
+     * Splits a name into the pieces of text that are drawn ({@code items}) and
+     * says which of them are italic ({@code italic}). In
+     * {@link ItalicMode#UNTIL_NUMBER} the name and the collection number are
+     * handled separately, so that the number can be put back together.
+     */
+    private void buildItems(String[] parts, List<String> items, List<Boolean> italic) {
+        if (italicMode != ItalicMode.UNTIL_NUMBER) {
+            boolean[] mask = italicMask(parts);
+            for (int i = 0; i < parts.length; i++) {
+                items.add(parts[i]);
+                italic.add(mask[i]);
+            }
+            return;
+        }
+        int start = numberStart(parts);
+        for (int i = 0; i < start; i++) {
+            items.add(displayPart(parts[i]));
+            italic.add(!isNonItalicWord(parts[i]));
+        }
+        for (String piece : collectionNumber(parts, start)) {
+            items.add(piece);
+            italic.add(Boolean.FALSE);
+        }
+    }
+
+    private Run makeRun(List<String> items, int from, int to, PartStyle style, boolean trailingSpace) {
         StringBuilder text = new StringBuilder();
         for (int i = from; i < to; i++) {
             if (i > from) text.append(' ');
-            text.append(style.caseMode.apply(displayPart(parts[i])));
+            text.append(style.caseMode.apply(items.get(i)));
         }
         if (trailingSpace) text.append(' ');
         return new Run(text.toString(), style.italic, style.bold, style.colour);
@@ -625,19 +765,25 @@ public class LabelStyle {
     /** the rank/qualifier words that stay upright unless the user changes them */
     public static final String DEFAULT_NON_ITALIC_WORDS = "var subsp ssp f sp cf aff nov x";
 
+    /** the collection abbreviations that are cited with a dot */
+    public static final String DEFAULT_DOT_CODES = "CA";
+
     private int italicParts = 0;
     private ItalicMode italicMode = ItalicMode.UNTIL_NUMBER;
     private String nonItalicWords = "";
     private final Set<String> nonItalicWordSet = new HashSet<String>();
     private boolean addRankDots = false;
     private boolean upperCaseIsNumber = true;
-    private boolean hyphenCollectionNumber = true;
+    private boolean formatCollectionNumber = true;
+    private String dotCodes = "";
+    private final Set<String> dotCodeSet = new HashSet<String>();
     private final PartStyle italicGroup = new PartStyle();
     private final PartStyle otherGroup = new PartStyle();
 
     {
         italicGroup.italic = true;
         setNonItalicWords(DEFAULT_NON_ITALIC_WORDS);
+        setDotCodes(DEFAULT_DOT_CODES);
     }
 
     private String highlight = "";

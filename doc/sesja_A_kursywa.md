@@ -66,3 +66,33 @@ Opcjonalnie checkbox **Add dot after rank words** — `var` → `var.`, `sp` →
   **KRAM M-1234** skleja kod zielnika + pojedynczą wielką literę + liczbę
   z powrotem w `KRAM M-1234`. Domyślnie włączony; nazwa, która już ma myślnik,
   zostaje nietknięta.
+
+## Warianty numerów okazów (2026-08-23, od użytkowniczki)
+
+| w pliku FASTA | na rycinie |
+|---|---|
+| `Diderma_niveum_Ron331a_new` | Diderma niveum Ron331a new |
+| `Diderma_niveum_UK100_1` | Diderma niveum UK100-1 |
+| `Diderma_niveum_UK100_1b_new` | Diderma niveum UK100-1b new |
+| `Diderma_niveum_UARK_CA_6_131` | Diderma niveum UARK CA. 6-131 |
+| `Diderma_niveum_KRAM_M_1156_new` | Diderma niveum KRAM M-1156 new |
+| `Diderma_alpinum_Ron324_2_3` | Diderma alpinum Ron324 2/3 |
+
+Skąd bierze się różnica między `2/3` a `6-131`:
+
+- `Ron` to skrót **nazwiska zbieracza**, a liczba po nim to kolejny numer okazu
+  zebranego w terenie. Jeśli zbiór nie mieści się w jednym pudełku, dzieli się
+  go na kilka części — stąd `1/3`, `2/3`, `3/3`. Do zielnika trafia później pod
+  **jednym** numerem `KRAM M-...`.
+- `UARK`, `KRAM`, `UK`, `MA` to **kody zielników** (same wielkie litery); tam
+  człony numeru łączy myślnik.
+
+Stąd reguła w kodzie: ukośnik tylko po numerze zbieracza (wielka litera + małe
+litery + cyfry, np. `Ron324`), myślnik w numerach zielnikowych. Dzięki temu
+działa też `2 10` → `2/10`, a nie tylko liczby jednocyfrowe.
+
+Kropka: tylko po `CA` (skrót kolekcji w zielniku UARK) — lista skrótów jest
+edytowalna w polu **Dot after codes**.
+
+Człon `new` — chowa się go istniejącym polem **Hide parts** (wpisać `_new`),
+nie trzeba osobnej opcji.

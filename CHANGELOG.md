@@ -87,10 +87,20 @@ Panel *Tip Labels*:
   kropek zwykle nie ma). Znak krzyżówki `x` kropki nie dostaje.
 - **ALL CAPS** — kończy kursywę także na części pisanej samymi wielkimi literami
   bez cyfr, np. `KRAM` w numerze `KRAM M-1234`. Domyślnie włączone.
-- **KRAM M-1234** — skleja numer rozbity przez podkreślniki tak, jak się go cytuje:
-  `KRAM M 1234` → `KRAM M-1234` (kod zielnika samymi wielkimi literami + pojedyncza
-  wielka litera + liczba). Nazwy, które już mają myślnik, zostają bez zmian.
-  Domyślnie włączone.
+- **Join number** — składa numer okazu, który podkreślniki rozbiły na kawałki,
+  z powrotem w postać, w której się go cytuje. Reguły ustalone z użytkowniczką:
+  - pojedyncza wielka litera przykleja się do liczby:
+    `KRAM M 1156` → `KRAM M-1156`;
+  - człony numeru zielnikowego łączy myślnik:
+    `UK100 1b` → `UK100-1b`, `UARK CA 6 131` → `UARK CA. 6-131`;
+  - po **numerze zbieracza** (z wielkiej litery, z małymi literami i cyframi,
+    np. `Ron324`) kolejne liczby to części, na które podzielono jeden zbiór
+    terenowy, więc łączy je ukośnik: `Ron324 2 3` → `Ron324 2/3` (tak samo
+    `2 10` → `2/10`);
+  - słowo bez cyfr na końcu (np. `new`) zostaje osobno.
+  Nazwy, które mają już myślnik w pliku, zostają bez zmian. Domyślnie włączone.
+- **Dot after codes** — lista skrótów kolekcji cytowanych z kropką, domyślnie `CA`
+  (`UARK CA. 6-131`). Puste pole = żadnych kropek.
 - Pola nieużywane w wybranym trybie są wyszarzone.
 - **Publication preset** przestawia teraz na *Until first number* z kropkami.
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
