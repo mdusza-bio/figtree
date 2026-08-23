@@ -21,6 +21,7 @@
 package figtree.treeviewer;
 
 import figtree.treeviewer.painters.AttributeComboHelper;
+import figtree.treeviewer.painters.LabelStyle;
 import figtree.treeviewer.painters.AttributeComboHelperListener;
 import figtree.treeviewer.painters.NodeShapePainter;
 import jam.controlpalettes.ControlPalette;
@@ -281,11 +282,16 @@ public class TreeAppearanceController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + FOREGROUND_COLOUR_KEY, Color.BLACK);
         settings.put(CONTROLLER_KEY + "." + BRANCH_LINE_WIDTH_KEY, 1.0);
 
-        // Tip labels: serif 10pt, first two parts (genus, species) italic, underscores -> spaces
+        // Tip labels: serif 10pt, italic name up to the collection number, underscores -> spaces
         settings.put("tipLabels.isShown", Boolean.TRUE);
         settings.put("tipLabels.fontName", "Times New Roman");
         settings.put("tipLabels.fontSize", 10);
         settings.put("tipLabels.fontStyle", Font.PLAIN);
+        settings.put("tipLabels.italicMode", LabelStyle.ItalicMode.UNTIL_NUMBER.name());
+        settings.put("tipLabels.nonItalicWords", LabelStyle.DEFAULT_NON_ITALIC_WORDS);
+        settings.put("tipLabels.addRankDots", Boolean.TRUE);
+        settings.put("tipLabels.upperCaseIsNumber", Boolean.TRUE);
+        settings.put("tipLabels.hyphenCollectionNumber", Boolean.TRUE);
         settings.put("tipLabels.italicParts", 2);
         settings.put("tipLabels.replaceUnderscores", Boolean.TRUE);
 
