@@ -9,7 +9,9 @@ package figtree.treeviewer.painters;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Describes how the parts of a (tip) name are styled, and turns a list of parts
@@ -68,6 +70,34 @@ public class LabelStyle {
     }
 
     /**
+     * How the italic part of a name is chosen (Etap 6.1).
+     */
+    public enum ItalicMode {
+        OFF("Off"),
+        FIRST_N("First N parts"),
+        UNTIL_NUMBER("Until first number");
+
+        ItalicMode(String name) {
+            this.name = name;
+        }
+
+        public String toString() {
+            return name;
+        }
+
+        public static ItalicMode fromString(String s) {
+            for (ItalicMode m : values()) {
+                if (m.name().equalsIgnoreCase(s) || m.name.equalsIgnoreCase(s)) {
+                    return m;
+                }
+            }
+            return FIRST_N;
+        }
+
+        private final String name;
+    }
+
+    /**
      * The style of one group of parts.
      */
     public static class PartStyle {
@@ -107,6 +137,154 @@ public class LabelStyle {
 
     public void setItalicParts(int italicParts) {
         this.italicParts = Math.max(0, italicParts);
+    }
+
+    // ---- smarter italics (6.1)
+
+    public ItalicMode getItalicMode() {
+        return italicMode;
+    }
+
+    public void setItalicMode(ItalicMode italicMode) {
+        this.italicMode = (italicMode == null ? ItalicMode.FIRST_N : italicMode);
+    }
+
+    public String getNonItalicWords() {
+        return nonItalicWords;
+    }
+
+    /**
+     * @param words rank/qualifier words that stay upright inside an italic name,
+     *              separated by spaces or commas. A trailing dot and the case are
+     *              ignored when matching, so "var", "Var" and "var." are the same
+     *              word.
+     */
+    public void setNonItalicWords(String words) {
+        this.nonItalicWords = (words == null ? "" : words);
+        nonItalicWordSet.clear();
+        for (String w : this.nonItalicWords.split("[\\s,]+")) {
+            String key = normaliseWord(w);
+            if (key.length() > 0) {
+                nonItalicWordSet.add(key);
+            }
+        }
+    }
+
+    public boolean isAddRankDots() {
+        return addRankDots;
+    }
+
+    /**
+     * @param addRankDots write "var." / "sp." even when the raw name has no dot
+     */
+    public void setAddRankDots(boolean addRankDots) {
+        this.addRankDots = addRankDots;
+    }
+
+    public boolean isUpperCaseIsNumber() {
+        return upperCaseIsNumber;
+    }
+
+    /**
+     * @param upperCaseIsNumber when true, an ALL-CAPS part without any digit (a
+     *                          collection code such as "BR") also ends the italics
+     *                          in {@link ItalicMode#UNTIL_NUMBER}
+     */
+    public void setUpperCaseIsNumber(boolean upperCaseIsNumber) {
+        this.upperCaseIsNumber = upperCaseIsNumber;
+    }
+
+    /**
+     * Decides, part by part, what is drawn in italics:
+     * <ul>
+     *     <li>{@link ItalicMode#OFF} - nothing;</li>
+     *     <li>{@link ItalicMode#FIRST_N} - the first {@link #getItalicParts()} parts;</li>
+     *     <li>{@link ItalicMode#UNTIL_NUMBER} - everything up to (but not including)
+     *         the first "number-like" part, i.e. the collection number. Words from
+     *         {@link #getNonItalicWords()} (var, sp, ...) stay upright but do NOT
+     *         end the italics for the parts after them.</li>
+     * </ul>
+     */
+    public boolean[] italicMask(String[] parts) {
+        boolean[] mask = new boolean[parts.length];
+        if (italicMode == ItalicMode.FIRST_N) {
+            int n = Math.min(italicParts, parts.length);
+            for (int i = 0; i < n; i++) {
+                mask[i] = true;
+            }
+        } else if (italicMode == ItalicMode.UNTIL_NUMBER) {
+            for (int i = 0; i < parts.length; i++) {
+                if (isNumberLike(parts[i])) {
+                    break;
+                }
+                mask[i] = !isNonItalicWord(parts[i]);
+            }
+        }
+        return mask;
+    }
+
+    /**
+     * @return true if the part looks like a collection number rather than a piece
+     *         of the name: it contains a digit (or, optionally, is ALL CAPS)
+     */
+    public boolean isNumberLike(String part) {
+        if (part == null || part.length() == 0) {
+            return false;
+        }
+        for (int i = 0; i < part.length(); i++) {
+            if (Character.isDigit(part.charAt(i))) {
+                return true;
+            }
+        }
+        if (upperCaseIsNumber && part.length() > 1) {
+            boolean anyLetter = false;
+            for (int i = 0; i < part.length(); i++) {
+                char c = part.charAt(i);
+                if (Character.isLetter(c)) {
+                    anyLetter = true;
+                    if (!Character.isUpperCase(c)) {
+                        return false;
+                    }
+                }
+            }
+            return anyLetter;
+        }
+        return false;
+    }
+
+    public boolean isNonItalicWord(String part) {
+        return nonItalicWordSet.contains(normaliseWord(part));
+    }
+
+    private static String normaliseWord(String word) {
+        if (word == null) {
+            return "";
+        }
+        String w = word.trim();
+        while (w.endsWith(".")) {
+            w = w.substring(0, w.length() - 1);
+        }
+        return w.toLowerCase();
+    }
+
+    /**
+     * @return the text of one part as it is drawn (with the dot that FASTA headers
+     *         usually lack, when that option is on)
+     */
+    private String displayPart(String part) {
+        if (addRankDots
+                && italicMode == ItalicMode.UNTIL_NUMBER
+                && isNonItalicWord(part)
+                && !part.endsWith(".")
+                && !isHybridMarker(part)) {
+            return part + ".";
+        }
+        return part;
+    }
+
+    /** the hybrid sign is never followed by a dot */
+    private static boolean isHybridMarker(String part) {
+        return part.equalsIgnoreCase("x") || part.equals("\u00d7");
     }
 
     public PartStyle getItalicGroup() {
@@ -189,10 +367,17 @@ public class LabelStyle {
      *         painter can use its plain single-string drawing path
      */
     public boolean isPlain() {
-        return templateTokens == null
-                && highlightList.isEmpty()
-                && (italicParts == 0 || italicGroup.isPlain())
-                && otherGroup.isPlain();
+        if (templateTokens != null || !highlightList.isEmpty() || !otherGroup.isPlain()) {
+            return false;
+        }
+        switch (italicMode) {
+            case OFF:
+                return true;
+            case UNTIL_NUMBER:
+                return italicGroup.isPlain() && !addRankDots;
+            default:
+                return italicParts == 0 || italicGroup.isPlain();
+        }
     }
 
     /**
@@ -221,12 +406,16 @@ public class LabelStyle {
                 }
             }
         } else {
-            int n = Math.min(italicParts, parts.length);
-            if (n > 0) {
-                runs.add(makeRun(parts, 0, n, italicGroup, n < parts.length));
-            }
-            if (n < parts.length) {
-                runs.add(makeRun(parts, n, parts.length, otherGroup, false));
+            // one run per stretch of parts that share the same italic/upright state
+            boolean[] mask = italicMask(parts);
+            int i = 0;
+            while (i < parts.length) {
+                int j = i;
+                while (j < parts.length && mask[j] == mask[i]) {
+                    j++;
+                }
+                runs.add(makeRun(parts, i, j, mask[i] ? italicGroup : otherGroup, j < parts.length));
+                i = j;
             }
         }
 
@@ -244,11 +433,11 @@ public class LabelStyle {
         return runs;
     }
 
-    private static Run makeRun(String[] parts, int from, int to, PartStyle style, boolean trailingSpace) {
+    private Run makeRun(String[] parts, int from, int to, PartStyle style, boolean trailingSpace) {
         StringBuilder text = new StringBuilder();
         for (int i = from; i < to; i++) {
             if (i > from) text.append(' ');
-            text.append(style.caseMode.apply(parts[i]));
+            text.append(style.caseMode.apply(displayPart(parts[i])));
         }
         if (trailingSpace) text.append(' ');
         return new Run(text.toString(), style.italic, style.bold, style.colour);
@@ -366,12 +555,21 @@ public class LabelStyle {
         return token;
     }
 
+    /** the rank/qualifier words that stay upright unless the user changes them */
+    public static final String DEFAULT_NON_ITALIC_WORDS = "var subsp ssp f sp cf aff nov x";
+
     private int italicParts = 0;
+    private ItalicMode italicMode = ItalicMode.UNTIL_NUMBER;
+    private String nonItalicWords = "";
+    private final Set<String> nonItalicWordSet = new HashSet<String>();
+    private boolean addRankDots = false;
+    private boolean upperCaseIsNumber = false;
     private final PartStyle italicGroup = new PartStyle();
     private final PartStyle otherGroup = new PartStyle();
 
     {
         italicGroup.italic = true;
+        setNonItalicWords(DEFAULT_NON_ITALIC_WORDS);
     }
 
     private String highlight = "";

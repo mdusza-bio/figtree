@@ -69,6 +69,29 @@ Panel *Tip Labels*:
 - Eksport PDF: okno z wyborem **Page size** (Fit to tree / A4 portrait / A4
   landscape), **Margin (mm)** i **Embed fonts** (pierwsze użycie trwa kilka sekund).
 
+## 2026-08-23 — etap 6 (poprawki po przeklikaniu)
+
+### Etap 6.1 — mądrzejsza kursywa (sesja A)
+Panel *Tip Labels*:
+- **Italic mode** — nowa lista wyboru zamiast samego „pierwsze N części":
+  - *Off* — bez kursywy;
+  - *First N parts* — jak dotąd, według pola **Italic first N parts**;
+  - *Until first number* (domyślne) — kursywą wszystko **do pierwszej części
+    wyglądającej jak numer okazu** (czyli zawierającej cyfrę); ta część i dalsze
+    zostają prosto. Dzięki temu *Trichia lutescens* MA83355 i *Trichia sordida*
+    var. *sordidoides* MA12345 wychodzą dobrze bez zmiany ustawień.
+- **Not italic words** — słowa zostające prosto w środku nazwy (domyślnie
+  `var subsp ssp f sp cf aff nov x`). **Nie przerywają** kursywy dla dalszych
+  części; wielkość liter i końcowa kropka nie mają znaczenia przy dopasowaniu.
+- **Add dot** — dopisuje kropkę: `var` → `var.`, `sp` → `sp.` (w nagłówkach FASTA
+  kropek zwykle nie ma). Znak krzyżówki `x` kropki nie dostaje.
+- **ALL CAPS too** — dodatkowo kończy kursywę na części pisanej samymi wielkimi
+  literami bez cyfr (numer typu `BR`). Domyślnie wyłączone.
+- Pola nieużywane w wybranym trybie są wyszarzone.
+- **Publication preset** przestawia teraz na *Until first number* z kropkami.
+- Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
+  w trybie *First N parts*, więc wyglądają tak jak dotąd.
+
 ### Nie zrobione / do sprawdzenia
 - 2.6 automatyczne rozsuwanie kolidujących etykiet — odłożone.
 - Etap 5 (Ctrl+kółko = rozsuwanie, naprawa skrótów `meta` → Ctrl na Windowsie) —

@@ -96,6 +96,13 @@ public class LabelPainterController extends AbstractController {
     public static final String HIGHLIGHT_BOLD_KEY = "highlightBold";
     public static final String HIGHLIGHT_COLOUR_KEY = "highlightColour";
     public static final String TEMPLATE_KEY = "template";
+
+    // MyFigTree: smarter italics (Etap 6.1)
+    public static final String ITALIC_MODE_KEY = "italicMode";
+    public static final String NON_ITALIC_WORDS_KEY = "nonItalicWords";
+    public static final String ADD_RANK_DOTS_KEY = "addRankDots";
+    public static final String UPPER_CASE_NUMBER_KEY = "upperCaseIsNumber";
+
     private static final String NO_COLOUR = "none";
 
     // The defaults if there is nothing in the preferences
@@ -352,6 +359,39 @@ public class LabelPainterController extends AbstractController {
                 }
             });
 
+            // MyFigTree (Etap 6.1): italics that stop at the collection number
+            italicModeCombo = new JComboBox(LabelStyle.ItalicMode.values());
+            italicModeCombo.setSelectedItem(style.getItalicMode());
+            italicModeCombo.setToolTipText("<html>How much of the name is italic:<br>" +
+                    "<b>Off</b> - nothing;<br>" +
+                    "<b>First N parts</b> - always the same number of parts;<br>" +
+                    "<b>Until first number</b> - everything before the collection number.</html>");
+
+            nonItalicWordsText = new JTextField(style.getNonItalicWords(), 10);
+            nonItalicWordsText.setToolTipText("<html>Words that stay upright inside an italic name (var, sp, ...),<br>" +
+                    "separated by spaces. They do NOT end the italics.</html>");
+            nonItalicWordsText.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { applyItalicMode(); }
+                public void removeUpdate(DocumentEvent e) { applyItalicMode(); }
+                public void changedUpdate(DocumentEvent e) { applyItalicMode(); }
+            });
+
+            addRankDotsCheck = new JCheckBox("Add dot");
+            addRankDotsCheck.setToolTipText("Draw \"var.\" / \"sp.\" even when the name has no dot");
+            upperCaseNumberCheck = new JCheckBox("ALL CAPS too");
+            upperCaseNumberCheck.setToolTipText("<html>Also stop the italics at an ALL-CAPS part with no digits<br>" +
+                    "(a collection code such as BR).</html>");
+
+            ActionListener italicModeListener = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    applyItalicMode();
+                }
+            };
+            italicModeCombo.addActionListener(italicModeListener);
+            addRankDotsCheck.addActionListener(italicModeListener);
+            upperCaseNumberCheck.addActionListener(italicModeListener);
+            updateItalicEnabled();
+
             italicCaseCombo = new JComboBox(LabelStyle.Case.values());
             otherCaseCombo = new JComboBox(LabelStyle.Case.values());
             italicBoldCheck = new JCheckBox("Bold");
@@ -400,6 +440,10 @@ public class LabelPainterController extends AbstractController {
             });
         } else {
             italicPartsSpinner = null;
+            italicModeCombo = null;
+            nonItalicWordsText = null;
+            addRankDotsCheck = null;
+            upperCaseNumberCheck = null;
             italicCaseCombo = null;
             otherCaseCombo = null;
             italicBoldCheck = null;
@@ -429,8 +473,15 @@ public class LabelPainterController extends AbstractController {
         final JLabel label9 = optionsPanel.addComponentWithLabel("Hide regex:", hideRegexText);
 
         if (italicPartsSpinner != null) {
+            addComponent(optionsPanel.addComponentWithLabel("Italic mode:", italicModeCombo));
+            addComponent(italicModeCombo);
             addComponent(optionsPanel.addComponentWithLabel("Italic first N parts:", italicPartsSpinner));
             addComponent(italicPartsSpinner);
+            addComponent(optionsPanel.addComponentWithLabel("Not italic words:", nonItalicWordsText));
+            addComponent(nonItalicWordsText);
+            addComponent(optionsPanel.addComponentWithLabel("Rank words:", checkPanel(addRankDotsCheck, upperCaseNumberCheck)));
+            addComponent(addRankDotsCheck);
+            addComponent(upperCaseNumberCheck);
             addComponent(optionsPanel.addComponentWithLabel("Case (italic parts):", italicCaseCombo));
             addComponent(italicCaseCombo);
             addComponent(optionsPanel.addComponentWithLabel("Italic parts style:", stylePanel(italicBoldCheck, italicColourButton)));
@@ -509,6 +560,39 @@ public class LabelPainterController extends AbstractController {
         panel.add(Box.createHorizontalStrut(6));
         panel.add(colourButton);
         return panel;
+    }
+
+    private static JPanel checkPanel(JCheckBox check1, JCheckBox check2) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+        check1.setOpaque(false);
+        check2.setOpaque(false);
+        panel.add(check1);
+        panel.add(Box.createHorizontalStrut(6));
+        panel.add(check2);
+        return panel;
+    }
+
+    /** MyFigTree (Etap 6.1) */
+    private void applyItalicMode() {
+        LabelStyle style = labelPainter.getLabelStyle();
+        style.setItalicMode((LabelStyle.ItalicMode) italicModeCombo.getSelectedItem());
+        style.setNonItalicWords(nonItalicWordsText.getText());
+        style.setAddRankDots(addRankDotsCheck.isSelected());
+        style.setUpperCaseIsNumber(upperCaseNumberCheck.isSelected());
+        updateItalicEnabled();
+        labelPainter.labelStyleChanged();
+    }
+
+    /** greys out the controls that the chosen italic mode does not use */
+    private void updateItalicEnabled() {
+        LabelStyle.ItalicMode mode = (LabelStyle.ItalicMode) italicModeCombo.getSelectedItem();
+        italicPartsSpinner.setEnabled(mode == LabelStyle.ItalicMode.FIRST_N);
+        boolean untilNumber = (mode == LabelStyle.ItalicMode.UNTIL_NUMBER);
+        nonItalicWordsText.setEnabled(untilNumber);
+        addRankDotsCheck.setEnabled(untilNumber);
+        upperCaseNumberCheck.setEnabled(untilNumber);
     }
 
     private void applyGroupStyles() {
@@ -703,6 +787,26 @@ public class LabelPainterController extends AbstractController {
     }
 
     private void setStyleSettings(Map<String, Object> settings) {
+        // MyFigTree (Etap 6.1): files saved before this option have no mode key,
+        // and they meant "italic first N parts"
+        Object mode = settings.get(key + "." + ITALIC_MODE_KEY);
+        italicModeCombo.setSelectedItem(mode == null
+                ? LabelStyle.ItalicMode.FIRST_N
+                : LabelStyle.ItalicMode.fromString(mode.toString()));
+        Object words = settings.get(key + "." + NON_ITALIC_WORDS_KEY);
+        if (words != null) {
+            nonItalicWordsText.setText(words.toString());
+        }
+        Object dots = settings.get(key + "." + ADD_RANK_DOTS_KEY);
+        if (dots instanceof Boolean) {
+            addRankDotsCheck.setSelected((Boolean) dots);
+        }
+        Object caps = settings.get(key + "." + UPPER_CASE_NUMBER_KEY);
+        if (caps instanceof Boolean) {
+            upperCaseNumberCheck.setSelected((Boolean) caps);
+        }
+        applyItalicMode();
+
         Object v = settings.get(key + "." + ITALIC_PARTS_KEY);
         if (v instanceof Number) {
             italicPartsSpinner.setValue(((Number) v).intValue());
@@ -751,6 +855,10 @@ public class LabelPainterController extends AbstractController {
     }
 
     private void getStyleSettings(Map<String, Object> settings) {
+        settings.put(key + "." + ITALIC_MODE_KEY, ((LabelStyle.ItalicMode) italicModeCombo.getSelectedItem()).name());
+        settings.put(key + "." + NON_ITALIC_WORDS_KEY, nonItalicWordsText.getText());
+        settings.put(key + "." + ADD_RANK_DOTS_KEY, addRankDotsCheck.isSelected());
+        settings.put(key + "." + UPPER_CASE_NUMBER_KEY, upperCaseNumberCheck.isSelected());
         settings.put(key + "." + ITALIC_PARTS_KEY, italicPartsSpinner.getValue());
         settings.put(key + "." + ITALIC_CASE_KEY, ((LabelStyle.Case) italicCaseCombo.getSelectedItem()).name());
         settings.put(key + "." + ITALIC_BOLD_KEY, italicBoldCheck.isSelected());
@@ -827,6 +935,10 @@ public class LabelPainterController extends AbstractController {
     private final JComboBox secondLayoutCombo;
 
     private final JSpinner italicPartsSpinner;
+    private final JComboBox italicModeCombo;
+    private final JTextField nonItalicWordsText;
+    private final JCheckBox addRankDotsCheck;
+    private final JCheckBox upperCaseNumberCheck;
     private final JComboBox italicCaseCombo;
     private final JComboBox otherCaseCombo;
     private final JCheckBox italicBoldCheck;
