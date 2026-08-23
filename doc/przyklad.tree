@@ -1,0 +1,23 @@
+#NEXUS
+
+[ Malutkie drzewo testowe do sprawdzania Group Bars i importu adnotacji.
+  Nazwy okazow zapisane tak jak z FASTA - z podkreslnikami.
+  Pasuje do pliku doc/przyklad_rodziny.tsv ]
+
+begin taxa;
+	dimensions ntax=8;
+	taxlabels
+	Trichia_lutescens_MA83355
+	Trichia_varia_MA80112
+	Hemitrichia_serpula_MA65001
+	Perichaena_corticalis_MA71234
+	Arcyria_ferruginea_MA58962
+	Arcyria_cinerea_MA44011
+	Dianema_depressum_MA80673
+	Lycogala_epidendrum_MA30122
+	;
+end;
+
+begin trees;
+	tree test = [&R] ((((Trichia_lutescens_MA83355:0.02,Trichia_varia_MA80112:0.03)98:0.05,(Hemitrichia_serpula_MA65001:0.04,Perichaena_corticalis_MA71234:0.05)87:0.03)72:0.02,((Arcyria_ferruginea_MA58962:0.03,Arcyria_cinerea_MA44011:0.02)95:0.04,Dianema_depressum_MA80673:0.06)64:0.02)100:0.05,Lycogala_epidendrum_MA30122:0.12);
+end;

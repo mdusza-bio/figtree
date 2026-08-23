@@ -965,23 +965,23 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
             File file = new File(dialog.getDirectory(), dialog.getFile());
 
             try {
-                Map<AnnotationDefinition, Map<Taxon, Object>> annotations = importAnnotationsFromFile(file);
+                AnnotationTable table = readAnnotationTable(file);
 
-                treeViewer.setTaxonAnnotations(annotations);
+                if (table.rowNames.isEmpty() || table.columns.isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                            "No annotations were found in this file.\n\n" +
+                                    "The first line should be a header giving the name of each column\n" +
+                                    "and the first column should hold the taxon names, exactly as they\n" +
+                                    "appear in the tree file. Columns may be separated by tabs, commas\n" +
+                                    "or semicolons.",
+                            "Import Annotations",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
-                // Hack to show tips states...
-//                String[] annotationNames = new String[annotations.keySet().size()];
-//                DiscreteColourDecorator[] decorators = new DiscreteColourDecorator[annotations.keySet().size()];
-//
-//                int i = 0;
-//                for (AnnotationDefinition definition: annotations.keySet()) {
-//                    Map<Taxon, Object> annotation = annotations.get(definition);
-//                    annotationNames[i] = definition.getName();
-//                    decorators[i] = new HSBDiscreteColourDecorator(annotationNames[i], annotation.keySet());
-//                    i++;
-//                }
-//                treeViewer.setTipLabelPainter(new StatesPainter(annotationNames, decorators));
+                applyAnnotationTable(table);
 
+                setDirty();
 
             } catch (FileNotFoundException fnfe) {
                 JOptionPane.showMessageDialog(this, "Unable to open file: File not found",
@@ -996,114 +996,312 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
 
     }
 
-    protected Map<AnnotationDefinition, Map<Taxon, Object>> importAnnotationsFromFile(File file) throws IOException {
+    /**
+     * MyFigTree (Etap 6.3): applies an imported table of annotations to the taxa of the loaded trees
+     * and reports how many names were actually matched - a silent import that matched nothing used to
+     * look exactly like one that worked.
+     */
+    private void applyAnnotationTable(AnnotationTable table) {
 
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-
-        List<String> taxa = new ArrayList<>();
-
-        String line = reader.readLine();
-        while (line != null && line.trim().startsWith("#")) {
-            // skip over comment lines
-            line = reader.readLine();
-        }
-        String delimiter = ","; // assume a csv
-        if (line.contains("\t")) {
-            delimiter = "\t";
-        }
-        String[] labels = line.split(delimiter);
-        Map<String, List<String>> columns = new HashMap<String, List<String>>();
-        for (int i = 1; i < labels.length; i++) {
-            columns.put(labels[i], new ArrayList<>());
-        }
-
-        line = reader.readLine();
-        while (line != null && line.trim().startsWith("#")) {
-            line = reader.readLine();
-        }
-        int row = 0;
-        while (line != null) {
-            row ++;
-            String[] values = line.split(delimiter, -1);
-
-            if (values.length > 0) {
-                if (values.length != labels.length) {
-                    throw new IOException("Error reading annotation file: row " + row + " is a different length from the header line");
-                }
-                taxa.add(values[0]);
-                for (int i = 1; i < values.length; i++) {
-                    List<String> column = columns.get(labels[i]);
-                    column.add(values[i]);
+        // index the tips of the loaded trees by name; the 'loose' index (lower case, underscores and
+        // spaces treated alike) catches names that were tidied up in the spreadsheet
+        Map<String, Taxon> taxonByName = new LinkedHashMap<String, Taxon>();
+        Map<String, Taxon> taxonByLooseName = new HashMap<String, Taxon>();
+        List<Tree> trees = treeViewer.getTrees();
+        if (trees != null) {
+            for (Tree tree : trees) {
+                for (Taxon taxon : tree.getTaxa()) {
+                    taxonByName.put(taxon.getName(), taxon);
+                    taxonByLooseName.put(looseName(taxon.getName()), taxon);
                 }
             }
-            line = reader.readLine();
-            while (line != null && line.trim().startsWith("#")) {
-                line = reader.readLine();
+        }
+
+        Map<String, Taxon> resolved = new LinkedHashMap<String, Taxon>();
+        List<String> unmatched = new ArrayList<String>();
+        int looseMatchCount = 0;
+
+        for (String rowName : table.rowNames) {
+            Taxon taxon = taxonByName.get(rowName);
+            if (taxon == null) {
+                taxon = taxonByLooseName.get(looseName(rowName));
+                if (taxon != null) {
+                    looseMatchCount++;
+                }
+            }
+            if (taxon == null) {
+                unmatched.add(rowName);
+                // keep it anyway - it may match a tree opened later in this window
+                taxon = Taxon.getTaxon(rowName);
+            }
+            resolved.put(rowName, taxon);
+        }
+
+        Map<AnnotationDefinition, Map<Taxon, Object>> annotations =
+                new TreeMap<AnnotationDefinition, Map<Taxon, Object>>();
+        for (AnnotationDefinition definition : table.columns.keySet()) {
+            Map<String, Object> column = table.columns.get(definition);
+            Map<Taxon, Object> values = new HashMap<Taxon, Object>();
+            for (String rowName : column.keySet()) {
+                values.put(resolved.get(rowName), column.get(rowName));
+            }
+            annotations.put(definition, values);
+        }
+
+        treeViewer.setTaxonAnnotations(annotations);
+
+        int matchCount = table.rowNames.size() - unmatched.size();
+
+        Set<Taxon> annotatedTaxa = new HashSet<Taxon>(resolved.values());
+        int tipsWithoutAnnotation = 0;
+        for (Taxon taxon : taxonByName.values()) {
+            if (!annotatedTaxa.contains(taxon)) {
+                tipsWithoutAnnotation++;
             }
         }
 
-        Map<AnnotationDefinition, Map<Taxon, Object>> annotations = new TreeMap<AnnotationDefinition, Map<Taxon, Object>>();
+        StringBuilder message = new StringBuilder();
+        message.append("Imported ").append(table.columns.size())
+                .append(table.columns.size() == 1 ? " annotation: " : " annotations: ");
+        boolean first = true;
+        for (AnnotationDefinition definition : table.columns.keySet()) {
+            if (!first) {
+                message.append(", ");
+            }
+            message.append(definition.getName());
+            first = false;
+        }
+        message.append("\n\n");
 
-        NumberFormat nf = NumberFormat.getInstance();
+        message.append("Matched ").append(matchCount).append(" of ").append(table.rowNames.size())
+                .append(table.rowNames.size() == 1 ? " name" : " names")
+                .append(" in the file to tips of the tree");
+        if (looseMatchCount > 0) {
+            message.append(" (").append(looseMatchCount)
+                    .append(" of them ignoring case, spaces and underscores)");
+        }
+        message.append(".\n");
 
-        for (int i = 1; i < labels.length; i++) {
-            List<String> column = columns.get(labels[i]);
+        if (tipsWithoutAnnotation > 0) {
+            message.append(tipsWithoutAnnotation)
+                    .append(tipsWithoutAnnotation == 1 ? " tip of the tree is" : " tips of the tree are")
+                    .append(" not listed in the file - group bars will be broken there.\n");
+        }
 
-            boolean isInteger = true;
-            boolean isNumber = true;
-            boolean isBoolean = true;
+        if (!unmatched.isEmpty()) {
+            message.append("\nNot found in the tree:\n");
+            int shown = Math.min(unmatched.size(), 10);
+            for (int i = 0; i < shown; i++) {
+                message.append("    ").append(unmatched.get(i)).append("\n");
+            }
+            if (unmatched.size() > shown) {
+                message.append("    ... and ").append(unmatched.size() - shown).append(" more\n");
+            }
+        }
 
-            for (String valueString : column) {
-                if (!valueString.equalsIgnoreCase("TRUE") && !valueString.equalsIgnoreCase("FALSE")) {
-                    isBoolean = false;
-                    try {
-                        double number = Double.parseDouble(valueString);
-                        if (Math.round(number) != number) {
-                            isInteger = false;
-                        }
-                    } catch (NumberFormatException pe) {
-                        isInteger = false;
-                        isNumber = false;
+        if (matchCount == 0) {
+            message.append("\nNothing was annotated. Check that the first column of the file holds the\n")
+                    .append("taxon names exactly as they appear in the tree file (with underscores).");
+        }
+
+        JOptionPane.showMessageDialog(this, message.toString(),
+                "Import Annotations",
+                matchCount == 0 || !unmatched.isEmpty() ?
+                        JOptionPane.WARNING_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /** Name reduced to a form that survives tidying up in a spreadsheet: lower case, one space per gap. */
+    private static String looseName(String name) {
+        return name.trim().toLowerCase().replaceAll("[\\s_]+", " ");
+    }
+
+    /**
+     * MyFigTree (Etap 6.3): the contents of an annotation file, keyed by the taxon name as written in
+     * the file - matching those names against the tree is done separately, in applyAnnotationTable().
+     */
+    protected static class AnnotationTable {
+        final List<String> rowNames = new ArrayList<String>();
+        final Map<AnnotationDefinition, Map<String, Object>> columns =
+                new LinkedHashMap<AnnotationDefinition, Map<String, Object>>();
+    }
+
+    /**
+     * Reads a table of annotations: a header line of column names followed by one line per taxon, the
+     * first column holding the taxon name. Tab, comma and semicolon delimited files are all accepted
+     * (a Polish Excel writes CSV with semicolons), as are UTF-8 and the system encoding, quoted cells,
+     * blank lines and lines starting with a hash.
+     */
+    protected AnnotationTable readAnnotationTable(File file) throws IOException {
+
+        if (!file.exists()) {
+            throw new FileNotFoundException(file.getName());
+        }
+
+        List<String> lines = readLines(file);
+
+        String[] labels = null;
+        String delimiter = null;
+        List<String[]> rows = new ArrayList<String[]>();
+
+        int lineNumber = 0;
+        for (String line : lines) {
+            lineNumber++;
+            if (line.trim().length() == 0 || line.trim().startsWith("#")) {
+                continue;
+            }
+            if (labels == null) {
+                delimiter = guessDelimiter(line);
+                labels = trimEmptyCells(splitLine(line, delimiter));
+                if (labels.length < 2) {
+                    throw new IOException("the header line (line " + lineNumber + ") has only one column;" +
+                            " expected the taxon name and at least one annotation");
+                }
+            } else {
+                String[] values = splitLine(line, delimiter);
+                for (int i = labels.length; i < values.length; i++) {
+                    if (values[i].length() > 0) {
+                        throw new IOException("line " + lineNumber + " has more columns than the header line");
                     }
                 }
-            }
-
-            Map<Taxon, Object> values = new HashMap<>();
-            AnnotationDefinition ad;
-            int j = 0;
-            for (String valueString : column) {
-                Taxon taxon = Taxon.getTaxon(taxa.get(j));
-                if (isBoolean) {
-                    values.put(taxon, new Boolean(valueString));
-                } else if (isInteger) {
-                    values.put(taxon, new Integer(valueString));
-                } else if (isNumber) {
-                    values.put(taxon, new Double(valueString));
-                } else {
-                    values.put(taxon, valueString);
+                String[] row = new String[labels.length];
+                for (int i = 0; i < labels.length; i++) {
+                    row[i] = i < values.length ? values[i] : "";
                 }
-                j++;
+                if (row[0].length() > 0) {
+                    rows.add(row);
+                }
             }
-
-            Set<Object> valueSet = new HashSet<Object>(values.values());
-
-            if (isBoolean) {
-                ad = new AnnotationDefinition(labels[i], AnnotationDefinition.Type.BOOLEAN );
-            } else if (isInteger) {
-                ad = new AnnotationDefinition(labels[i], AnnotationDefinition.Type.INTEGER );
-            } else if (isNumber) {
-                ad = new AnnotationDefinition(labels[i], AnnotationDefinition.Type.REAL );
-            } else {
-                String[] valueArray = new String[valueSet.size()];
-                valueSet.toArray(valueArray);
-                ad = new AnnotationDefinition(labels[i], AnnotationDefinition.Type.STRING);
-//ad.setOptions(valueArray);
-            }
-
-            annotations.put(ad, values);
         }
 
-        return annotations;
+        AnnotationTable table = new AnnotationTable();
+        if (labels == null) {
+            return table;
+        }
+
+        for (String[] row : rows) {
+            if (!table.rowNames.contains(row[0])) {
+                table.rowNames.add(row[0]);
+            }
+        }
+
+        for (int i = 1; i < labels.length; i++) {
+            if (labels[i].length() == 0) {
+                continue;
+            }
+
+            // blank cells are left out altogether so that a tip without a value simply has no annotation
+            Map<String, String> strings = new LinkedHashMap<String, String>();
+            for (String[] row : rows) {
+                if (row[i].length() > 0) {
+                    strings.put(row[0], row[i]);
+                }
+            }
+            if (strings.isEmpty()) {
+                continue;
+            }
+
+            boolean isBoolean = true;
+            boolean isInteger = true;
+            boolean isNumber = true;
+            for (String valueString : strings.values()) {
+                if (!valueString.equalsIgnoreCase("TRUE") && !valueString.equalsIgnoreCase("FALSE")) {
+                    isBoolean = false;
+                }
+                try {
+                    double number = Double.parseDouble(valueString);
+                    if (Math.round(number) != number) {
+                        isInteger = false;
+                    }
+                } catch (NumberFormatException nfe) {
+                    isInteger = false;
+                    isNumber = false;
+                }
+            }
+
+            AnnotationDefinition.Type type;
+            if (isBoolean) {
+                type = AnnotationDefinition.Type.BOOLEAN;
+            } else if (isInteger) {
+                type = AnnotationDefinition.Type.INTEGER;
+            } else if (isNumber) {
+                type = AnnotationDefinition.Type.REAL;
+            } else {
+                type = AnnotationDefinition.Type.STRING;
+            }
+
+            Map<String, Object> values = new LinkedHashMap<String, Object>();
+            for (Map.Entry<String, String> entry : strings.entrySet()) {
+                String valueString = entry.getValue();
+                Object value;
+                if (type == AnnotationDefinition.Type.BOOLEAN) {
+                    value = Boolean.valueOf(valueString);
+                } else if (type == AnnotationDefinition.Type.INTEGER) {
+                    value = Integer.valueOf((int) Math.round(Double.parseDouble(valueString)));
+                } else if (type == AnnotationDefinition.Type.REAL) {
+                    value = Double.valueOf(valueString);
+                } else {
+                    value = valueString;
+                }
+                values.put(entry.getKey(), value);
+            }
+
+            table.columns.put(new AnnotationDefinition(labels[i], type), values);
+        }
+
+        return table;
+    }
+
+    /** Whichever of tab, semicolon or comma appears most often in the header line. */
+    private static String guessDelimiter(String headerLine) {
+        String best = ",";
+        int bestCount = 0;
+        for (String candidate : new String[]{"\t", ";", ","}) {
+            int count = headerLine.length() - headerLine.replace(candidate, "").length();
+            if (count > bestCount) {
+                best = candidate;
+                bestCount = count;
+            }
+        }
+        return best;
+    }
+
+    private static String[] splitLine(String line, String delimiter) {
+        String[] cells = line.split(java.util.regex.Pattern.quote(delimiter), -1);
+        for (int i = 0; i < cells.length; i++) {
+            String cell = cells[i].trim();
+            if (cell.length() > 1 && cell.startsWith("\"") && cell.endsWith("\"")) {
+                cell = cell.substring(1, cell.length() - 1).trim();
+            }
+            cells[i] = cell;
+        }
+        return cells;
+    }
+
+    /** Excel likes to write trailing empty columns; drop them from the header. */
+    private static String[] trimEmptyCells(String[] cells) {
+        int length = cells.length;
+        while (length > 0 && cells[length - 1].length() == 0) {
+            length--;
+        }
+        return Arrays.copyOf(cells, length);
+    }
+
+    /** Reads a text file as UTF-8 if it is valid UTF-8 and in the system encoding otherwise. */
+    private static List<String> readLines(File file) throws IOException {
+        byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+        String text;
+        try {
+            java.nio.charset.CharsetDecoder decoder = java.nio.charset.StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
+            text = decoder.decode(java.nio.ByteBuffer.wrap(bytes)).toString();
+        } catch (java.nio.charset.CharacterCodingException cce) {
+            text = new String(bytes, java.nio.charset.Charset.defaultCharset());
+        }
+        if (text.startsWith("\uFEFF")) {
+            text = text.substring(1);
+        }
+        return Arrays.asList(text.split("\r\n|\r|\n", -1));
     }
 
 

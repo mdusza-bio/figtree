@@ -216,10 +216,12 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
 - [ ] 6.2 🟢 **Szablon etykiet — wyjaśnić albo usunąć.** Opis z przykładami w
   `doc/szablon_etykiet.md`; decyzja po przeczytaniu. Jeśli 6.1 załatwia
   potrzeby, pole *Advanced template* usuwamy z panelu.
-- [ ] 6.3 🟡 **Group Bars nic nie pokazują** — bo liście nie mają atrybutu
-  „rodzina". FigTree nie zna rodzin; trzeba je podać. Plan: wczytywanie
-  z prostego pliku tekstowego `nazwa<TAB>rodzina` + przypisywanie z zaznaczenia.
-  Plan: `doc/sesja_B_group_bars.md`.
+- [x] 6.3 🟡 **Group Bars nic nie pokazują** — bo liście nie mają atrybutu
+  „rodzina". FigTree nie zna rodzin; trzeba je podać. Zrobione: poprawiony import
+  z pliku `nazwa<TAB>rodzina` (*File → Import Annotations…*, z podsumowaniem
+  dopasowań) + przycisk *Assign to selection…* w panelu *Group Bars*.
+  Plan: `doc/sesja_B_group_bars.md`. Pliki testowe: `doc/przyklad.tree`,
+  `doc/przyklad_rodziny.tsv`. **Czeka na przeklikanie.**
 - [ ] 6.4 🟢 **Cofanie presetu publikacyjnego** — przed zastosowaniem zapamiętać
   poprzednie ustawienia; przycisk zmienia się w *Undo preset*. Plan:
   `doc/sesja_C_preset_undo.md`.

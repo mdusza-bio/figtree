@@ -24,6 +24,8 @@ import jebl.evolution.alignments.Alignment;
 import jebl.evolution.alignments.Pattern;
 import jebl.evolution.graphs.Node;
 import jebl.evolution.taxa.Taxon;
+import jebl.evolution.trees.RootedTree;
+import jebl.evolution.trees.RootedTreeUtils;
 import jebl.evolution.trees.Tree;
 import jebl.util.Attributable;
 import jam.panels.StatusListener;
@@ -151,6 +153,51 @@ public class ExtendedTreeViewer extends DefaultTreeViewer implements StatusProvi
         annotateSelectedNodes(name, value);
         annotateSelectedTips(name, value);
         fireAnnotationsChanged();
+    }
+
+    /**
+     * MyFigTree (Etap 6.3): annotates every tip of the selection - both individually selected tips and
+     * all the tips below a selected branch - so that a whole clade can be labelled in one go.
+     *
+     * @return the number of tips that were annotated
+     */
+    public int annotateSelectedTaxa(String name, Object value) {
+
+        RootedTree tree = treePane.getTree();
+        if (tree == null) {
+            return 0;
+        }
+
+        Set<Taxon> taxa = new LinkedHashSet<Taxon>(getSelectedTaxa());
+
+        for (Node node : getSelectedTips()) {
+            Taxon taxon = tree.getTaxon(node);
+            if (taxon != null) {
+                taxa.add(taxon);
+            }
+        }
+
+        for (Node node : getSelectedNodes()) {
+            for (Node tip : RootedTreeUtils.getDescendantTips(tree, node)) {
+                Taxon taxon = tree.getTaxon(tip);
+                if (taxon != null) {
+                    taxa.add(taxon);
+                }
+            }
+        }
+
+        for (Taxon taxon : taxa) {
+            taxon.setAttribute(name, value);
+        }
+
+        if (!taxa.isEmpty() && !getAnnotationDefinitions().containsKey(name)) {
+            getAnnotationDefinitions().put(name,
+                    new AnnotationDefinition(name, AnnotationDefinition.Type.STRING));
+        }
+
+        fireAnnotationsChanged();
+
+        return taxa.size();
     }
 
     public Map<String, AnnotationDefinition> getAnnotationDefinitions() {

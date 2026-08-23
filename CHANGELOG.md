@@ -96,6 +96,47 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.3 — skąd program ma znać rodziny (Group Bars)
+Paski grup rysują się według **atrybutu liści** (np. `family = Trichiaceae`),
+a zwykły plik z drzewem z IQ-TREE czy MrBayes takich informacji nie zawiera —
+dlatego panel *Group Bars* wyglądał na zepsuty. Teraz są dwa wygodne sposoby,
+żeby te informacje dodać.
+
+**1. Plik z przypisaniem — *File → Import Annotations…* (Ctrl+I).**
+Tabelka z Excela, zapisana jako „tekst rozdzielany tabulatorami" albo CSV:
+
+```
+name	family	order
+Trichia_lutescens_MA83355	Trichiaceae	Trichiales
+Arcyria_ferruginea_MA58962	Arcyriaceae	Trichiales
+```
+
+Pierwszy wiersz to nagłówki (to one stają się nazwami atrybutów), pierwsza
+kolumna to nazwy okazów **dokładnie jak w pliku drzewa**, z podkreślnikami.
+Sam import istniał już w FigTree, ale był bardzo wybredny; poprawki:
+- kolumny rozdzielone tabulatorem, przecinkiem **albo średnikiem** (tak zapisuje
+  CSV polski Excel),
+- polskie znaki czytane i z UTF-8, i z kodowania systemowego,
+- puste wiersze, komórki w cudzysłowach i wiersze zaczynające się od `#` nie
+  przeszkadzają; pusta komórka = brak atrybutu (pasek się tam przerywa),
+- po wczytaniu pojawia się okno z podsumowaniem: **ile nazw z pliku udało się
+  dopasować** do liści drzewa i lista tych, których w drzewie nie ma (wcześniej
+  import, który nie dopasował niczego, wyglądał tak samo jak udany),
+- nazwy różniące się tylko wielkością liter albo spacjami zamiast podkreślników
+  też są dopasowywane (okno mówi, ilu takich było).
+
+**2. Przycisk *Assign to selection…* w panelu *Group Bars*.**
+Zaznacz klad (tryb *Clade*) albo kilka nazw liści, kliknij przycisk, podaj nazwę
+atrybutu (np. `family`) i wartość (np. `Trichiaceae`). Wszystkie liście
+z zaznaczenia dostają ten atrybut naraz, panel od razu przełącza się na niego
+i włącza paski. To samo co *Annotate*, ale bez klikania okaz po okazie.
+
+Atrybuty liści zapisują się w pliku `.tree` przy *Save*, więc po ponownym
+otwarciu są już na miejscu.
+
+Pliki do testów: [doc/przyklad.tree](doc/przyklad.tree) (8 okazów) razem
+z [doc/przyklad_rodziny.tsv](doc/przyklad_rodziny.tsv).
+
 ### Nie zrobione / do sprawdzenia
 - 2.6 automatyczne rozsuwanie kolidujących etykiet — odłożone.
 - Etap 5 (Ctrl+kółko = rozsuwanie, naprawa skrótów `meta` → Ctrl na Windowsie) —
