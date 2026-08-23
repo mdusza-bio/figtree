@@ -1257,6 +1257,21 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return labelXOffset;
     }
 
+    /**
+     * MyFigTree: minimum vertical distance between adjacent tips (in points);
+     * 0 means no minimum. Used by the tree viewer when sizing the pane.
+     */
+    public double getMinTipSpacing() {
+        return minTipSpacing;
+    }
+
+    public void setMinTipSpacing(double minTipSpacing) {
+        this.minTipSpacing = minTipSpacing;
+        recalibrate();
+        fireSettingsChanged();
+        repaint();
+    }
+
     public void setLabelSpacing(float labelSpacing) {
         this.labelXOffset = labelSpacing;
         recalibrate();
@@ -1890,6 +1905,8 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                 Painter.Justification nodeLabelJustification = nodeLabelJustifications.get(node);
                 g2.transform(nodeTransform);
 
+                // MyFigTree: labels can differ in width per node (second value, threshold)
+                nodeLabelPainter.calibrate(g2, node);
                 nodeLabelPainter.paint(g2, node, nodeLabelJustification,
                         new Rectangle2D.Double(0.0, 0.0, nodeLabelPainter.getPreferredWidth(), nodeLabelPainter.getPreferredHeight()));
 
@@ -2030,7 +2047,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                 Rectangle2D labelBounds = new Rectangle2D.Double(0.0, 0.0, labelWidth, labelHeight);
 
                 // Work out how it is rotated and create a transform that matches that
-                AffineTransform labelTransform = calculateTransform(null, labelPath, labelWidth, labelHeight, true);
+                AffineTransform labelTransform = calculateNodeLabelTransform(null, labelPath, labelWidth, labelHeight);
 
                 // and add the translated bounds to the overall bounds
                 totalTreeBounds.add(labelTransform.createTransformedShape(labelBounds).getBounds2D());
@@ -2051,6 +2068,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
                 // Work out how it is rotated and create a transform that matches that
                 AffineTransform labelTransform = calculateTransform(null, labelPath, labelWidth, labelHeight, false);
+                labelTransform.translate(branchLabelPainter.getXPadding(), branchLabelPainter.getYPadding());
 
                 // and add the translated bounds to the overall bounds
                 totalTreeBounds.add(labelTransform.createTransformedShape(labelBounds).getBounds2D());
@@ -2281,17 +2299,19 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         nodeLabelJustifications.clear();
 
         if (nodeLabelPainter != null && nodeLabelPainter.isVisible()) {
-            final double labelHeight = nodeLabelPainter.getPreferredHeight();
-            final double labelWidth = nodeLabelPainter.getPreferredWidth();
-            final Rectangle2D labelBounds = new Rectangle2D.Double(0.0, 0.0, labelWidth, labelHeight);
-
             // Iterate though the external nodes with node labels
             for (Node node : treeLayoutCache.getNodeLabelPathMap().keySet()) {
                 // Get the line that represents the path for the node label
                 final Line2D labelPath = treeLayoutCache.getNodeLabelPath(node);
 
+                // MyFigTree: per-node size (labels can differ in width/height)
+                nodeLabelPainter.calibrate(g2, node);
+                final double labelHeight = nodeLabelPainter.getPreferredHeight();
+                final double labelWidth = nodeLabelPainter.getPreferredWidth();
+                final Rectangle2D labelBounds = new Rectangle2D.Double(0.0, 0.0, labelWidth, labelHeight);
+
                 // Work out how it is rotated and create a transform that matches that
-                AffineTransform labelTransform = calculateTransform(transform, labelPath, labelWidth, labelHeight, true);
+                AffineTransform labelTransform = calculateNodeLabelTransform(transform, labelPath, labelWidth, labelHeight);
 
                 // Store the transformed bounds in the map for use when selecting
                 nodeLabelBounds.put(node, labelTransform.createTransformedShape(labelBounds));
@@ -2336,6 +2356,8 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                 // move to middle of branch - since the move is before the rotation
                 final double direction = just == Painter.Justification.RIGHT ? 1 : -1;
                 labelTransform.translate(-direction * xScale * branchLength /2, 0);
+                // MyFigTree: user padding (in the label's own frame: +x along the branch, +y downwards)
+                labelTransform.translate(branchLabelPainter.getXPadding(), branchLabelPainter.getYPadding());
 
                 // Store the transformed bounds in the map for use when selecting
                 branchLabelBounds.put(node, labelTransform.createTransformedShape(labelBounds));
@@ -2478,6 +2500,41 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return lineTransform;
     }
 
+    /**
+     * MyFigTree: transform for a node label taking the chosen position and padding
+     * into account. "At node" is the original behaviour (label to the right of the
+     * node, vertically centred). "Above/Below branch" puts the label just before the
+     * node, touching the branch line from above/below.
+     */
+    private AffineTransform calculateNodeLabelTransform(AffineTransform globalTransform, Line2D line,
+                                                        double width, double height) {
+        final LabelPainter.LabelPosition position = nodeLabelPainter.getLabelPosition();
+        final double xPad = nodeLabelPainter.getXPadding();
+        final double yPad = nodeLabelPainter.getYPadding();
+        // +1 when the label path points to the right (normal case), -1 when mirrored
+        final double direction = line.getX2() > line.getX1() ? 1.0 : -1.0;
+
+        if (position == null || position == LabelPainter.LabelPosition.AT_NODE) {
+            AffineTransform labelTransform = calculateTransform(globalTransform, line, width, height, true);
+            labelTransform.translate(direction * xPad, yPad);
+            return labelTransform;
+        }
+
+        AffineTransform labelTransform = calculateTransform(globalTransform, line, width, height, false);
+        // put the label's end at the node (before the node along the branch)
+        double tx = direction > 0 ? -width : 0.0;
+        tx -= direction * xPad;
+        // put the label's bottom (above) or top (below) on the branch line
+        double ty;
+        if (position == LabelPainter.LabelPosition.ABOVE_BRANCH) {
+            ty = -height / 2.0 - yPad;
+        } else {
+            ty = height / 2.0 + yPad;
+        }
+        labelTransform.translate(tx, ty);
+        return labelTransform;
+    }
+
     private AffineTransform calculateTransform(AffineTransform globalTransform, Line2D line) {
         final Point2D origin = line.getP1();
         if (globalTransform != null) {
@@ -2569,6 +2626,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
     private Decorator nodeBackgroundDecorator = null;
 
     private float labelXOffset = 10.0F;
+    private double minTipSpacing = 0.0;
     private LabelPainter<Node> tipLabelPainter = null;
     //private double maxTipLabelWidth;
     private LabelPainter<Node> nodeLabelPainter = null;

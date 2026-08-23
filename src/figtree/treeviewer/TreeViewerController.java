@@ -89,7 +89,7 @@ public class TreeViewerController extends AbstractController {
 		optionsPanel = new ControllerOptionsPanel(2, 2);
 
 		rectilinearTreeLayout = new RectilinearTreeLayout();
-		rectilinearTreeLayoutController = new RectilinearTreeLayoutController(rectilinearTreeLayout);
+		rectilinearTreeLayoutController = new RectilinearTreeLayoutController(rectilinearTreeLayout, treeViewer);
 
 		polarTreeLayout = new PolarTreeLayout();
 		polarTreeLayoutController = new PolarTreeLayoutController(polarTreeLayout);

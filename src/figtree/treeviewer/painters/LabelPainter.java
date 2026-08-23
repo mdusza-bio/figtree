@@ -51,6 +51,53 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
         RANGE
     };
 
+    // MyFigTree: where a node label sits relative to the branch leading to the node
+    public enum LabelPosition {
+        AT_NODE("At node"),
+        ABOVE_BRANCH("Above branch"),
+        BELOW_BRANCH("Below branch");
+
+        LabelPosition(String name) {
+            this.name = name;
+        }
+
+        public String toString() {
+            return name;
+        }
+
+        public static LabelPosition fromString(String s) {
+            for (LabelPosition p : values()) {
+                if (p.name.equals(s) || p.name().equals(s)) return p;
+            }
+            return AT_NODE;
+        }
+
+        private final String name;
+    }
+
+    // MyFigTree: how a second value is combined with the first one
+    public enum SecondValueLayout {
+        SAME_LINE("a / b"),
+        STACKED("stacked");
+
+        SecondValueLayout(String name) {
+            this.name = name;
+        }
+
+        public String toString() {
+            return name;
+        }
+
+        public static SecondValueLayout fromString(String s) {
+            for (SecondValueLayout l : values()) {
+                if (l.name.equals(s) || l.name().equals(s)) return l;
+            }
+            return SAME_LINE;
+        }
+
+        private final String name;
+    }
+
     protected LabelPainter(PainterIntent intent) {
         this.intent = intent;
 	}
@@ -139,6 +186,43 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 		// Do nothing
 	}
 
+	// MyFigTree: label placement (Etap 2)
+
+	public double getXPadding() {
+		return xPadding;
+	}
+
+	public double getYPadding() {
+		return yPadding;
+	}
+
+	public void setPadding(double xPadding, double yPadding) {
+		this.xPadding = xPadding;
+		this.yPadding = yPadding;
+		firePainterChanged();
+	}
+
+	public LabelPosition getLabelPosition() {
+		return labelPosition;
+	}
+
+	public void setLabelPosition(LabelPosition labelPosition) {
+		this.labelPosition = labelPosition;
+		firePainterChanged();
+	}
+
+	public void setShowThreshold(Double showThreshold) {
+		// Do nothing
+	}
+
+	public void setSecondAttribute(String secondAttribute) {
+		// Do nothing
+	}
+
+	public void setSecondValueLayout(SecondValueLayout layout) {
+		// Do nothing
+	}
+
 	public void setVisible(boolean visible) {
 	    this.visible = visible;
 	    firePainterChanged();
@@ -157,6 +241,10 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 	private boolean visible = true;
 
 	private NumberFormat numberFormat = null;
+
+	private double xPadding = 0.0;
+	private double yPadding = 0.0;
+	private LabelPosition labelPosition = LabelPosition.AT_NODE;
 
     private final PainterIntent intent;
 

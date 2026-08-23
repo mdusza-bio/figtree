@@ -199,6 +199,11 @@ public class DefaultTreeViewer extends TreeViewer {
             treePane.setTree(Utils.rootTheTree(tree));
         }
 
+        // MyFigTree: the required height depends on the number of tips
+        if (treePane.getMinTipSpacing() > 0.0) {
+            zoomPending = true;
+        }
+
         currentTreeIndex = index;
         fireTreeChanged();
     }
@@ -242,6 +247,27 @@ public class DefaultTreeViewer extends TreeViewer {
         return !treePane.maintainAspectRatio();
     }
 
+    public void setMinTipSpacing(double minTipSpacing) {
+        treePane.setMinTipSpacing(minTipSpacing);
+        refreshZoom();
+    }
+
+    /**
+     * MyFigTree: the pane height needed so that adjacent tips are at least
+     * "min tip spacing" points apart (0 if the option is off or not applicable).
+     */
+    private double getMinimumPaneHeight() {
+        double spacing = treePane.getMinTipSpacing();
+        if (spacing <= 0.0 || treePane.getTree() == null || !verticalExpansionAllowed()) {
+            return 0.0;
+        }
+        int tipCount = treePane.getTree().getExternalNodes().size();
+        // tips + a little room for insets and the scale bar at the bottom
+        return tipCount * spacing + MIN_HEIGHT_MARGIN;
+    }
+
+    private static final double MIN_HEIGHT_MARGIN = 60.0;
+
     public void setTimeScale(TimeScale timeScale) {
         treePane.setTimeScale(timeScale);
     }
@@ -258,6 +284,9 @@ public class DefaultTreeViewer extends TreeViewer {
         Dimension extentSize = viewport.getExtentSize();
         double w = extentSize.getWidth() * (1.0 + xZoom);
         double h = extentSize.getHeight() * (1.0 + yZoom);
+
+        // MyFigTree: enforce the minimum tip spacing by making the pane taller
+        h = Math.max(h, getMinimumPaneHeight());
 
         Dimension newSize = new Dimension((int) w, (int) h);
         treePane.setPreferredSize(newSize);

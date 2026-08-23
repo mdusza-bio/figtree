@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.util.Map;
 
 import figtree.treeviewer.ControllerOptionsPanel;
+import figtree.treeviewer.TreeViewer;
 
 /**
  * @author Andrew Rambaut
@@ -49,8 +50,9 @@ public class RectilinearTreeLayoutController extends AbstractController {
     private static final String ROOT_LENGTH_KEY = "rootLength";
     private static final String CURVATURE_KEY = "curvature";
     private static final String ALIGN_TIP_LABELS_KEY = "alignTipLabels";
+    private static final String MIN_TIP_SPACING_KEY = "minTipSpacing";
 
-    public RectilinearTreeLayoutController(final RectilinearTreeLayout treeLayout) {
+    public RectilinearTreeLayoutController(final RectilinearTreeLayout treeLayout, final TreeViewer treeViewer) {
         this.treeLayout = treeLayout;
 
         titleLabel = new JLabel("Rectangular Layout");
@@ -96,6 +98,17 @@ public class RectilinearTreeLayoutController extends AbstractController {
             }
         });
         optionsPanel.addSpanningComponent(alignTipLabelsCheck);
+
+        // MyFigTree: automatic vertical expansion so tip labels do not overlap
+        minTipSpacingSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1000.0, 1.0));
+        minTipSpacingSpinner.setToolTipText("Minimum vertical distance between tips in points (0 = off)");
+        minTipSpacingSpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                double value = ((Number) minTipSpacingSpinner.getValue()).doubleValue();
+                treeViewer.setMinTipSpacing(value);
+            }
+        });
+        optionsPanel.addComponentWithLabel("Min tip spacing:", minTipSpacingSpinner);
     }
 
     public JComponent getTitleComponent() {
@@ -118,12 +131,18 @@ public class RectilinearTreeLayoutController extends AbstractController {
         rootLengthSlider.setValue((Integer) settings.get(RECTILINEAR_LAYOUT_KEY + "." + ROOT_LENGTH_KEY));
         curvatureSlider.setValue((Integer) settings.get(RECTILINEAR_LAYOUT_KEY + "." + CURVATURE_KEY));
         alignTipLabelsCheck.setSelected((Boolean) settings.get(RECTILINEAR_LAYOUT_KEY + "." + ALIGN_TIP_LABELS_KEY));
+        // MyFigTree key: may be absent in files saved by the original FigTree
+        Object spacing = settings.get(RECTILINEAR_LAYOUT_KEY + "." + MIN_TIP_SPACING_KEY);
+        if (spacing instanceof Number) {
+            minTipSpacingSpinner.setValue(((Number) spacing).doubleValue());
+        }
     }
 
     public void getSettings(Map<String, Object> settings) {
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + ROOT_LENGTH_KEY, rootLengthSlider.getValue());
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + CURVATURE_KEY, curvatureSlider.getValue());
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + ALIGN_TIP_LABELS_KEY, alignTipLabelsCheck.isSelected());
+        settings.put(RECTILINEAR_LAYOUT_KEY + "." + MIN_TIP_SPACING_KEY, ((Number) minTipSpacingSpinner.getValue()).doubleValue());
     }
 
     private final JLabel titleLabel;
@@ -132,6 +151,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
     private final JSlider rootLengthSlider;
     private final JSlider curvatureSlider;
     private final JCheckBox alignTipLabelsCheck;
+    private final JSpinner minTipSpacingSpinner;
 
     private final RectilinearTreeLayout treeLayout;
 

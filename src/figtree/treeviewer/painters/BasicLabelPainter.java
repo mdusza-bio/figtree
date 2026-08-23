@@ -111,12 +111,55 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         return labelFormatter.getParts(getRawName(tree, node));
     }
 
+    /**
+     * The label text. May contain a '\n' when a second value is shown stacked
+     * below the first one. Returns null if nothing should be drawn (no value, or
+     * the first value is below the "show only if >=" threshold).
+     */
     protected String getLabel(Tree tree, Node node) {
-        if (displayAttribute.equalsIgnoreCase(NAMES)) {
+        Object value1 = getValue(tree, node, displayAttribute);
+
+        if (showThreshold != null) {
+            Double number = asNumber(value1);
+            if (number != null && number < showThreshold) {
+                return null;
+            }
+        }
+
+        String label1 = formatValue(value1);
+
+        if (secondAttribute == null || secondAttribute.length() == 0 || secondAttribute.equals(NONE)) {
+            return label1;
+        }
+
+        String label2 = formatValue(getValue(tree, node, secondAttribute));
+        if (label2 == null) {
+            return label1;
+        }
+        if (label1 == null || label1.startsWith(SOLID_BOX_ENCODED)) {
+            return label2;
+        }
+
+        if (secondValueLayout == SecondValueLayout.STACKED) {
+            return label1 + "\n" + label2;
+        }
+        return label1 + " / " + label2;
+    }
+
+    /**
+     * The raw value for a given attribute name: a formatted name string, a Double
+     * for heights/lengths, or whatever object the node/taxon attribute holds.
+     */
+    private Object getValue(Tree tree, Node node, String attribute) {
+        if (attribute == null || attribute.length() == 0) {
+            return null;
+        }
+
+        if (attribute.equalsIgnoreCase(NAMES)) {
             return labelFormatter.format(getRawName(tree, node));
         }
 
-        if (displayAttribute.equalsIgnoreCase(SOLID_BOX)) {
+        if (attribute.equalsIgnoreCase(SOLID_BOX)) {
             return SOLID_BOX_ENCODED + boxSize;
         }
 
@@ -127,18 +170,16 @@ public class BasicLabelPainter extends LabelPainter<Node> {
                 textDecorator.setItem(node);
             }
 
-            if (displayAttribute.equalsIgnoreCase(NODE_AGES) ) {
+            if (attribute.equalsIgnoreCase(NODE_AGES) ) {
                 TimeScale timeScale = treePane.getTimeScale();
-                double age = timeScale.getAge(rtree.getHeight(node), rtree);
-                return getNumberFormat().format(age);
-            } else if (displayAttribute.equalsIgnoreCase(NODE_HEIGHTS) ) {
-                return getNumberFormat().format(rtree.getHeight(node));
-            } else if (displayAttribute.equalsIgnoreCase(BRANCH_TIMES) ) {
+                return timeScale.getAge(rtree.getHeight(node), rtree);
+            } else if (attribute.equalsIgnoreCase(NODE_HEIGHTS) ) {
+                return rtree.getHeight(node);
+            } else if (attribute.equalsIgnoreCase(BRANCH_TIMES) ) {
                 TimeScale timeScale = treePane.getTimeScale();
-                double time = timeScale.getTime(rtree.getLength(node), rtree);
-                return getNumberFormat().format(time);
-            } else if (displayAttribute.equalsIgnoreCase(BRANCH_LENGTHS) ) {
-                return getNumberFormat().format(rtree.getLength(node));
+                return timeScale.getTime(rtree.getLength(node), rtree);
+            } else if (attribute.equalsIgnoreCase(BRANCH_LENGTHS) ) {
+                return rtree.getLength(node);
             }
         }
 
@@ -147,22 +188,36 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         if (getIntent() == PainterIntent.TIP) {
             Taxon taxon = tree.getTaxon(node);
             if (taxon != null) {
-                value = taxon.getAttribute(displayAttribute);
+                value = taxon.getAttribute(attribute);
             } else {
-                value = node.getAttribute(displayAttribute);
+                value = node.getAttribute(attribute);
             }
         }
 
         if (value == null) {
-            value = node.getAttribute(displayAttribute);
+            value = node.getAttribute(attribute);
         }
 
-        return formatValue(value);
+        return value;
+    }
+
+    private static Double asNumber(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        if (value instanceof String) {
+            try {
+                return Double.parseDouble(((String) value).trim());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private String formatValue(Object value) {
         if (value != null) {
-            if (value instanceof Double) {
+            if (value instanceof Double || value instanceof Float) {
                 return getNumberFormat().format(value);
             } else if (value instanceof Object[]) {
                 Object[] values = (Object[])value;
@@ -207,8 +262,12 @@ public class BasicLabelPainter extends LabelPainter<Node> {
                         label.substring(SOLID_BOX_ENCODED.length()));
                 preferredWidth = boxLength;
             } else {
-                Rectangle2D rect = fm.getStringBounds(label, g2);
-                preferredWidth = rect.getWidth();
+                String[] lines = label.split("\n");
+                for (String line : lines) {
+                    Rectangle2D rect = fm.getStringBounds(line, g2);
+                    preferredWidth = Math.max(preferredWidth, rect.getWidth());
+                }
+                preferredHeight = fm.getHeight() * lines.length;
             }
         }
 
@@ -283,31 +342,39 @@ public class BasicLabelPainter extends LabelPainter<Node> {
 
         if (label != null) {
 
-            Rectangle2D rect = g2.getFontMetrics().getStringBounds(label, g2);
-
-            float xOffset;
-            float y = yOffset + (float) bounds.getY();
-            switch (justification) {
-                case CENTER:
-                    xOffset = (float)(-rect.getWidth()/2.0);
-                    y = yOffset + (float) rect.getY();
-//xOffset = (float) (bounds.getX() + (bounds.getWidth() - rect.getWidth()) / 2.0);
-                    break;
-                case FLUSH:
-                case LEFT:
-                    xOffset = (float) bounds.getX();
-                    break;
-                case RIGHT:
-                    xOffset = (float) (bounds.getX() + bounds.getWidth() - rect.getWidth());
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unrecognized alignment enum option");
-            }
-
             if (label.startsWith(SOLID_BOX_ENCODED)) {
                 g2.fill(bounds);
             } else {
-                g2.drawString(label, xOffset, y);
+                // MyFigTree: a label may have several lines (stacked second value)
+                String[] lines = label.split("\n");
+                FontMetrics fm = g2.getFontMetrics();
+                float lineHeight = fm.getHeight();
+
+                for (int i = 0; i < lines.length; i++) {
+                    Rectangle2D rect = fm.getStringBounds(lines[i], g2);
+
+                    float xOffset;
+                    float y = yOffset + (float) bounds.getY() + i * lineHeight;
+                    switch (justification) {
+                        case CENTER:
+                            xOffset = (float)(-rect.getWidth()/2.0);
+                            // the block is anchored by its last line so that extra
+                            // lines grow upwards, away from the branch
+                            y = yOffset + (float) rect.getY() - (lines.length - 1 - i) * lineHeight;
+                            break;
+                        case FLUSH:
+                        case LEFT:
+                            xOffset = (float) bounds.getX();
+                            break;
+                        case RIGHT:
+                            xOffset = (float) (bounds.getX() + bounds.getWidth() - rect.getWidth());
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unrecognized alignment enum option");
+                    }
+
+                    g2.drawString(lines[i], xOffset, y);
+                }
             }
         }
 
@@ -354,6 +421,29 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         labelFormatter.setHideRegex(hideRegex);
         firePainterChanged();
     }
+
+    // MyFigTree: support-value display options (Etap 2)
+
+    public static final String NONE = "None";
+
+    public void setShowThreshold(Double showThreshold) {
+        this.showThreshold = showThreshold;
+        firePainterChanged();
+    }
+
+    public void setSecondAttribute(String secondAttribute) {
+        this.secondAttribute = secondAttribute;
+        firePainterChanged();
+    }
+
+    public void setSecondValueLayout(SecondValueLayout layout) {
+        this.secondValueLayout = layout;
+        firePainterChanged();
+    }
+
+    private Double showThreshold = null;
+    private String secondAttribute = NONE;
+    private SecondValueLayout secondValueLayout = SecondValueLayout.SAME_LINE;
 
     private final LabelFormatter labelFormatter = new LabelFormatter();
 

@@ -75,6 +75,14 @@ public class LabelPainterController extends AbstractController {
     public static final String HIDE_PARTS_KEY = "hideParts";
     public static final String HIDE_REGEX_KEY = "hideRegex";
 
+    // MyFigTree: placement and support-value options (Etap 2)
+    public static final String X_PADDING_KEY = "xPadding";
+    public static final String Y_PADDING_KEY = "yPadding";
+    public static final String POSITION_KEY = "position";
+    public static final String SHOW_THRESHOLD_KEY = "showThreshold";
+    public static final String SECOND_ATTRIBUTE_KEY = "secondAttribute";
+    public static final String SECOND_LAYOUT_KEY = "secondLayout";
+
     // The defaults if there is nothing in the preferences
     public static String DEFAULT_FONT_NAME = "sansserif";
     public static int DEFAULT_FONT_SIZE = 8;
@@ -259,16 +267,63 @@ public class LabelPainterController extends AbstractController {
             public void changedUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
         });
 
-//        labelPainter.addPainterListener(new PainterListener() {
-//            public void painterChanged() {
-//
-//            }
-//            public void painterSettingsChanged() {
-//            }
-//            public void attributesChanged() {
-//                setupAttributes();
-//            }
-//        });
+        // MyFigTree: placement and support-value controls (node and branch labels only)
+        if (intent == LabelPainter.PainterIntent.NODE || intent == LabelPainter.PainterIntent.BRANCH) {
+            xPaddingSpinner = new JSpinner(new SpinnerNumberModel(0.0, -500.0, 500.0, 1.0));
+            xPaddingSpinner.setToolTipText("Horizontal distance from the node/branch in points (may be negative)");
+            yPaddingSpinner = new JSpinner(new SpinnerNumberModel(0.0, -500.0, 500.0, 1.0));
+            yPaddingSpinner.setToolTipText("Vertical distance from the branch line in points (may be negative)");
+            ChangeListener paddingListener = new ChangeListener() {
+                public void stateChanged(ChangeEvent changeEvent) {
+                    labelPainter.setPadding(
+                            ((Number) xPaddingSpinner.getValue()).doubleValue(),
+                            ((Number) yPaddingSpinner.getValue()).doubleValue());
+                }
+            };
+            xPaddingSpinner.addChangeListener(paddingListener);
+            yPaddingSpinner.addChangeListener(paddingListener);
+
+            if (intent == LabelPainter.PainterIntent.NODE) {
+                positionCombo = new JComboBox(LabelPainter.LabelPosition.values());
+                positionCombo.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent event) {
+                        labelPainter.setLabelPosition((LabelPainter.LabelPosition) positionCombo.getSelectedItem());
+                    }
+                });
+            } else {
+                positionCombo = null;
+            }
+
+            thresholdText = new JTextField("", 6);
+            thresholdText.setToolTipText("Show numeric values only if >= this number; empty = show all");
+            thresholdText.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { applyThreshold(); }
+                public void removeUpdate(DocumentEvent e) { applyThreshold(); }
+                public void changedUpdate(DocumentEvent e) { applyThreshold(); }
+            });
+
+            secondAttributeCombo = new JComboBox(new String[] { BasicLabelPainter.NONE });
+            new AttributeComboHelper(secondAttributeCombo, treeViewer, BasicLabelPainter.NONE, intent).addListener(new AttributeComboHelperListener() {
+                @Override
+                public void attributeComboChanged() {
+                    labelPainter.setSecondAttribute((String) secondAttributeCombo.getSelectedItem());
+                }
+            });
+
+            secondLayoutCombo = new JComboBox(LabelPainter.SecondValueLayout.values());
+            secondLayoutCombo.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent event) {
+                    labelPainter.setSecondValueLayout((LabelPainter.SecondValueLayout) secondLayoutCombo.getSelectedItem());
+                }
+            });
+        } else {
+            xPaddingSpinner = null;
+            yPaddingSpinner = null;
+            positionCombo = null;
+            thresholdText = null;
+            secondAttributeCombo = null;
+            secondLayoutCombo = null;
+        }
 
         final JLabel label1 = optionsPanel.addComponentWithLabel("Display:", displayAttributeCombo);
         final JLabel label2 = optionsPanel.addComponentWithLabel("Colour by:", colourAttributeCombo);
@@ -285,6 +340,23 @@ public class LabelPainterController extends AbstractController {
         optionsPanel.addComponent(replaceUnderscoresCheck, true);
         final JLabel label8 = optionsPanel.addComponentWithLabel("Hide parts:", hidePartsText);
         final JLabel label9 = optionsPanel.addComponentWithLabel("Hide regex:", hideRegexText);
+
+        if (xPaddingSpinner != null) {
+            if (positionCombo != null) {
+                addComponent(optionsPanel.addComponentWithLabel("Position:", positionCombo));
+                addComponent(positionCombo);
+            }
+            addComponent(optionsPanel.addComponentWithLabel("Offset X:", xPaddingSpinner));
+            addComponent(xPaddingSpinner);
+            addComponent(optionsPanel.addComponentWithLabel("Offset Y:", yPaddingSpinner));
+            addComponent(yPaddingSpinner);
+            addComponent(optionsPanel.addComponentWithLabel("Show only if >=:", thresholdText));
+            addComponent(thresholdText);
+            addComponent(optionsPanel.addComponentWithLabel("Second value:", secondAttributeCombo));
+            addComponent(secondAttributeCombo);
+            addComponent(optionsPanel.addComponentWithLabel("Layout:", secondLayoutCombo));
+            addComponent(secondLayoutCombo);
+        }
 
         addComponent(label1);
         addComponent(displayAttributeCombo);
@@ -317,6 +389,19 @@ public class LabelPainterController extends AbstractController {
                 labelPainter.setVisible(titleCheckBox.isSelected());
             }
         });
+    }
+
+    private void applyThreshold() {
+        String text = thresholdText.getText().trim().replace(',', '.');
+        Double threshold = null;
+        if (text.length() > 0) {
+            try {
+                threshold = Double.valueOf(text);
+            } catch (NumberFormatException e) {
+                threshold = null;
+            }
+        }
+        labelPainter.setShowThreshold(threshold);
     }
 
     private void setupLabelDecorator() {
@@ -375,6 +460,32 @@ public class LabelPainterController extends AbstractController {
         if (hideRegex != null) {
             hideRegexText.setText(hideRegex.toString());
         }
+        if (xPaddingSpinner != null) {
+            Object xPad = settings.get(key + "." + X_PADDING_KEY);
+            if (xPad instanceof Number) {
+                xPaddingSpinner.setValue(((Number) xPad).doubleValue());
+            }
+            Object yPad = settings.get(key + "." + Y_PADDING_KEY);
+            if (yPad instanceof Number) {
+                yPaddingSpinner.setValue(((Number) yPad).doubleValue());
+            }
+            Object position = settings.get(key + "." + POSITION_KEY);
+            if (positionCombo != null && position != null) {
+                positionCombo.setSelectedItem(LabelPainter.LabelPosition.fromString(position.toString()));
+            }
+            Object threshold = settings.get(key + "." + SHOW_THRESHOLD_KEY);
+            if (threshold != null) {
+                thresholdText.setText(threshold.toString());
+            }
+            Object second = settings.get(key + "." + SECOND_ATTRIBUTE_KEY);
+            if (second != null) {
+                secondAttributeCombo.setSelectedItem(second.toString());
+            }
+            Object layout = settings.get(key + "." + SECOND_LAYOUT_KEY);
+            if (layout != null) {
+                secondLayoutCombo.setSelectedItem(LabelPainter.SecondValueLayout.fromString(layout.toString()));
+            }
+        }
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -393,6 +504,17 @@ public class LabelPainterController extends AbstractController {
         settings.put(key + "." + REPLACE_UNDERSCORES_KEY, replaceUnderscoresCheck.isSelected());
         settings.put(key + "." + HIDE_PARTS_KEY, hidePartsText.getText());
         settings.put(key + "." + HIDE_REGEX_KEY, hideRegexText.getText());
+        if (xPaddingSpinner != null) {
+            settings.put(key + "." + X_PADDING_KEY, ((Number) xPaddingSpinner.getValue()).doubleValue());
+            settings.put(key + "." + Y_PADDING_KEY, ((Number) yPaddingSpinner.getValue()).doubleValue());
+            if (positionCombo != null) {
+                settings.put(key + "." + POSITION_KEY, ((LabelPainter.LabelPosition) positionCombo.getSelectedItem()).name());
+            }
+            settings.put(key + "." + SHOW_THRESHOLD_KEY, thresholdText.getText().trim());
+            Object second = secondAttributeCombo.getSelectedItem();
+            settings.put(key + "." + SECOND_ATTRIBUTE_KEY, second == null ? BasicLabelPainter.NONE : second.toString());
+            settings.put(key + "." + SECOND_LAYOUT_KEY, ((LabelPainter.SecondValueLayout) secondLayoutCombo.getSelectedItem()).name());
+        }
     }
 
     public String getTitle() {
@@ -417,6 +539,13 @@ public class LabelPainterController extends AbstractController {
     private final JCheckBox replaceUnderscoresCheck;
     private final JTextField hidePartsText;
     private final JTextField hideRegexText;
+
+    private final JSpinner xPaddingSpinner;
+    private final JSpinner yPaddingSpinner;
+    private final JComboBox positionCombo;
+    private final JTextField thresholdText;
+    private final JComboBox secondAttributeCombo;
+    private final JComboBox secondLayoutCombo;
 
     private final String title;
     private final String key;

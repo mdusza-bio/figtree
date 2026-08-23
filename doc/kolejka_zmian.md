@@ -53,23 +53,30 @@ Gdzie w kodzie: `BasicLabelPainter.java` (pozycja tekstu względem gałęzi),
 `src/figtree/treeviewer/treelayouts/RectilinearTreeLayout.java` (odstępy
 między gałęziami), `TreePane.java` (rysowanie całości).
 
-- [ ] 2.1 🟢 **Większy zakres odstępu etykiety od gałęzi** („padding") dla
+- [x] 2.1 🟢 **Większy zakres odstępu etykiety od gałęzi** („padding") dla
   *Node Labels* / *Branch Labels* — osobno w poziomie i w pionie, żeby
   bootstrap dało się odsunąć od linii i od nazw.
-- [ ] 2.2 🟢 **Pozycja wartości poparcia względem gałęzi**: nad / pod / na
+- [x] 2.2 🟢 **Pozycja wartości poparcia względem gałęzi**: nad / pod / na
   końcu gałęzi przy węźle (na wzorze: pod gałęzią, tuż przed węzłem,
   dwie wartości jedna nad drugą — bootstrap i PP).
-- [ ] 2.3 🟢 **Próg wyświetlania poparcia** — pokazuj wartość tylko gdy
+- [x] 2.3 🟢 **Próg wyświetlania poparcia** — pokazuj wartość tylko gdy
   ≥ X (np. 50). Mniej etykiet = mniej kolizji, i tak standard w publikacjach.
-- [ ] 2.4 🟡 **Dwie wartości na węźle naraz** (np. `bootstrap / PP` albo jedna
+- [x] 2.4 🟡 **Dwie wartości na węźle naraz** (np. `bootstrap / PP` albo jedna
   nad drugą, jak na wzorze) bez sklejania ich ręcznie w pliku.
-- [ ] 2.5 🟡 **Minimalny odstęp pionowy między liśćmi** — ustawienie, które
+- [x] 2.5 🟡 **Minimalny odstęp pionowy między liśćmi** — ustawienie, które
   automatycznie „rozciąga" drzewo tak, żeby etykiety liści się nie nakładały
   przy danej czcionce (zamiast ręcznego kręcenia suwakiem *Expansion*).
 - [ ] 2.6 🔴 **Automatyczne unikanie kolizji** etykiet węzłów: program sprawdza,
   czy prostokąt tekstu nachodzi na inny, i przesuwa go (w górę/dół, na drugą
   stronę gałęzi). To już prawdziwy algorytm — zrobić dopiero, gdy 2.1–2.5
   nie wystarczą.
+
+Uwagi do etapu 2 (zrobione 2.1–2.5): nowe kontrolki są w panelach *Node Labels*
+i *Branch Labels* (Position, Offset X/Y, Show only if >=, Second value, Layout)
+oraz w panelu *Layout* → Rectangular (Min tip spacing). Wszystko zapisuje się do
+pliku `.tree` (klucze `nodeLabels.*`, `branchLabels.*`,
+`rectilinearLayout.minTipSpacing`). Punkt 2.6 pominięty — najpierw sprawdzić,
+czy 2.1–2.5 wystarczają.
 
 ---
 

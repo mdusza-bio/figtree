@@ -211,6 +211,10 @@ public class MultiPaneTreeViewer extends TreeViewer {
 		return !treePanes.get(0).maintainAspectRatio();
 	}
 
+	public void setMinTipSpacing(double minTipSpacing) {
+		// not supported in the multi-pane viewer
+	}
+
 	public void setTimeScale(TimeScale timeScale) {
 		for (TreePane treePane : treePanes) {
 			treePane.setTimeScale(timeScale);

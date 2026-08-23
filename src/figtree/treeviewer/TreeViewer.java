@@ -68,6 +68,12 @@ public abstract class TreeViewer extends JPanel implements Printable {
 
     public abstract boolean verticalExpansionAllowed();
 
+    /**
+     * MyFigTree: minimum vertical distance between adjacent tips in points (0 = off).
+     * The pane is made tall enough so that tips are at least this far apart.
+     */
+    public abstract void setMinTipSpacing(double minTipSpacing);
+
     public abstract void setTimeScale(TimeScale timeScale);
 
     public abstract boolean hasSelection();
