@@ -112,6 +112,36 @@ public class BasicLabelPainter extends LabelPainter<Node> {
     }
 
     /**
+     * MyFigTree (Etap 3): the label as styled runs, or null when the plain
+     * single-string drawing path should be used (styling off, attribute other
+     * than Names, or a second value is shown).
+     */
+    private List<LabelStyle.Run> getStyledRuns(Tree tree, Node node) {
+        if (labelStyle.isPlain() || !displayAttribute.equalsIgnoreCase(NAMES)) {
+            return null;
+        }
+        if (secondAttribute != null && secondAttribute.length() > 0 && !secondAttribute.equals(NONE)) {
+            return null;
+        }
+        String rawName = getRawName(tree, node);
+        if (rawName == null) {
+            return null;
+        }
+        String[] parts = labelFormatter.getParts(rawName);
+        if (parts.length == 0) {
+            return null;
+        }
+        return labelStyle.getRuns(parts, rawName);
+    }
+
+    private static Font runFont(Font base, LabelStyle.Run run) {
+        int style = base.getStyle();
+        if (run.italic) style |= Font.ITALIC;
+        if (run.bold) style |= Font.BOLD;
+        return style == base.getStyle() ? base : base.deriveFont(style);
+    }
+
+    /**
      * The label text. May contain a '\n' when a second value is shown stacked
      * below the first one. Returns null if nothing should be drawn (no value, or
      * the first value is below the "show only if >=" threshold).
@@ -255,7 +285,16 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         preferredHeight = fm.getHeight();
         preferredWidth = 0;
 
-        if (label != null) {
+        List<LabelStyle.Run> runs = (label == null ? null : getStyledRuns(tree, item));
+
+        if (runs != null) {
+            Font baseFont = g2.getFont();
+            for (LabelStyle.Run run : runs) {
+                FontMetrics rfm = g2.getFontMetrics(runFont(baseFont, run));
+                preferredWidth += rfm.getStringBounds(run.text, g2).getWidth();
+                preferredHeight = Math.max(preferredHeight, rfm.getHeight());
+            }
+        } else if (label != null) {
 
             if (label.startsWith(SOLID_BOX_ENCODED)) {
                 int boxLength = Integer.parseInt(
@@ -340,7 +379,45 @@ public class BasicLabelPainter extends LabelPainter<Node> {
             g2.setFont(getFont());
         }
 
-        if (label != null) {
+        List<LabelStyle.Run> runs = (label == null ? null : getStyledRuns(tree, item));
+
+        if (runs != null) {
+            // MyFigTree (Etap 3): draw the styled parts one after another
+            Font baseFont = g2.getFont();
+            Paint basePaint = g2.getPaint();
+
+            double totalWidth = 0;
+            for (LabelStyle.Run run : runs) {
+                totalWidth += g2.getFontMetrics(runFont(baseFont, run)).getStringBounds(run.text, g2).getWidth();
+            }
+
+            float x;
+            float y = yOffset + (float) bounds.getY();
+            switch (justification) {
+                case CENTER:
+                    x = (float) (-totalWidth / 2.0);
+                    y = yOffset + (float) g2.getFontMetrics(baseFont).getStringBounds(label, g2).getY();
+                    break;
+                case FLUSH:
+                case LEFT:
+                    x = (float) bounds.getX();
+                    break;
+                case RIGHT:
+                    x = (float) (bounds.getX() + bounds.getWidth() - totalWidth);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unrecognized alignment enum option");
+            }
+
+            for (LabelStyle.Run run : runs) {
+                Font f = runFont(baseFont, run);
+                g2.setFont(f);
+                g2.setPaint(run.colour != null ? run.colour : basePaint);
+                g2.drawString(run.text, x, y);
+                x += g2.getFontMetrics(f).getStringBounds(run.text, g2).getWidth();
+            }
+            g2.setPaint(basePaint);
+        } else if (label != null) {
 
             if (label.startsWith(SOLID_BOX_ENCODED)) {
                 g2.fill(bounds);
@@ -421,6 +498,21 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         labelFormatter.setHideRegex(hideRegex);
         firePainterChanged();
     }
+
+    // MyFigTree: per-part label styling (Etap 3)
+
+    public LabelStyle getLabelStyle() {
+        return labelStyle;
+    }
+
+    /**
+     * Call after changing anything in {@link #getLabelStyle()} so the tree is redrawn.
+     */
+    public void labelStyleChanged() {
+        firePainterChanged();
+    }
+
+    private final LabelStyle labelStyle = new LabelStyle();
 
     // MyFigTree: support-value display options (Etap 2)
 

@@ -223,6 +223,16 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 		// Do nothing
 	}
 
+	// MyFigTree: per-part label styling (Etap 3); overridden by BasicLabelPainter
+
+	public LabelStyle getLabelStyle() {
+		return null;
+	}
+
+	public void labelStyleChanged() {
+		// Do nothing
+	}
+
 	public void setVisible(boolean visible) {
 	    this.visible = visible;
 	    firePainterChanged();

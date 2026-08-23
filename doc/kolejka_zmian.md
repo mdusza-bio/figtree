@@ -86,18 +86,30 @@ Dziś: jedna czcionka, jeden kolor, jeden styl na całą etykietę. Na wzorze:
 *Dianema depressum* kursywą, `MA80673` prosto; rodziny WIELKIMI LITERAMI
 z rozstrzeleniem.
 
-- [ ] 3.1 🟢 **Styl dla części nazwy**: po podziale z 1.4 — część 1–2 (rodzaj,
+- [x] 3.1 🟢 **Styl dla części nazwy**: po podziale z 1.4 — część 1–2 (rodzaj,
   gatunek) kursywą, reszta prosto. Na początek sztywno „pierwsze N słów
   kursywą", potem konfigurowalnie.
-- [ ] 3.2 🟢 **Wielkość liter**: bez zmian / WIELKIE / małe / Jak W Zdaniu —
+- [x] 3.2 🟢 **Wielkość liter**: bez zmian / WIELKIE / małe / Jak W Zdaniu —
   per część nazwy.
-- [ ] 3.3 🟡 **Pogrubienie i kolor per część nazwy** (np. numer okazu szary,
+- [x] 3.3 🟡 **Pogrubienie i kolor per część nazwy** (np. numer okazu szary,
   nazwa czarna).
-- [ ] 3.4 🟡 **Podświetlenie wybranych liści** (np. nowe okazy pogrubione lub
+- [x] 3.4 🟡 **Podświetlenie wybranych liści** (np. nowe okazy pogrubione lub
   w ramce) — przez atrybut w drzewie albo listę nazw.
-- [ ] 3.5 🔴 **„Szablon etykiety"** — jedno pole, gdzie piszesz np.
+- [x] 3.5 🔴 **„Szablon etykiety"** — jedno pole, gdzie piszesz np.
   `{1 kursywa} {2 kursywa} {3 wielkie}`, i etykieta się z tego składa. To
   docelowa, ogólna wersja 3.1–3.3; zrobić gdy proste opcje przestaną wystarczać.
+
+Uwagi do etapu 3 (zrobione 3.1–3.5): nowe kontrolki są w panelu *Tip Labels*
+(Italic first N parts, Case (italic parts) / Case (other parts), Bold + kolor
+dla obu grup, Highlight names containing + Bold + kolor, Advanced template).
+Kolor pusty = zwykły kolor etykiety; „x" czyści kolor. Szablon, np.
+`{1-2:i} {3:U}` — zakresy `2`, `1-2`, `3-` (do końca), `*`; flagi `i` kursywa,
+`b` pogrubienie, `U`/`L`/`S` wielkość liter, `#rrggbb` kolor; tekst poza `{}`
+kopiowany dosłownie. Wypełniony szablon nadpisuje proste opcje; błędny jest
+ignorowany (pole robi się czerwone). Stylowanie działa, gdy *Display* = Names
+i nie ma drugiej wartości. Zapis do pliku `.tree` (klucze `tipLabels.italicParts`,
+`italicCase`, `italicBold`, `italicColour`, `otherCase`, `otherBold`,
+`otherColour`, `highlight`, `highlightBold`, `highlightColour`, `template`).
 
 ---
 

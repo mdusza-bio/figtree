@@ -21,6 +21,7 @@
 package figtree.treeviewer.painters;
 
 import figtree.ui.PercentFormat;
+import figtree.ui.components.ColorWellButton;
 import figtree.ui.RomanFormat;
 import jam.controlpalettes.AbstractController;
 import jam.controlpalettes.ControllerListener;
@@ -82,6 +83,20 @@ public class LabelPainterController extends AbstractController {
     public static final String SHOW_THRESHOLD_KEY = "showThreshold";
     public static final String SECOND_ATTRIBUTE_KEY = "secondAttribute";
     public static final String SECOND_LAYOUT_KEY = "secondLayout";
+
+    // MyFigTree: per-part styling of tip names (Etap 3)
+    public static final String ITALIC_PARTS_KEY = "italicParts";
+    public static final String ITALIC_CASE_KEY = "italicCase";
+    public static final String ITALIC_BOLD_KEY = "italicBold";
+    public static final String ITALIC_COLOUR_KEY = "italicColour";
+    public static final String OTHER_CASE_KEY = "otherCase";
+    public static final String OTHER_BOLD_KEY = "otherBold";
+    public static final String OTHER_COLOUR_KEY = "otherColour";
+    public static final String HIGHLIGHT_KEY = "highlight";
+    public static final String HIGHLIGHT_BOLD_KEY = "highlightBold";
+    public static final String HIGHLIGHT_COLOUR_KEY = "highlightColour";
+    public static final String TEMPLATE_KEY = "template";
+    private static final String NO_COLOUR = "none";
 
     // The defaults if there is nothing in the preferences
     public static String DEFAULT_FONT_NAME = "sansserif";
@@ -325,6 +340,78 @@ public class LabelPainterController extends AbstractController {
             secondLayoutCombo = null;
         }
 
+        // MyFigTree: per-part styling of tip names (Etap 3)
+        final LabelStyle style = labelPainter.getLabelStyle();
+        if (intent == LabelPainter.PainterIntent.TIP && style != null) {
+            italicPartsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 20, 1));
+            italicPartsSpinner.setToolTipText("How many leading parts of the name (e.g. genus + species = 2) are drawn in italics; 0 = off");
+            italicPartsSpinner.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent changeEvent) {
+                    style.setItalicParts((Integer) italicPartsSpinner.getValue());
+                    labelPainter.labelStyleChanged();
+                }
+            });
+
+            italicCaseCombo = new JComboBox(LabelStyle.Case.values());
+            otherCaseCombo = new JComboBox(LabelStyle.Case.values());
+            italicBoldCheck = new JCheckBox("Bold");
+            otherBoldCheck = new JCheckBox("Bold");
+            italicColourButton = new OptionalColourButton("Colour of italic parts");
+            otherColourButton = new OptionalColourButton("Colour of other parts");
+
+            ActionListener groupListener = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    applyGroupStyles();
+                }
+            };
+            italicCaseCombo.addActionListener(groupListener);
+            otherCaseCombo.addActionListener(groupListener);
+            italicBoldCheck.addActionListener(groupListener);
+            otherBoldCheck.addActionListener(groupListener);
+            italicColourButton.addActionListener(groupListener);
+            otherColourButton.addActionListener(groupListener);
+
+            highlightText = new JTextField("", 10);
+            highlightText.setToolTipText("Comma-separated text; tips whose (raw) name contains any of them get the highlight style");
+            highlightText.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { applyHighlight(); }
+                public void removeUpdate(DocumentEvent e) { applyHighlight(); }
+                public void changedUpdate(DocumentEvent e) { applyHighlight(); }
+            });
+            highlightBoldCheck = new JCheckBox("Bold");
+            highlightColourButton = new OptionalColourButton("Highlight colour");
+            ActionListener highlightListener = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    applyHighlight();
+                }
+            };
+            highlightBoldCheck.addActionListener(highlightListener);
+            highlightColourButton.addActionListener(highlightListener);
+
+            templateText = new JTextField("", 10);
+            templateText.setToolTipText("<html>Overrides the settings above when filled in.<br>" +
+                    "e.g. <b>{1-2:i} {3:U}</b> = parts 1-2 italic, part 3 upper case.<br>" +
+                    "Ranges: 2, 1-2, 3- (to end), *. Flags: i italic, b bold, U/L/S case, #rrggbb colour.<br>" +
+                    "Text outside { } is copied as is.</html>");
+            templateText.getDocument().addDocumentListener(new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { applyTemplate(); }
+                public void removeUpdate(DocumentEvent e) { applyTemplate(); }
+                public void changedUpdate(DocumentEvent e) { applyTemplate(); }
+            });
+        } else {
+            italicPartsSpinner = null;
+            italicCaseCombo = null;
+            otherCaseCombo = null;
+            italicBoldCheck = null;
+            otherBoldCheck = null;
+            italicColourButton = null;
+            otherColourButton = null;
+            highlightText = null;
+            highlightBoldCheck = null;
+            highlightColourButton = null;
+            templateText = null;
+        }
+
         final JLabel label1 = optionsPanel.addComponentWithLabel("Display:", displayAttributeCombo);
         final JLabel label2 = optionsPanel.addComponentWithLabel("Colour by:", colourAttributeCombo);
         final JLabel label3 = optionsPanel.addComponentWithLabel("Font Size:", fontSizeSpinner);
@@ -340,6 +427,28 @@ public class LabelPainterController extends AbstractController {
         optionsPanel.addComponent(replaceUnderscoresCheck, true);
         final JLabel label8 = optionsPanel.addComponentWithLabel("Hide parts:", hidePartsText);
         final JLabel label9 = optionsPanel.addComponentWithLabel("Hide regex:", hideRegexText);
+
+        if (italicPartsSpinner != null) {
+            addComponent(optionsPanel.addComponentWithLabel("Italic first N parts:", italicPartsSpinner));
+            addComponent(italicPartsSpinner);
+            addComponent(optionsPanel.addComponentWithLabel("Case (italic parts):", italicCaseCombo));
+            addComponent(italicCaseCombo);
+            addComponent(optionsPanel.addComponentWithLabel("Italic parts style:", stylePanel(italicBoldCheck, italicColourButton)));
+            addComponent(italicBoldCheck);
+            addComponent(italicColourButton);
+            addComponent(optionsPanel.addComponentWithLabel("Case (other parts):", otherCaseCombo));
+            addComponent(otherCaseCombo);
+            addComponent(optionsPanel.addComponentWithLabel("Other parts style:", stylePanel(otherBoldCheck, otherColourButton)));
+            addComponent(otherBoldCheck);
+            addComponent(otherColourButton);
+            addComponent(optionsPanel.addComponentWithLabel("Highlight names containing:", highlightText));
+            addComponent(highlightText);
+            addComponent(optionsPanel.addComponentWithLabel("Highlight style:", stylePanel(highlightBoldCheck, highlightColourButton)));
+            addComponent(highlightBoldCheck);
+            addComponent(highlightColourButton);
+            addComponent(optionsPanel.addComponentWithLabel("Advanced template:", templateText));
+            addComponent(templateText);
+        }
 
         if (xPaddingSpinner != null) {
             if (positionCombo != null) {
@@ -389,6 +498,108 @@ public class LabelPainterController extends AbstractController {
                 labelPainter.setVisible(titleCheckBox.isSelected());
             }
         });
+    }
+
+    private static JPanel stylePanel(JCheckBox boldCheck, OptionalColourButton colourButton) {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+        boldCheck.setOpaque(false);
+        panel.add(boldCheck);
+        panel.add(Box.createHorizontalStrut(6));
+        panel.add(colourButton);
+        return panel;
+    }
+
+    private void applyGroupStyles() {
+        LabelStyle style = labelPainter.getLabelStyle();
+        LabelStyle.PartStyle italic = style.getItalicGroup();
+        italic.caseMode = (LabelStyle.Case) italicCaseCombo.getSelectedItem();
+        italic.bold = italicBoldCheck.isSelected();
+        italic.colour = italicColourButton.getColour();
+        LabelStyle.PartStyle other = style.getOtherGroup();
+        other.caseMode = (LabelStyle.Case) otherCaseCombo.getSelectedItem();
+        other.bold = otherBoldCheck.isSelected();
+        other.colour = otherColourButton.getColour();
+        labelPainter.labelStyleChanged();
+    }
+
+    private void applyHighlight() {
+        LabelStyle style = labelPainter.getLabelStyle();
+        style.setHighlight(highlightText.getText());
+        style.setHighlightBold(highlightBoldCheck.isSelected());
+        style.setHighlightColour(highlightColourButton.getColour());
+        labelPainter.labelStyleChanged();
+    }
+
+    private void applyTemplate() {
+        LabelStyle style = labelPainter.getLabelStyle();
+        style.setTemplate(templateText.getText());
+        String text = templateText.getText().trim();
+        // red text = the template is not valid (and is being ignored)
+        boolean invalid = text.length() > 0 && !style.isTemplateActive();
+        templateText.setForeground(invalid ? Color.RED : UIManager.getColor("TextField.foreground"));
+        labelPainter.labelStyleChanged();
+    }
+
+    private static Object colourSetting(Color colour) {
+        return colour == null ? NO_COLOUR : colour;
+    }
+
+    private static Color colourFromSetting(Object value) {
+        return value instanceof Color ? (Color) value : null;
+    }
+
+    /**
+     * A colour well that may also be "unset" (null = use the normal label colour),
+     * with a small "x" button to clear it. Fires an ActionEvent on every change.
+     */
+    private static class OptionalColourButton extends JPanel {
+        OptionalColourButton(String title) {
+            setOpaque(false);
+            setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+            well = new ColorWellButton(null, title) {
+                public void setSelectedColor(Color color) {
+                    super.setSelectedColor(color);
+                    fireChanged();
+                }
+            };
+            well.setToolTipText(title + " (empty = same as the label colour)");
+            ControllerOptionsPanel.setComponentLook(well);
+            JButton clearButton = new JButton("x");
+            clearButton.setToolTipText("Use the normal label colour");
+            ControllerOptionsPanel.setComponentLook(clearButton);
+            clearButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    setColour(null);
+                }
+            });
+            add(well);
+            add(clearButton);
+        }
+
+        Color getColour() {
+            return well.getSelectedColor();
+        }
+
+        void setColour(Color colour) {
+            well.setSelectedColor(colour);
+        }
+
+        void addActionListener(ActionListener listener) {
+            listeners.add(listener);
+        }
+
+        private void fireChanged() {
+            if (listeners == null) return; // called from the super constructor
+            ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "colour");
+            for (ActionListener listener : listeners) {
+                listener.actionPerformed(event);
+            }
+        }
+
+        private final ColorWellButton well;
+        private final java.util.List<ActionListener> listeners = new ArrayList<ActionListener>();
     }
 
     private void applyThreshold() {
@@ -486,6 +697,71 @@ public class LabelPainterController extends AbstractController {
                 secondLayoutCombo.setSelectedItem(LabelPainter.SecondValueLayout.fromString(layout.toString()));
             }
         }
+        if (italicPartsSpinner != null) {
+            setStyleSettings(settings);
+        }
+    }
+
+    private void setStyleSettings(Map<String, Object> settings) {
+        Object v = settings.get(key + "." + ITALIC_PARTS_KEY);
+        if (v instanceof Number) {
+            italicPartsSpinner.setValue(((Number) v).intValue());
+        }
+        v = settings.get(key + "." + ITALIC_CASE_KEY);
+        if (v != null) {
+            italicCaseCombo.setSelectedItem(LabelStyle.Case.fromString(v.toString()));
+        }
+        v = settings.get(key + "." + ITALIC_BOLD_KEY);
+        if (v instanceof Boolean) {
+            italicBoldCheck.setSelected((Boolean) v);
+        }
+        if (settings.containsKey(key + "." + ITALIC_COLOUR_KEY)) {
+            italicColourButton.setColour(colourFromSetting(settings.get(key + "." + ITALIC_COLOUR_KEY)));
+        }
+        v = settings.get(key + "." + OTHER_CASE_KEY);
+        if (v != null) {
+            otherCaseCombo.setSelectedItem(LabelStyle.Case.fromString(v.toString()));
+        }
+        v = settings.get(key + "." + OTHER_BOLD_KEY);
+        if (v instanceof Boolean) {
+            otherBoldCheck.setSelected((Boolean) v);
+        }
+        if (settings.containsKey(key + "." + OTHER_COLOUR_KEY)) {
+            otherColourButton.setColour(colourFromSetting(settings.get(key + "." + OTHER_COLOUR_KEY)));
+        }
+        applyGroupStyles();
+
+        v = settings.get(key + "." + HIGHLIGHT_KEY);
+        if (v != null) {
+            highlightText.setText(v.toString());
+        }
+        v = settings.get(key + "." + HIGHLIGHT_BOLD_KEY);
+        if (v instanceof Boolean) {
+            highlightBoldCheck.setSelected((Boolean) v);
+        }
+        if (settings.containsKey(key + "." + HIGHLIGHT_COLOUR_KEY)) {
+            highlightColourButton.setColour(colourFromSetting(settings.get(key + "." + HIGHLIGHT_COLOUR_KEY)));
+        }
+        applyHighlight();
+
+        v = settings.get(key + "." + TEMPLATE_KEY);
+        if (v != null) {
+            templateText.setText(v.toString());
+        }
+    }
+
+    private void getStyleSettings(Map<String, Object> settings) {
+        settings.put(key + "." + ITALIC_PARTS_KEY, italicPartsSpinner.getValue());
+        settings.put(key + "." + ITALIC_CASE_KEY, ((LabelStyle.Case) italicCaseCombo.getSelectedItem()).name());
+        settings.put(key + "." + ITALIC_BOLD_KEY, italicBoldCheck.isSelected());
+        settings.put(key + "." + ITALIC_COLOUR_KEY, colourSetting(italicColourButton.getColour()));
+        settings.put(key + "." + OTHER_CASE_KEY, ((LabelStyle.Case) otherCaseCombo.getSelectedItem()).name());
+        settings.put(key + "." + OTHER_BOLD_KEY, otherBoldCheck.isSelected());
+        settings.put(key + "." + OTHER_COLOUR_KEY, colourSetting(otherColourButton.getColour()));
+        settings.put(key + "." + HIGHLIGHT_KEY, highlightText.getText());
+        settings.put(key + "." + HIGHLIGHT_BOLD_KEY, highlightBoldCheck.isSelected());
+        settings.put(key + "." + HIGHLIGHT_COLOUR_KEY, colourSetting(highlightColourButton.getColour()));
+        settings.put(key + "." + TEMPLATE_KEY, templateText.getText());
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -514,6 +790,9 @@ public class LabelPainterController extends AbstractController {
             Object second = secondAttributeCombo.getSelectedItem();
             settings.put(key + "." + SECOND_ATTRIBUTE_KEY, second == null ? BasicLabelPainter.NONE : second.toString());
             settings.put(key + "." + SECOND_LAYOUT_KEY, ((LabelPainter.SecondValueLayout) secondLayoutCombo.getSelectedItem()).name());
+        }
+        if (italicPartsSpinner != null) {
+            getStyleSettings(settings);
         }
     }
 
@@ -546,6 +825,18 @@ public class LabelPainterController extends AbstractController {
     private final JTextField thresholdText;
     private final JComboBox secondAttributeCombo;
     private final JComboBox secondLayoutCombo;
+
+    private final JSpinner italicPartsSpinner;
+    private final JComboBox italicCaseCombo;
+    private final JComboBox otherCaseCombo;
+    private final JCheckBox italicBoldCheck;
+    private final JCheckBox otherBoldCheck;
+    private final OptionalColourButton italicColourButton;
+    private final OptionalColourButton otherColourButton;
+    private final JTextField highlightText;
+    private final JCheckBox highlightBoldCheck;
+    private final OptionalColourButton highlightColourButton;
+    private final JTextField templateText;
 
     private final String title;
     private final String key;
