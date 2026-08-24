@@ -84,6 +84,9 @@ public class LabelPainterController extends AbstractController {
     public static final String SECOND_ATTRIBUTE_KEY = "secondAttribute";
     public static final String SECOND_LAYOUT_KEY = "secondLayout";
 
+    // MyFigTree: pulling crowded support values apart (Etap 6.6)
+    public static final String AVOID_OVERLAP_KEY = "avoidOverlap";
+
     // MyFigTree: per-part styling of tip names (Etap 3)
     public static final String ITALIC_PARTS_KEY = "italicParts";
     public static final String ITALIC_CASE_KEY = "italicCase";
@@ -313,8 +316,21 @@ public class LabelPainterController extends AbstractController {
                         labelPainter.setLabelPosition((LabelPainter.LabelPosition) positionCombo.getSelectedItem());
                     }
                 });
+
+                // MyFigTree (Etap 6.6)
+                avoidOverlapCheck = new JCheckBox("Avoid overlap");
+                avoidOverlapCheck.setToolTipText("<html>Nudge support values apart where they would be drawn<br>" +
+                        "on top of each other (clades that add one taxon at a time).<br>" +
+                        "Only the labels move - the tree itself is not redrawn.</html>");
+                avoidOverlapCheck.setSelected(labelPainter.isAvoidOverlap());
+                avoidOverlapCheck.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent event) {
+                        labelPainter.setAvoidOverlap(avoidOverlapCheck.isSelected());
+                    }
+                });
             } else {
                 positionCombo = null;
+                avoidOverlapCheck = null;
             }
 
             thresholdText = new JTextField("", 6);
@@ -343,6 +359,7 @@ public class LabelPainterController extends AbstractController {
             xPaddingSpinner = null;
             yPaddingSpinner = null;
             positionCombo = null;
+            avoidOverlapCheck = null;
             thresholdText = null;
             secondAttributeCombo = null;
             secondLayoutCombo = null;
@@ -529,6 +546,10 @@ public class LabelPainterController extends AbstractController {
             addComponent(secondAttributeCombo);
             addComponent(optionsPanel.addComponentWithLabel("Layout:", secondLayoutCombo));
             addComponent(secondLayoutCombo);
+            if (avoidOverlapCheck != null) {
+                addComponent(optionsPanel.addComponentWithLabel("Crowded values:", avoidOverlapCheck));
+                addComponent(avoidOverlapCheck);
+            }
         }
 
         addComponent(label1);
@@ -787,6 +808,11 @@ public class LabelPainterController extends AbstractController {
             if (layout != null) {
                 secondLayoutCombo.setSelectedItem(LabelPainter.SecondValueLayout.fromString(layout.toString()));
             }
+            Object avoid = settings.get(key + "." + AVOID_OVERLAP_KEY);
+            if (avoidOverlapCheck != null && avoid instanceof Boolean) {
+                avoidOverlapCheck.setSelected((Boolean) avoid);
+                labelPainter.setAvoidOverlap((Boolean) avoid);
+            }
         }
         if (italicPartsSpinner != null) {
             setStyleSettings(settings);
@@ -909,6 +935,9 @@ public class LabelPainterController extends AbstractController {
             Object second = secondAttributeCombo.getSelectedItem();
             settings.put(key + "." + SECOND_ATTRIBUTE_KEY, second == null ? BasicLabelPainter.NONE : second.toString());
             settings.put(key + "." + SECOND_LAYOUT_KEY, ((LabelPainter.SecondValueLayout) secondLayoutCombo.getSelectedItem()).name());
+            if (avoidOverlapCheck != null) {
+                settings.put(key + "." + AVOID_OVERLAP_KEY, avoidOverlapCheck.isSelected());
+            }
         }
         if (italicPartsSpinner != null) {
             getStyleSettings(settings);
@@ -941,6 +970,7 @@ public class LabelPainterController extends AbstractController {
     private final JSpinner xPaddingSpinner;
     private final JSpinner yPaddingSpinner;
     private final JComboBox positionCombo;
+    private final JCheckBox avoidOverlapCheck;
     private final JTextField thresholdText;
     private final JComboBox secondAttributeCombo;
     private final JComboBox secondLayoutCombo;

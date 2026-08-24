@@ -2368,6 +2368,12 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                     nodeLabelJustifications.put(node, Painter.Justification.RIGHT);
                 }
             }
+
+            // MyFigTree (Etap 6.6): pull apart support values that would be drawn
+            // on top of each other in densely branching parts of the tree
+            if (nodeLabelPainter.isAvoidOverlap()) {
+                spreadOverlappingNodeLabels();
+            }
         }
 
         branchLabelBounds.clear();
@@ -2541,6 +2547,113 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         lineTransform.translate(tx, ty);
         return lineTransform;
     }
+
+    /**
+     * MyFigTree (Etap 6.6): move node labels down where they would be drawn on top
+     * of an earlier one.
+     * <p>
+     * Min tip spacing cannot fix this: it spreads the <em>tips</em> evenly, but the
+     * internal nodes that carry the support values sit wherever their children
+     * average out, so in a clade that adds one taxon at a time several of them land
+     * within a fraction of one tip spacing. Here the real, laid-out text rectangles
+     * are compared, so only labels that genuinely clash are touched - and only when
+     * they also overlap horizontally, which leaves values on far-apart branches
+     * exactly where the layout put them.
+     * <p>
+     * Labels are walked from the top down and each one is pushed just far enough
+     * below the ones already placed. A label never moves further than
+     * {@link #MAX_LABEL_SHIFT} times its own height, so a value always stays near
+     * the node it belongs to even in hopelessly crowded spots.
+     */
+    private void spreadOverlappingNodeLabels() {
+
+        // only the rectangular layout draws node labels upright and in rows;
+        // in the polar and radial layouts they are rotated, so "down" is meaningless
+        if (!(treeLayout instanceof RectilinearTreeLayout) || nodeLabelBounds.size() < 2) {
+            return;
+        }
+
+        // Values hidden by "Show only if >=" still have an entry here, but with no
+        // text and so no width - they must not shove the visible ones around.
+        List<Node> nodes = new ArrayList<Node>();
+        for (Node node : nodeLabelBounds.keySet()) {
+            Rectangle2D bounds = nodeLabelBounds.get(node).getBounds2D();
+            if (bounds.getWidth() > 0.0 && bounds.getHeight() > 0.0) {
+                nodes.add(node);
+            }
+        }
+        if (nodes.size() < 2) {
+            return;
+        }
+
+        // top to bottom; ties broken by x so the result does not depend on map order
+        Collections.sort(nodes, new Comparator<Node>() {
+            public int compare(Node node1, Node node2) {
+                Rectangle2D bounds1 = nodeLabelBounds.get(node1).getBounds2D();
+                Rectangle2D bounds2 = nodeLabelBounds.get(node2).getBounds2D();
+                int result = Double.compare(bounds1.getY(), bounds2.getY());
+                if (result != 0) {
+                    return result;
+                }
+                return Double.compare(bounds1.getX(), bounds2.getX());
+            }
+        });
+
+        // labels placed so far that can still be in the way further down
+        List<Rectangle2D> active = new ArrayList<Rectangle2D>();
+
+        for (Node node : nodes) {
+            final Rectangle2D bounds = nodeLabelBounds.get(node).getBounds2D();
+            final double top = bounds.getY();
+
+            // anything finishing above this label can no longer collide with
+            // it or with any label below it (the list is in top-to-bottom order)
+            for (Iterator<Rectangle2D> iterator = active.iterator(); iterator.hasNext(); ) {
+                if (iterator.next().getMaxY() + LABEL_GAP <= top) {
+                    iterator.remove();
+                }
+            }
+
+            double y = top;
+            // one sweep can uncover a new clash, so settle it in a few passes
+            for (int pass = 0; pass < MAX_LABEL_PASSES; pass++) {
+                double newY = y;
+                for (Rectangle2D other : active) {
+                    if (bounds.getMaxX() <= other.getX() || bounds.getX() >= other.getMaxX()) {
+                        continue;   // side by side - no clash whatever the heights
+                    }
+                    if (newY + bounds.getHeight() + LABEL_GAP <= other.getY()
+                            || newY >= other.getMaxY() + LABEL_GAP) {
+                        continue;   // clear above or below
+                    }
+                    newY = other.getMaxY() + LABEL_GAP;
+                }
+                if (newY == y) {
+                    break;
+                }
+                y = newY;
+            }
+
+            double shift = Math.min(y - top, bounds.getHeight() * MAX_LABEL_SHIFT);
+            if (shift > 0.0) {
+                AffineTransform labelTransform = nodeLabelTransforms.get(node);
+                // the shift is in screen coordinates, so it goes on after the
+                // transform that placed the label
+                labelTransform.preConcatenate(AffineTransform.getTranslateInstance(0.0, shift));
+                bounds.setRect(bounds.getX(), top + shift, bounds.getWidth(), bounds.getHeight());
+                // keep the clickable area on the text
+                nodeLabelBounds.put(node, bounds);
+            }
+
+            active.add(bounds);
+        }
+    }
+
+    /** blank space kept between two node labels that had to be pulled apart */
+    private static final double LABEL_GAP = 1.0;
+    /** how far a node label may be moved, as a multiple of its own height */
+    private static final double MAX_LABEL_SHIFT = 3.0;
+    private static final int MAX_LABEL_PASSES = 4;
 
     /**
      * MyFigTree: transform for a node label taking the chosen position and padding

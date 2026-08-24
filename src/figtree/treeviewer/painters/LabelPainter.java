@@ -215,6 +215,20 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 		// Do nothing
 	}
 
+	/**
+	 * MyFigTree (Etap 6.6): when on, labels that would be drawn on top of each
+	 * other are nudged apart vertically. Used for node (support) labels, which
+	 * bunch up wherever a clade adds one taxon at a time.
+	 */
+	public boolean isAvoidOverlap() {
+		return avoidOverlap;
+	}
+
+	public void setAvoidOverlap(boolean avoidOverlap) {
+		this.avoidOverlap = avoidOverlap;
+		firePainterChanged();
+	}
+
 	public void setSecondAttribute(String secondAttribute) {
 		// Do nothing
 	}
@@ -255,6 +269,7 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 	private double xPadding = 0.0;
 	private double yPadding = 0.0;
 	private LabelPosition labelPosition = LabelPosition.AT_NODE;
+	private boolean avoidOverlap = false;
 
     private final PainterIntent intent;
 
