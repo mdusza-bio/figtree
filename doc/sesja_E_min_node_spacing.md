@@ -114,3 +114,70 @@ jeśli E1 i E2 nie wystarczą.
 Czy próg *Show only if >=* ustawiony na np. 70 (E1) rozwiązuje problem
 wystarczająco, czy koniecznie chcesz widzieć **wszystkie** wartości poparcia
 nawet w gęstych miejscach? Odpowiedź decyduje, czy w ogóle trzeba robić E2.
+
+---
+
+# Co z tego wyszło (2026-08-24)
+
+## 1. Najpierw okazało się, że testowaliśmy zły plik
+
+Zrzut ekranu ze zgłoszenia pochodził z
+`ciemnozarodnikowe_v3_modeltest.tree` — pliku z **testu modelu**, w którym
+**każda gałąź ma sztucznie wpisaną długość `0.100000`**. Przy identycznych
+długościach gałęzi i topologii dokładającej po jednym taksonie geometria
+*musi* wyjść w idealne schodki. To nie był błąd programu.
+
+Drzewo do ryciny to `ciemnozarodnikowe_calosc_ML_v3.raxml.support`
+(prawdziwe długości gałęzi, bootstrap jako etykieta węzła wewnętrznego —
+w panelu *Node Labels* trzeba wybrać *Display:* `bootstrap`). Po otwarciu
+właściwego pliku „drabinka" w dużej mierze zniknęła sama, a *Min tip
+spacing* = 15 uporządkował resztę. Opisane w `doc/instrukcja.md`, rozdział 2.
+
+## 2. Pomiar: dlaczego globalny odstęp nie mógł wystarczyć
+
+Na prawdziwym drzewie (648 liści, próg 70 → 104 pokazywane wartości)
+odległości w pionie między kolejnymi pokazywanymi wartościami, liczone
+w „odstępach między liśćmi":
+
+- 18 par (17,5%) bliżej niż **1** odstęp liścia,
+- 6 par (5,8%) bliżej niż **0,5**,
+- najgorsza para: **0,20** odstępu.
+
+Żeby rozsunąć samą tę najgorszą parę globalnym *Min tip spacing*, przy
+czcionce 10 pt trzeba by ok. **66 pt** na liść — drzewo wysokie na ponad
+40 000 pt. Czyli E2 w wersji „globalne rozciąganie" odpada: problem jest
+**lokalny** (kilkanaście etykiet ze 104), więc i lekarstwo musi być lokalne.
+
+Dodatkowo część tych par ma duży odstęp **w poziomie** (np. 0,79 przy
+szerokości drzewa 1,51) — czyli wcale na siebie nie wchodzą. Sam odstęp
+w pionie to za mało, żeby orzec kolizję.
+
+## 3. Zrobione: E3 zamiast E2
+
+Wybrane rozwiązanie jest bliższe punktowi E3 niż E2, ale w wąskim,
+bezpiecznym zakresie — `TreePane.spreadOverlappingNodeLabels()`:
+
+- działa **po** rozłożeniu drzewa, na prawdziwych prostokątach tekstu
+  (znana czcionka, znana pozycja), więc widzi realne kolizje, a nie
+  przybliżenia z pozycji `y`;
+- porównuje też **poziom**, więc wartości na odległych gałęziach zostają
+  nietknięte;
+- przesuwa etykiety **wyłącznie w dół** i tylko o tyle, ile trzeba;
+- **nie rusza drzewa** — węzły, gałęzie i skala zostają na miejscu
+  (to główna przewaga nad E2, które psuło proporcje);
+- przesunięcie jest ograniczone do 3× wysokości etykiety, żeby liczba nie
+  odpłynęła od swojego węzła;
+- tylko układ prostokątny (w polarnym/radialnym etykiety są obrócone
+  i „w dół" nic nie znaczy).
+
+Włącznik: checkbox **Avoid overlap** (pole *Crowded values*) na dole panelu
+*Node Labels*, domyślnie wyłączony. Zapis do `.tree`:
+`nodeLabels.avoidOverlap`.
+
+## Co zostało na przyszłość
+
+Etykieta może być przesunięta tylko w dół. Gdyby to okazało się za mało,
+kolejne kroki (w kolejności rosnącej trudności): przesuwanie w obie strony
+(rozsuwanie symetryczne wokół gęstego miejsca), przerzucanie etykiety nad
+gałąź / pod gałąź tam, gdzie jest luźniej, oraz linia odniesienia
+(*callout*) rysowana od przesuniętej liczby do jej węzła.

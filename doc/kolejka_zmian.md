@@ -66,10 +66,11 @@ między gałęziami), `TreePane.java` (rysowanie całości).
 - [x] 2.5 🟡 **Minimalny odstęp pionowy między liśćmi** — ustawienie, które
   automatycznie „rozciąga" drzewo tak, żeby etykiety liści się nie nakładały
   przy danej czcionce (zamiast ręcznego kręcenia suwakiem *Expansion*).
-- [ ] 2.6 🔴 **Automatyczne unikanie kolizji** etykiet węzłów: program sprawdza,
+- [x] 2.6 🔴 **Automatyczne unikanie kolizji** etykiet węzłów: program sprawdza,
   czy prostokąt tekstu nachodzi na inny, i przesuwa go (w górę/dół, na drugą
   stronę gałęzi). To już prawdziwy algorytm — zrobić dopiero, gdy 2.1–2.5
-  nie wystarczą.
+  nie wystarczą. **Zrobione w 6.6** (na razie tylko przesuwanie w dół, bez
+  przerzucania na drugą stronę gałęzi).
 
 Uwagi do etapu 2 (zrobione 2.1–2.5): nowe kontrolki są w panelach *Node Labels*
 i *Branch Labels* (Position, Offset X/Y, Show only if >=, Second value, Layout)
@@ -244,7 +245,7 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
 - [x] 6.5 🟢 **Etap 5 (mysz/klawiatura)** — plan: `doc/sesja_D_mysz.md`. **Zrobione**
   — patrz uwagi przy 5.1–5.3 wyżej.
 
-- [ ] 6.6 🟡 **Min tip spacing nie wystarcza przy drzewach „drabinkowych"** —
+- [x] 6.6 🟡 **Min tip spacing nie wystarcza przy drzewach „drabinkowych"** —
   zgłoszone 2026-08-23 ze zrzutem ekranu: mimo Min tip spacing = 30, etykiety
   poparcia (bootstrap) nadal się nakładają w miejscach, gdzie drzewo dokłada
   po jednym takson na raz (długi łańcuch kladów 2-elementowych, np.
@@ -253,7 +254,19 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   wisi numer poparcia) leżą tam, gdzie wypada środek między dziećmi — przy
   takiej topologii kilka węzłów wewnętrznych mieści się w przestrzeni węższej
   niż wysokość samej etykiety liczby, niezależnie od odstępu liści. Plan:
-  `doc/sesja_E_min_node_spacing.md`.
+  `doc/sesja_E_min_node_spacing.md`. **Zrobione** — checkbox *Avoid overlap*
+  (pole *Crowded values*) na dole panelu *Node Labels*; przesuwa w dół tylko te
+  wartości poparcia, które naprawdę na siebie wchodzą, nie ruszając drzewa.
+  Klucz w pliku `.tree`: `nodeLabels.avoidOverlap`.
+
+  Przy okazji wyszło coś ważniejszego niż sama opcja: pierwotny zrzut ekranu
+  pokazywał **zły plik** — `ciemnozarodnikowe_v3_modeltest.tree` to wynik testu
+  modelu, w którym **wszystkie gałęzie mają sztuczną długość `0.1`**, stąd
+  idealne „schodki". Drzewo do ryciny to
+  `ciemnozarodnikowe_calosc_ML_v3.raxml.support` (prawdziwe długości gałęzi
+  i bootstrap jako etykieta węzła — w panelu *Node Labels* → *Display*
+  wybrać `bootstrap`, nie `Node ages`). Samo otwarcie właściwego pliku
+  usunęło większość problemu.
 
 - [ ] 6.7 🟡 **Słowniki grup: dopasowanie po rodzaju + szablon do wypełnienia** —
   zgłoszone 2026-08-23: pisanie pliku `nazwa<TAB>rodzina` dla setek okazów to

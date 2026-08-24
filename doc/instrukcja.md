@@ -31,12 +31,31 @@ FigTree zainstalowany obok.
 
 Wszystkie te pliki to zwykły tekst — otwierają się w Notatniku i w Excelu.
 
+### Który plik z RAxML-a otwierać do ryciny
+
+RAxML zostawia w folderze kilkanaście plików o podobnych nazwach i łatwo otworzyć
+niewłaściwy. Do ryciny służy **`.raxml.support`**:
+
+| Plik | Co zawiera | Do ryciny? |
+|---|---|---|
+| `*.raxml.support` | drzewo ML z prawdziwymi długościami gałęzi **i wartościami bootstrap** | **tak** |
+| `*.raxml.bestTree` | to samo drzewo, ale **bez** wartości poparcia | nie |
+| `*_modeltest.tree` | drzewo pomocnicze z testu modelu; **wszystkie gałęzie mają sztuczną długość `0.1`** | nie |
+
+Po czym poznać pomyłkę: jeśli drzewo wygląda jak równiutkie **schodki**, a gałęzie
+mają identyczną długość, to prawie na pewno plik z testu modelu — długości gałęzi
+nie są prawdziwe, więc taka rycina nic nie znaczy.
+
+Po otwarciu `.raxml.support` trzeba jeszcze w panelu *Node Labels* ustawić
+**Display: bootstrap** (samo `label` albo `Node ages` to nie to).
+
 ## 3. Panel *Layout*
 
 - **Min tip spacing** — najmniejszy odstęp w pionie między nazwami liści (w punktach).
   Drzewo samo się wydłuża, żeby nazwy się nie nakładały. Działa też przy eksporcie
-  do PDF. Uwaga: pilnuje odstępu **liści**, więc przy drzewach „drabinkowych"
-  etykiety poparcia na węzłach mogą nadal kolidować (zadanie 6.6).
+  do PDF. Uwaga: pilnuje odstępu **liści**, więc wartości poparcia na węzłach
+  wewnętrznych mogą nadal kolidować — na to jest osobna opcja **Avoid overlap**
+  w panelu *Node Labels* (rozdział 6).
 - **Shorten branches longer than** — bardzo długie gałęzie (np. do outgrupy) są
   skracane i oznaczane `//`. Uwaga: skrócona gałąź nie odpowiada już skali.
 
@@ -99,6 +118,16 @@ Wygląd:
 - **Show only if >=** — próg; wartości poniżej nie są rysowane (np. bootstrap < 50).
 - **Second value** + **Layout** — druga wartość obok pierwszej (np. PP obok
   bootstrapu), w formie `a / b` albo jedna nad drugą (*stacked*).
+- **Crowded values → Avoid overlap** (tylko *Node Labels*) — gdy dwie wartości
+  poparcia wypadłyby jedna na drugiej, dolna jest odsuwana w dół tylko o tyle,
+  o ile trzeba. Samo drzewo się nie zmienia — przesuwa się wyłącznie tekst.
+  Wartości na gałęziach odległych w poziomie zostają na miejscu, a żadna liczba
+  nie odjedzie od swojego węzła dalej niż o trzy wysokości etykiety.
+
+  Kiedy tego użyć: gdy w gęstym kladzie (dużo bardzo podobnych okazów jednego
+  gatunku) liczby nachodzą na siebie mimo **Min tip spacing**. To normalne —
+  *Min tip spacing* rozsuwa **liście**, a wartości poparcia siedzą na węzłach
+  wewnętrznych, które mogą leżeć znacznie bliżej siebie niż liście.
 
 ## 7. Panele *Node Shapes* / *Tip Shapes* (kropki)
 
