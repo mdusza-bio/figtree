@@ -50,6 +50,7 @@ public class DefaultTreeViewer extends TreeViewer {
     private final static double ZOOM_SCALE = 0.02;
     private final static double VERTICAL_EXPANSION_SCALE = 0.02;
     private final static double ZOOM_POWER = 1.2;
+    private final static int WHEEL_SCROLL_UNIT = 24;
 
     public DefaultTreeViewer() {
         this(null);
@@ -85,6 +86,12 @@ public class DefaultTreeViewer extends TreeViewer {
 
         JScrollPane scrollPane = new JScrollPane(treePane, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setMinimumSize(new Dimension(150, 150));
+
+        // MyFigTree: TreePane doesn't implement Scrollable, so JScrollPane falls back to
+        // its default unit increment (1px), making wheel scrolling barely move the view.
+        // A bigger, fixed increment feels like scrolling in most other programs.
+        scrollPane.getVerticalScrollBar().setUnitIncrement(WHEEL_SCROLL_UNIT);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(WHEEL_SCROLL_UNIT);
 
         scrollPane.setBorder(null);
         viewport = scrollPane.getViewport();
