@@ -1,0 +1,91 @@
+# Slownik rodzajow sluzowcow (Myxomycetes / Myxogastria): rodzaj -> rodzina -> rzad
+#
+# ROBOCZY - DO SPRAWDZENIA PRZEZ SPECJALISTKE. Ujecia systematyczne sie roznia,
+# przy rodzajach spornych jest komentarz z alternatywa (linie zaczynajace sie od #
+# program pomija przy wczytywaniu).
+#
+# Uklad: tradycyjny (Martin & Alexopoulos / baza nomenklatoryczna Lado), ten sam,
+# ktorego uzywa przyklad w dokumentacji: Trichiales = Trichiaceae + Arcyriaceae +
+# Dianemataceae. Nowsze ujecie (Leontyev i in. 2019) laczy te trzy rodziny
+# w Trichiaceae i dzieli Liceales na Cribrariales i Reticulariales - patrz README.md.
+#
+# Kolumny mozna dopisywac wlasne (np. substrat, region) - naglowek kolumny staje sie
+# nazwa atrybutu w programie.
+
+genus	family	order
+Ceratiomyxa	Ceratiomyxaceae	Ceratiomyxales
+# Ceratiomyxa bywa wylaczana z Myxomycetes wlasciwych (Protosteliomycetes / Ceratiomyxomycetes).
+Echinostelium	Echinosteliaceae	Echinosteliales
+Semimorula	Echinosteliaceae	Echinosteliales
+Clastoderma	Clastodermataceae	Echinosteliales
+Barbeyella	Clastodermataceae	Echinosteliales
+Licea	Liceaceae	Liceales
+Cribraria	Cribrariaceae	Liceales
+Lindbladia	Cribrariaceae	Liceales
+Lycogala	Reticulariaceae	Liceales
+Reticularia	Reticulariaceae	Liceales
+Enteridium	Reticulariaceae	Liceales
+# Enteridium bywa traktowane jako synonim Reticularia - zostawione, bo takie nazwy
+# wciaz chodza po sekwencjach w GenBanku.
+Tubifera	Reticulariaceae	Liceales
+Siphoptychium	Reticulariaceae	Liceales
+Alwisia	Reticulariaceae	Liceales
+Dictydiaethalium	Reticulariaceae	Liceales
+# Reticulariaceae bywa nazywana Enteridiaceae albo Tubiferaceae; Dictydiaethalium
+# w czesci ujec ma wlasna rodzine Dictydiaethaliaceae.
+Trichia	Trichiaceae	Trichiales
+Hemitrichia	Trichiaceae	Trichiales
+Metatrichia	Trichiaceae	Trichiales
+Oligonema	Trichiaceae	Trichiales
+Calonema	Trichiaceae	Trichiales
+Cornuvia	Trichiaceae	Trichiales
+Minakatella	Trichiaceae	Trichiales
+Prototrichia	Trichiaceae	Trichiales
+Perichaena	Trichiaceae	Trichiales
+# Perichaena bywa umieszczana w Arcyriaceae (tak ma Martin & Alexopoulos);
+# Prototrichia bywa w osobnej Prototrichiaceae.
+Arcyria	Arcyriaceae	Trichiales
+Arcyodes	Arcyriaceae	Trichiales
+Dianema	Dianemataceae	Trichiales
+Calomyxa	Dianemataceae	Trichiales
+Listerella	Dianemataceae	Trichiales
+# Listerella bywa wydzielana do Listerellaceae (czasem w Liceales).
+Stemonitis	Stemonitidaceae	Stemonitales
+Stemonitopsis	Stemonitidaceae	Stemonitales
+Stemonaria	Stemonitidaceae	Stemonitales
+Comatricha	Stemonitidaceae	Stemonitales
+Collaria	Stemonitidaceae	Stemonitales
+Paradiacheopsis	Stemonitidaceae	Stemonitales
+Macbrideola	Stemonitidaceae	Stemonitales
+Enerthenema	Stemonitidaceae	Stemonitales
+Symphytocarpus	Stemonitidaceae	Stemonitales
+Lamproderma	Stemonitidaceae	Stemonitales
+Diacheopsis	Stemonitidaceae	Stemonitales
+Leptoderma	Stemonitidaceae	Stemonitales
+# Lamproderma, Diacheopsis i Leptoderma bywaja wydzielane do Lamprodermataceae.
+Colloderma	Stemonitidaceae	Stemonitales
+# Colloderma bywa w osobnej Collodermataceae.
+Elaeomyxa	Stemonitidaceae	Stemonitales
+# Elaeomyxa bywa w Elaeomyxaceae, czasem przy Physarales.
+Amaurochaete	Amaurochaetaceae	Stemonitales
+Brefeldia	Amaurochaetaceae	Stemonitales
+# Amaurochaete i Brefeldia w wielu ujeciach zostaja w Stemonitidaceae.
+Physarum	Physaraceae	Physarales
+Badhamia	Physaraceae	Physarales
+Badhamiopsis	Physaraceae	Physarales
+Fuligo	Physaraceae	Physarales
+Craterium	Physaraceae	Physarales
+Leocarpus	Physaraceae	Physarales
+Physarella	Physaraceae	Physarales
+Willkommlangea	Physaraceae	Physarales
+Protophysarum	Physaraceae	Physarales
+Erionema	Physaraceae	Physarales
+Didymium	Didymiaceae	Physarales
+Diderma	Didymiaceae	Physarales
+Mucilago	Didymiaceae	Physarales
+Lepidoderma	Didymiaceae	Physarales
+Physarina	Didymiaceae	Physarales
+Trabrooksia	Didymiaceae	Physarales
+Wilczekia	Didymiaceae	Physarales
+Diachea	Didymiaceae	Physarales
+# Diachea w starszych ujeciach bywa w Stemonitales (Stemonitidaceae).

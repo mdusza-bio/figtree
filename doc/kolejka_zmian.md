@@ -238,3 +238,18 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   takiej topologii kilka węzłów wewnętrznych mieści się w przestrzeni węższej
   niż wysokość samej etykiety liczby, niezależnie od odstępu liści. Plan:
   `doc/sesja_E_min_node_spacing.md`.
+
+- [ ] 6.7 🟡 **Słowniki grup: dopasowanie po rodzaju + szablon do wypełnienia** —
+  zgłoszone 2026-08-23: pisanie pliku `nazwa<TAB>rodzina` dla setek okazów to
+  strata czasu, a rodzina i rząd zależą od **rodzaju**, czyli pierwszego członu
+  nazwy liścia. Do zrobienia: (a) przy imporcie, gdy nazwa z pliku nie pasuje do
+  żadnego pełnego imienia okazu, spróbować dopasować ją do pierwszego członu
+  nazw i przypisać atrybut wszystkim okazom tego rodzaju (w podsumowaniu
+  osobno policzyć takie dopasowania); (b) *File → Export Group Template…* —
+  wypisanie z otwartego drzewa listy unikalnych rodzajów z pustymi kolumnami
+  do wypełnienia w Excelu. Wtedy słownik `doc/slowniki/sluzowce.tsv` wczytuje
+  się wprost. Format i obejście na dziś: `doc/slowniki/README.md`.
+- [ ] 6.8 🟢 **Przycisk *Colours…* w panelu Group Bars** — dziś kolory grup
+  ustawia się w *Appearance* → *Colour by* → *Setup: Colours*, co po drodze
+  koloruje gałęzie. Skrót wprost w panelu *Group Bars* otwierałby to samo okno
+  dla atrybutu pasków.

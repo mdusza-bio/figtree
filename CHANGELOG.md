@@ -151,6 +151,11 @@ i włącza paski. To samo co *Annotate*, ale bez klikania okaz po okazie.
 Atrybuty liści zapisują się w pliku `.tree` przy *Save*, więc po ponownym
 otwarciu są już na miejscu.
 
+Słowniki grup organizmów (rodzaj → rodzina → rząd) leżą w
+[doc/slowniki/](doc/slowniki/) — na razie roboczy, do sprawdzenia
+[sluzowce.tsv](doc/slowniki/sluzowce.tsv) z 63 rodzajami śluzowców. Opis formatu
+i sposób użycia w Excelu: [doc/slowniki/README.md](doc/slowniki/README.md).
+
 Pliki do testów: [doc/przyklad.tree](doc/przyklad.tree) (8 okazów) razem
 z [doc/przyklad_rodziny.tsv](doc/przyklad_rodziny.tsv).
 
