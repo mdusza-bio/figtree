@@ -154,6 +154,15 @@ otwarciu są już na miejscu.
 Pliki do testów: [doc/przyklad.tree](doc/przyklad.tree) (8 okazów) razem
 z [doc/przyklad_rodziny.tsv](doc/przyklad_rodziny.tsv).
 
+### Etap 6.4 — cofanie presetu publikacyjnego (sesja C)
+Przycisk **Publication preset** w panelu *Appearance* działa teraz jak
+przełącznik: pierwsze kliknięcie zapamiętuje pełne bieżące ustawienia wyglądu
+i dopiero potem nakłada preset, a napis zmienia się na **Undo preset**; drugie
+kliknięcie przywraca dokładnie to, co było wcześniej, i napis wraca do
+**Publication preset**. Zapamiętana kopia jest ważna tylko dla aktualnie
+otwartego drzewa — po wczytaniu innego drzewa znika, a przycisk sam wraca do
+stanu początkowego. Plan: `doc/sesja_C_preset_undo.md`.
+
 ### Nie zrobione / do sprawdzenia
 - 2.6 automatyczne rozsuwanie kolidujących etykiet — odłożone.
 - Etap 5 (Ctrl+kółko = rozsuwanie, naprawa skrótów `meta` → Ctrl na Windowsie) —

@@ -235,10 +235,24 @@ public class TreeAppearanceController extends AbstractController {
         publicationPresetButton.setEnabled(false);
         publicationPresetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                applyPublicationPreset();
+                togglePublicationPreset();
             }
         });
         optionsPanel.addSpanningComponent(publicationPresetButton);
+
+        // MyFigTree: the "undo" copy only makes sense for the tree it was taken
+        // from, so drop it (and revert the button) as soon as a different tree
+        // is loaded.
+        treeViewer.addTreeViewerListener(new TreeViewerListener() {
+            public void treeChanged() {
+                beforePreset = null;
+                publicationPresetButton.setText("Publication preset");
+            }
+
+            public void treeSettingsChanged() {
+                // nothing to do
+            }
+        });
     }
 
     /**
@@ -266,14 +280,29 @@ public class TreeAppearanceController extends AbstractController {
         return null;
     }
 
-    private void applyPublicationPreset() {
+    /**
+     * MyFigTree: the preset button doubles as its own undo. First click saves a
+     * full copy of every panel's settings and applies the preset; second click
+     * restores that copy. The copy is discarded (see the TreeViewerListener
+     * above) as soon as it is used or a different tree is loaded.
+     */
+    private void togglePublicationPreset() {
         if (controlPalette == null) {
             return;
         }
+        if (beforePreset != null) {
+            controlPalette.setSettings(beforePreset);
+            beforePreset = null;
+            publicationPresetButton.setText("Publication preset");
+            return;
+        }
+
         // Start from the current values of every panel so all keys are present,
-        // then override the ones that make up the "publication style".
+        // then override the ones that make up the "publication style". This
+        // full map is also what "Undo preset" restores afterwards.
         Map<String, Object> settings = new HashMap<String, Object>();
         controlPalette.getSettings(settings);
+        beforePreset = new HashMap<String, Object>(settings);
 
         String supportAttribute = findSupportAttribute();
 
@@ -320,6 +349,7 @@ public class TreeAppearanceController extends AbstractController {
         settings.put("rectilinearLayout.alignTipLabels", Boolean.TRUE);
 
         controlPalette.setSettings(settings);
+        publicationPresetButton.setText("Undo preset");
     }
 
     private void setupBranchDecorators() {
@@ -428,6 +458,8 @@ public class TreeAppearanceController extends AbstractController {
 
     private final JButton publicationPresetButton;
     private ControlPalette controlPalette = null;
+    /** Full settings snapshot from before the preset was applied, or null if no undo is pending. */
+    private Map<String, Object> beforePreset = null;
 
     private final JComboBox branchColourAttributeCombo;
     private final JCheckBox branchColourGradientCheck;
