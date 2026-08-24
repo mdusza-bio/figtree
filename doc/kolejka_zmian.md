@@ -213,9 +213,10 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   numer" + lista słów bez kursywy (`var.`, `subsp.`, `f.`, `sp.`, `cf.`, `aff.`).
   Plan: `doc/sesja_A_kursywa.md`. **Zrobione** — lista *Italic mode* w panelu
   *Tip Labels*, tryb *Until first number* jest domyślny.
-- [ ] 6.2 🟢 **Szablon etykiet — wyjaśnić albo usunąć.** Opis z przykładami w
-  `doc/szablon_etykiet.md`; decyzja po przeczytaniu. Jeśli 6.1 załatwia
-  potrzeby, pole *Advanced template* usuwamy z panelu.
+- [x] 6.2 🟢 **Szablon etykiet — usunięty.** Decyzja użytkowniczki 2026-08-23:
+  tryby *Italic mode* z 6.1 załatwiają sprawę, więc pole *Advanced template*
+  zniknęło z panelu *Tip Labels* razem z całą obsługą szablonów w kodzie
+  i opisem `doc/szablon_etykiet.md`.
 - [x] 6.3 🟡 **Group Bars nic nie pokazują** — bo liście nie mają atrybutu
   „rodzina". FigTree nie zna rodzin; trzeba je podać. Zrobione: poprawiony import
   z pliku `nazwa<TAB>rodzina` (*File → Import Annotations…*, z podsumowaniem

@@ -15,20 +15,13 @@ import java.util.Set;
 
 /**
  * Describes how the parts of a (tip) name are styled, and turns a list of parts
- * into a list of styled runs to draw. Two ways of describing the style:
- * <ul>
- *     <li><b>simple</b>: "first N parts italic" with one style for the italic
- *         group and one for the remaining parts (3.1 - 3.3);</li>
- *     <li><b>template</b> (3.5): a string like <code>{1-2:i} {3:U}</code> where
- *         each <code>{...}</code> picks parts (<code>3</code>, <code>1-2</code>,
- *         <code>3-</code> = from 3 to the end, <code>*</code> = all) and flags:
- *         <code>i</code> italic, <code>b</code> bold, <code>U</code> upper case,
- *         <code>L</code> lower case, <code>S</code> sentence case,
- *         <code>#rrggbb</code> colour. Text outside braces is copied literally.
- *         A valid template overrides the simple settings; an invalid one is ignored.</li>
- * </ul>
- * On top of both, "highlight": tips whose RAW name contains one of the given
+ * into a list of styled runs to draw: which parts are italic (3.1 - 3.3, 6.1),
+ * how their case is changed, and how the collection number is put back together.
+ * On top of that, "highlight": tips whose RAW name contains one of the given
  * substrings get bold and/or a colour on the whole label (3.4).
+ *
+ * <p>The "advanced template" of 3.5 was removed in 6.2 - the italic modes of 6.1
+ * cover what it was there for.</p>
  */
 public class LabelStyle {
 
@@ -523,30 +516,12 @@ public class LabelStyle {
         return false;
     }
 
-    // ---- template (3.5)
-
-    public String getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(String template) {
-        this.template = (template == null ? "" : template);
-        templateTokens = parseTemplate(this.template.trim());
-    }
-
-    /**
-     * @return true if the current template text is non-empty and valid
-     */
-    public boolean isTemplateActive() {
-        return templateTokens != null;
-    }
-
     /**
      * @return true if nothing here would change how a label is drawn, so the
      *         painter can use its plain single-string drawing path
      */
     public boolean isPlain() {
-        if (templateTokens != null || !highlightList.isEmpty() || !otherGroup.isPlain()) {
+        if (!highlightList.isEmpty() || !otherGroup.isPlain()) {
             return false;
         }
         switch (italicMode) {
@@ -567,24 +542,7 @@ public class LabelStyle {
     public List<Run> getRuns(String[] parts, String rawName) {
         List<Run> runs = new ArrayList<Run>();
 
-        if (templateTokens != null) {
-            for (Token token : templateTokens) {
-                if (token.literal != null) {
-                    runs.add(new Run(token.literal, false, false, null));
-                } else {
-                    int from = token.from;
-                    int to = (token.to < 0 ? parts.length : Math.min(token.to, parts.length));
-                    StringBuilder text = new StringBuilder();
-                    for (int i = from; i < to; i++) {
-                        if (text.length() > 0) text.append(' ');
-                        text.append(token.style.caseMode.apply(parts[i]));
-                    }
-                    if (text.length() > 0) {
-                        runs.add(new Run(text.toString(), token.style.italic, token.style.bold, token.style.colour));
-                    }
-                }
-            }
-        } else {
+        {
             List<String> items = new ArrayList<String>(parts.length);
             List<Boolean> italic = new ArrayList<Boolean>(parts.length);
             buildItems(parts, items, italic);
@@ -650,118 +608,6 @@ public class LabelStyle {
         return new Run(text.toString(), style.italic, style.bold, style.colour);
     }
 
-    // ---- template parsing
-
-    private static class Token {
-        String literal;     // non-null for literal text
-        int from, to;       // 0-based, to = -1 means "to the end"
-        PartStyle style;
-    }
-
-    /**
-     * @return the parsed tokens, or null if the template is empty or invalid
-     */
-    private static List<Token> parseTemplate(String template) {
-        if (template.length() == 0) {
-            return null;
-        }
-        List<Token> tokens = new ArrayList<Token>();
-        int pos = 0;
-        boolean anyParts = false;
-        while (pos < template.length()) {
-            int open = template.indexOf('{', pos);
-            if (open < 0) {
-                tokens.add(literal(template.substring(pos)));
-                break;
-            }
-            if (open > pos) {
-                tokens.add(literal(template.substring(pos, open)));
-            }
-            int close = template.indexOf('}', open);
-            if (close < 0) {
-                return null;
-            }
-            Token token = parsePartToken(template.substring(open + 1, close));
-            if (token == null) {
-                return null;
-            }
-            tokens.add(token);
-            anyParts = true;
-            pos = close + 1;
-        }
-        return anyParts ? tokens : null;
-    }
-
-    private static Token literal(String text) {
-        Token t = new Token();
-        t.literal = text;
-        return t;
-    }
-
-    /**
-     * Parses the inside of "{...}": "range" or "range:flags".
-     */
-    private static Token parsePartToken(String body) {
-        body = body.trim();
-        String range = body;
-        String flags = "";
-        int colon = body.indexOf(':');
-        if (colon >= 0) {
-            range = body.substring(0, colon).trim();
-            flags = body.substring(colon + 1).trim();
-        }
-
-        Token token = new Token();
-        token.style = new PartStyle();
-        try {
-            if (range.equals("*")) {
-                token.from = 0;
-                token.to = -1;
-            } else {
-                int dash = range.indexOf('-');
-                if (dash < 0) {
-                    token.from = Integer.parseInt(range) - 1;
-                    token.to = token.from + 1;
-                } else {
-                    token.from = Integer.parseInt(range.substring(0, dash).trim()) - 1;
-                    String toText = range.substring(dash + 1).trim();
-                    token.to = (toText.length() == 0 ? -1 : Integer.parseInt(toText));
-                }
-            }
-        } catch (NumberFormatException e) {
-            return null;
-        }
-        if (token.from < 0 || (token.to >= 0 && token.to <= token.from)) {
-            return null;
-        }
-
-        int i = 0;
-        while (i < flags.length()) {
-            char c = flags.charAt(i);
-            if (c == '#') {
-                if (i + 7 > flags.length()) return null;
-                try {
-                    token.style.colour = Color.decode(flags.substring(i, i + 7));
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-                i += 7;
-                continue;
-            }
-            switch (c) {
-                case 'i': token.style.italic = true; break;
-                case 'b': token.style.bold = true; break;
-                case 'U': token.style.caseMode = Case.UPPER; break;
-                case 'L': token.style.caseMode = Case.LOWER; break;
-                case 'S': token.style.caseMode = Case.SENTENCE; break;
-                case ' ': case ',': break;
-                default: return null;
-            }
-            i++;
-        }
-        return token;
-    }
-
     /** the rank/qualifier words that stay upright unless the user changes them */
     public static final String DEFAULT_NON_ITALIC_WORDS = "var subsp ssp f sp cf aff nov x";
 
@@ -790,7 +636,4 @@ public class LabelStyle {
     private final List<String> highlightList = new ArrayList<String>();
     private boolean highlightBold = false;
     private Color highlightColour = null;
-
-    private String template = "";
-    private List<Token> templateTokens = null;
 }

@@ -4,6 +4,28 @@ Niezależna od sesji A–D. Dotyka:
 `src/figtree/treeviewer/treelayouts/RectilinearTreeLayout.java` (pozycje y
 węzłów), ewentualnie `TreePane.java` (rysowanie node labels).
 
+## Stan projektu na start tej sesji (2026-08-23, wieczorem)
+
+- Wszystko siedzi na gałęzi **master**, w głównym folderze
+  `C:\Users\Magdalena Dusza\workspeace\my_figtree`. Etapy 6.1 (kursywa
+  i składanie numeru okazu) oraz 6.3 (Group Bars) są już zmergowane, 6.2
+  (usunięcie *Advanced template*) też.
+- **Pracuj prosto na masterze, nie zakładaj gałęzi ani worktree** — użytkowniczka
+  dopiero uczy się gita i równoległe gałęzie okazały się mylące. Jedna zmiana,
+  jeden commit, od razu widoczna w `dist\figtree.jar`.
+- **Przeklikane i działa**: panel *Tip Labels* (kursywa, `var.`/`sp.`,
+  numery `KRAM M-1156`, `UK100-1b`, `UARK CA. 6-131`, `Ron324 2/3`).
+- **Jeszcze nieprzeklikane**: Group Bars z 6.3 (import rodzin z pliku).
+- **Prawdziwe drzewo użytkowniczki do testów** — dokładnie to ze zrzutu, z
+  drabinkowym kladem *Lamproderma*:
+  `C:\Users\Magdalena Dusza\workspeace\excel_ciemnozarodnikowe\v3\ciemnozarodnikowe_v3_modeltest.tree`
+  (jest też wersja `v2` obok). Małe drzewko testowe: `doc/przyklad.tree`.
+- FigTree startuje **pusty** — plik trzeba otworzyć (*File → Open*) albo podać
+  w linii poleceń:
+  `"...\tools\jdk8u502-b07\bin\java" -jar dist\figtree.jar "ścieżka\do\drzewa.tree"`
+- `LabelPainterController.java` sporo się zmienił przy 6.1 i 6.2 — nie sugeruj się
+  numerami linii z wcześniejszych notatek, szukaj po nazwach pól.
+
 ## Diagnoza (na podstawie zrzutu ekranu z 2026-08-23)
 
 Drzewo ma długi ciąg kladów, gdzie każdy kolejny węzeł dokłada tylko jeden

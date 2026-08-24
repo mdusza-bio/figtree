@@ -106,6 +106,13 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.2 — usunięty *Advanced template*
+Pole **Advanced template** (szablon typu `{1-2:i} {3:U}` z etapu 3.5) zostało
+usunięte z panelu *Tip Labels*: tryby **Italic mode** z 6.1 robią to samo bez
+uczenia się składni. Zniknie też z kodu (parser szablonów w `LabelStyle`) i
+z dokumentacji (`doc/szablon_etykiet.md`). Klucz `tipLabels.template` w starych
+plikach jest po prostu ignorowany — pliki otwierają się normalnie.
+
 ### Etap 6.3 — skąd program ma znać rodziny (Group Bars)
 Paski grup rysują się według **atrybutu liści** (np. `family = Trichiaceae`),
 a zwykły plik z drzewem z IQ-TREE czy MrBayes takich informacji nie zawiera —

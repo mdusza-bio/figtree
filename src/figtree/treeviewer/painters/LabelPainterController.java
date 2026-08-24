@@ -95,7 +95,6 @@ public class LabelPainterController extends AbstractController {
     public static final String HIGHLIGHT_KEY = "highlight";
     public static final String HIGHLIGHT_BOLD_KEY = "highlightBold";
     public static final String HIGHLIGHT_COLOUR_KEY = "highlightColour";
-    public static final String TEMPLATE_KEY = "template";
 
     // MyFigTree: smarter italics (Etap 6.1)
     public static final String ITALIC_MODE_KEY = "italicMode";
@@ -449,16 +448,6 @@ public class LabelPainterController extends AbstractController {
             highlightBoldCheck.addActionListener(highlightListener);
             highlightColourButton.addActionListener(highlightListener);
 
-            templateText = new JTextField("", 10);
-            templateText.setToolTipText("<html>Overrides the settings above when filled in.<br>" +
-                    "e.g. <b>{1-2:i} {3:U}</b> = parts 1-2 italic, part 3 upper case.<br>" +
-                    "Ranges: 2, 1-2, 3- (to end), *. Flags: i italic, b bold, U/L/S case, #rrggbb colour.<br>" +
-                    "Text outside { } is copied as is.</html>");
-            templateText.getDocument().addDocumentListener(new DocumentListener() {
-                public void insertUpdate(DocumentEvent e) { applyTemplate(); }
-                public void removeUpdate(DocumentEvent e) { applyTemplate(); }
-                public void changedUpdate(DocumentEvent e) { applyTemplate(); }
-            });
         } else {
             italicPartsSpinner = null;
             italicModeCombo = null;
@@ -476,7 +465,6 @@ public class LabelPainterController extends AbstractController {
             highlightText = null;
             highlightBoldCheck = null;
             highlightColourButton = null;
-            templateText = null;
         }
 
         final JLabel label1 = optionsPanel.addComponentWithLabel("Display:", displayAttributeCombo);
@@ -524,8 +512,6 @@ public class LabelPainterController extends AbstractController {
             addComponent(optionsPanel.addComponentWithLabel("Highlight style:", stylePanel(highlightBoldCheck, highlightColourButton)));
             addComponent(highlightBoldCheck);
             addComponent(highlightColourButton);
-            addComponent(optionsPanel.addComponentWithLabel("Advanced template:", templateText));
-            addComponent(templateText);
         }
 
         if (xPaddingSpinner != null) {
@@ -644,16 +630,6 @@ public class LabelPainterController extends AbstractController {
         style.setHighlight(highlightText.getText());
         style.setHighlightBold(highlightBoldCheck.isSelected());
         style.setHighlightColour(highlightColourButton.getColour());
-        labelPainter.labelStyleChanged();
-    }
-
-    private void applyTemplate() {
-        LabelStyle style = labelPainter.getLabelStyle();
-        style.setTemplate(templateText.getText());
-        String text = templateText.getText().trim();
-        // red text = the template is not valid (and is being ignored)
-        boolean invalid = text.length() > 0 && !style.isTemplateActive();
-        templateText.setForeground(invalid ? Color.RED : UIManager.getColor("TextField.foreground"));
         labelPainter.labelStyleChanged();
     }
 
@@ -886,11 +862,6 @@ public class LabelPainterController extends AbstractController {
             highlightColourButton.setColour(colourFromSetting(settings.get(key + "." + HIGHLIGHT_COLOUR_KEY)));
         }
         applyHighlight();
-
-        v = settings.get(key + "." + TEMPLATE_KEY);
-        if (v != null) {
-            templateText.setText(v.toString());
-        }
     }
 
     private void getStyleSettings(Map<String, Object> settings) {
@@ -910,7 +881,6 @@ public class LabelPainterController extends AbstractController {
         settings.put(key + "." + HIGHLIGHT_KEY, highlightText.getText());
         settings.put(key + "." + HIGHLIGHT_BOLD_KEY, highlightBoldCheck.isSelected());
         settings.put(key + "." + HIGHLIGHT_COLOUR_KEY, colourSetting(highlightColourButton.getColour()));
-        settings.put(key + "." + TEMPLATE_KEY, templateText.getText());
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -991,7 +961,6 @@ public class LabelPainterController extends AbstractController {
     private final JTextField highlightText;
     private final JCheckBox highlightBoldCheck;
     private final OptionalColourButton highlightColourButton;
-    private final JTextField templateText;
 
     private final String title;
     private final String key;
