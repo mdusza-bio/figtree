@@ -163,6 +163,25 @@ kliknięcie przywraca dokładnie to, co było wcześniej, i napis wraca do
 otwartego drzewa — po wczytaniu innego drzewa znika, a przycisk sam wraca do
 stanu początkowego. Plan: `doc/sesja_C_preset_undo.md`.
 
+### Etap 5 / 6.5 — mysz i klawiatura (sesja D)
+Do tej pory kółko myszy tylko przewijało, a skróty zoom/rozsuwania używały
+klawisza `meta` (Cmd z Maca), więc na Windowsie nie działały wcale.
+- **Ctrl+kółko** nad drzewem rozsuwa/ściska pionowo (jak suwak *Expansion*), a
+  w układach, gdzie rozsuwanie nie istnieje (polarny, radialny) — przybliża/
+  oddala (zoom). **Ctrl+Shift+kółko** zawsze zbliża/oddala. Samo kółko dalej
+  zwyczajnie przewija widok.
+- **Skróty klawiszowe naprawione na Windowsie**: Ctrl+`=` / Ctrl+`-`
+  rozsuwanie, Ctrl+Alt+`=` / Ctrl+Alt+`-` zoom, Ctrl+0 reset (wcześniej
+  wymagały klawisza Cmd, którego na Windowsie nie ma).
+- **Rozsuwanie/zoom kółkiem trzyma się kursora** — gałąź, nad którą jest
+  kursor, zostaje w tym samym miejscu ekranu zamiast uciekać (poprzednio widok
+  zawsze wracał na środek okna).
+- **Szybsze, gładsze przewijanie kółkiem** (bez Ctrl) — i nad samym drzewem, i
+  na liście ustawień po lewej stronie; wcześniej trzeba było się „naklikać"
+  kółkiem, żeby przesunąć widok o kawałek.
+- **Ctrl+kółko wyraźnie czulsze** — jeden „ząbek" kółka daje teraz odczuwalną
+  zmianę zamiast mikroskopijnej.
+
 ### Nie zrobione / do sprawdzenia
 - 2.6 automatyczne rozsuwanie kolidujących etykiet — odłożone.
 - Etap 5 (Ctrl+kółko = rozsuwanie, naprawa skrótów `meta` → Ctrl na Windowsie) —

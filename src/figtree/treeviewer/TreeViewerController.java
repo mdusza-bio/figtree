@@ -31,6 +31,7 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -77,6 +78,8 @@ public class TreeViewerController extends AbstractController {
 
 	private final static int MAX_ZOOM_SLIDER = 1000;
 	private final static int DELTA_ZOOM_SLIDER = 1;
+	/** MyFigTree: how many DELTA_ZOOM_SLIDER-sized steps one Ctrl+wheel notch is worth. */
+	private final static int WHEEL_ZOOM_STEPS = 20;
 
 	public TreeViewerController(final TreeViewer treeViewer) {
 
@@ -217,19 +220,92 @@ public class TreeViewerController extends AbstractController {
 		// Set some InputMaps and ActionMaps for key strokes. The ActionMaps are set in setExpansion()
 		// because they differ by whether vertical expansion is allowed for the current layout.
 		// The key strokes could be obtained from preferences and set in a preference dialog box
+		//
+		// MyFigTree: "meta" is Cmd on a Mac, which doesn't exist on Windows, so these
+		// shortcuts never fired there. Use the platform menu shortcut key instead
+		// (Ctrl on Windows/Linux, Cmd on Mac).
+		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta 0"), "resetZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_0, menuShortcutMask), "resetZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta EQUALS"), "increasePrimaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, menuShortcutMask), "increasePrimaryZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta MINUS"), "decreasePrimaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, menuShortcutMask), "decreasePrimaryZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta alt EQUALS"), "increaseSecondaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, menuShortcutMask | KeyEvent.ALT_MASK), "increaseSecondaryZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta alt MINUS"), "decreaseSecondaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, menuShortcutMask | KeyEvent.ALT_MASK), "decreaseSecondaryZoom");
 
 		optionsPanel.getActionMap().put("resetZoom", resetZoomAction);
 
+		// MyFigTree: Ctrl+wheel = expand/collapse vertically (or zoom, in layouts where
+		// vertical expansion doesn't apply), Ctrl+Shift+wheel = zoom. Reuses the same
+		// actions as the keyboard shortcuts above so the sliders (and the settings saved
+		// to the .tree file) stay in sync. Plain wheel keeps scrolling as before.
+		//
+		// The listener has to sit on the tree component itself (the scroll pane's view),
+		// not on treeViewer: Swing delivers a MouseWheelEvent to the nearest ancestor that
+		// has a listener, and JScrollPane already installs one on itself for scrolling, so
+		// a listener any higher up would never see the event. Putting ours on the deepest
+		// component instead means we decide first, and forward to the scroll pane
+		// ourselves for the plain-scroll case.
+		if (treeViewer.getComponentCount() > 0 && treeViewer.getComponent(0) instanceof JScrollPane) {
+			final JScrollPane treeScrollPane = (JScrollPane) treeViewer.getComponent(0);
+			Component treeComponent = treeScrollPane.getViewport().getView();
+			if (treeComponent != null) {
+				treeComponent.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+					public void mouseWheelMoved(java.awt.event.MouseWheelEvent e) {
+						if (!e.isControlDown()) {
+							treeScrollPane.dispatchEvent(e);
+							return;
+						}
+						e.consume();
+						boolean increase = e.getWheelRotation() < 0;
+						String actionKey = e.isShiftDown() ?
+								(increase ? "increaseSecondaryZoom" : "decreaseSecondaryZoom") :
+								(increase ? "increasePrimaryZoom" : "decreasePrimaryZoom");
+						Action action = optionsPanel.getActionMap().get(actionKey);
+						if (action == null) {
+							return;
+						}
+
+						// MyFigTree: without this, expanding/zooming re-centres on the
+						// middle of the viewport, so the branch under the cursor drifts
+						// away. Remember it as a fraction of the tree's height before the
+						// change, then scroll back to put it under the cursor afterwards.
+						//
+						// Read the height from the tree component's own getPreferredSize(),
+						// not the viewport's getViewSize(): the resize itself only takes
+						// effect on revalidate(), which runs later/asynchronously, so
+						// getViewSize() would still report the pre-change height right after
+						// actionPerformed() returns. getPreferredSize() reflects what
+						// setPreferredSize() was just given, immediately.
+						JViewport viewport = treeScrollPane.getViewport();
+						Point viewPositionBefore = viewport.getViewPosition();
+						int oldContentHeight = treeComponent.getPreferredSize().height;
+						int cursorContentY = e.getPoint().y;
+						int cursorInViewportY = cursorContentY - viewPositionBefore.y;
+						double fraction = oldContentHeight > 0 ? cursorContentY / (double) oldContentHeight : 0.5;
+
+						// MyFigTree: the action is built for the keyboard shortcut, where
+						// holding the key down repeats it - a single call only moves the
+						// slider by DELTA_ZOOM_SLIDER (1 out of 1000), which is imperceptible
+						// for a single wheel notch. Repeat it so one notch is actually felt.
+						int steps = Math.abs(e.getWheelRotation()) * WHEEL_ZOOM_STEPS;
+						for (int i = 0; i < steps; i++) {
+							action.actionPerformed(new ActionEvent(optionsPanel, ActionEvent.ACTION_PERFORMED, actionKey));
+						}
+
+						int newContentHeight = treeComponent.getPreferredSize().height;
+						int newViewY = (int) (fraction * newContentHeight) - cursorInViewportY;
+						int maxViewY = Math.max(0, newContentHeight - viewport.getExtentSize().height);
+						newViewY = Math.max(0, Math.min(newViewY, maxViewY));
+						Point positionAfter = viewport.getViewPosition();
+						viewport.setViewPosition(new Point(positionAfter.x, newViewY));
+					}
+				});
+			}
+		}
 	}
 
 	public JComponent getTitleComponent() {

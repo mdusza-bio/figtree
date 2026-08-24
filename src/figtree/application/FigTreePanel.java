@@ -156,6 +156,9 @@ public class FigTreePanel extends JPanel {
         scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.GRAY));
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        // MyFigTree: same fix as the tree pane - the control list doesn't implement
+        // Scrollable either, so wheel scrolling here defaulted to a tiny 1px step.
+        scrollPane.getVerticalScrollBar().setUnitIncrement(24);
 
         int scrollBarWidth = scrollPane.getVerticalScrollBar().getWidth();
         int controlPanelWidth = CONTROL_PALETTE_WIDTH + scrollBarWidth;

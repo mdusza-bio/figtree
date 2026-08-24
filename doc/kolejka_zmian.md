@@ -189,16 +189,28 @@ Stan dziś: kółko myszy tylko przewija; skróty zoom/rozsuwanie są zdefiniowa
 klawiszem `meta` (Cmd z Maca — `src/figtree/treeviewer/TreeViewerController.java`,
 linie ~221–229), więc na Windowsie nie działają w ogóle. Zostaje tylko suwak.
 
-- [ ] 5.1 🟢 **Ctrl + kółko = rozsuwanie (Expansion)**, Ctrl + Shift + kółko =
+- [x] 5.1 🟢 **Ctrl + kółko = rozsuwanie (Expansion)**, Ctrl + Shift + kółko =
   zoom. Jeden nasłuch kółka na panelu drzewa podpięty pod istniejące akcje
   increase/decreaseVerticalExpansion i increase/decreaseZoom. Kółko bez Ctrl
   zostaje przewijaniem.
-- [ ] 5.2 🟢 **Naprawa skrótów na Windowsie**: zamiast `meta` użyć
+- [x] 5.2 🟢 **Naprawa skrótów na Windowsie**: zamiast `meta` użyć
   `Toolkit.getMenuShortcutKeyMask()` (Ctrl na Windows, Cmd na Macu) —
   Ctrl+`=` / Ctrl+`-` rozsuwanie, Ctrl+Alt+`=`/`-` zoom, Ctrl+0 reset.
-- [ ] 5.3 🟢 **Rozsuwanie „wokół kursora"**: po Ctrl+kółku przewinąć widok tak,
+- [x] 5.3 🟢 **Rozsuwanie „wokół kursora"**: po Ctrl+kółku przewinąć widok tak,
   żeby gałąź pod kursorem została w tym samym miejscu ekranu (inaczej drzewo
   ucieka w dół). Zrobić po 5.1, jeśli będzie przeszkadzać.
+
+Uwagi do etapu 5 (zrobione 5.1–5.3): przy testach doszły dwie dodatkowe poprawki,
+spoza pierwotnego planu, zgłoszone przez użytkowniczkę na żywo:
+- **Szybsze przewijanie samym kółkiem** — `TreePane` nie zgłaszał Swingowi żadnej
+  sugerowanej „jednostki" przewijania, więc kółko ledwo ruszało widok (1 px na
+  „ząbek"). Ustawiony stały skok (24 px) w `DefaultTreeViewer` i w scrollu panelu
+  kontrolek po lewej (`figtree/application/FigTreePanel.java`) — oba miejsca
+  osobno korzystały z domyślnej, zbyt małej wartości Swinga.
+- **Ctrl+kółko zbyt mało czułe** — akcje rozsuwania/zoomu są pomyślane pod
+  przytrzymany klawisz (powtarzanie), więc jedno wywołanie z kółka ledwo było
+  widoczne. Jeden „ząbek" kółka wykonuje teraz tę samą akcję 20 razy pod rząd
+  (stała `WHEEL_ZOOM_STEPS`), zamiast raz.
 
 ---
 
@@ -229,7 +241,8 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   panelu *Appearance* działa jak przełącznik: pierwsze kliknięcie zapamiętuje
   pełne ustawienia i nakłada preset (napis zmienia się na *Undo preset*),
   drugie przywraca zapamiętaną kopię. Kopia znika po wczytaniu innego drzewa.
-- [ ] 6.5 🟢 **Etap 5 (mysz/klawiatura)** — plan: `doc/sesja_D_mysz.md`.
+- [x] 6.5 🟢 **Etap 5 (mysz/klawiatura)** — plan: `doc/sesja_D_mysz.md`. **Zrobione**
+  — patrz uwagi przy 5.1–5.3 wyżej.
 
 - [ ] 6.6 🟡 **Min tip spacing nie wystarcza przy drzewach „drabinkowych"** —
   zgłoszone 2026-08-23 ze zrzutem ekranu: mimo Min tip spacing = 30, etykiety

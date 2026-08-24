@@ -30,6 +30,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Map;
 
 /**
@@ -117,16 +118,21 @@ public class TreeViewerController extends AbstractController {
 		// Set some InputMaps and ActionMaps for key strokes. The ActionMaps are set in setExpansion()
 		// because they differ by whether vertical expansion is allowed for the current layout.
 		// The key strokes could be obtained from preferences and set in a preference dialog box
+		//
+		// MyFigTree: "meta" is Cmd on a Mac, which doesn't exist on Windows, so these
+		// shortcuts never fired there. Use the platform menu shortcut key instead
+		// (Ctrl on Windows/Linux, Cmd on Mac).
+		int menuShortcutMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta 0"), "resetZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_0, menuShortcutMask), "resetZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta EQUALS"), "increasePrimaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, menuShortcutMask), "increasePrimaryZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta MINUS"), "decreasePrimaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, menuShortcutMask), "decreasePrimaryZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta alt EQUALS"), "increaseSecondaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, menuShortcutMask | KeyEvent.ALT_MASK), "increaseSecondaryZoom");
 		optionsPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-				KeyStroke.getKeyStroke("meta alt MINUS"), "decreaseSecondaryZoom");
+				KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, menuShortcutMask | KeyEvent.ALT_MASK), "decreaseSecondaryZoom");
 
 		optionsPanel.getActionMap().put("resetZoom", resetZoomAction);
 
