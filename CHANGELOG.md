@@ -5,6 +5,7 @@ rycin drzew filogenetycznych do publikacji. Wszystkie nowe ustawienia zapisują
 się w pliku `.tree` (blok FigTree w NEXUS-ie); pliki z oryginalnego FigTree
 otwierają się bez zmian.
 
+Instrukcja obsługi (co robi która opcja): [doc/instrukcja.md](doc/instrukcja.md).
 Szczegółowa lista planowanych i zrobionych punktów: [doc/kolejka_zmian.md](doc/kolejka_zmian.md).
 
 ## 2026-08-23 — etapy 0–4

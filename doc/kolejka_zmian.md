@@ -252,7 +252,28 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   wypisanie z otwartego drzewa listy unikalnych rodzajów z pustymi kolumnami
   do wypełnienia w Excelu. Wtedy słownik `doc/slowniki/sluzowce.tsv` wczytuje
   się wprost. Format i obejście na dziś: `doc/slowniki/README.md`.
-- [ ] 6.8 🟢 **Przycisk *Colours…* w panelu Group Bars** — dziś kolory grup
-  ustawia się w *Appearance* → *Colour by* → *Setup: Colours*, co po drodze
-  koloruje gałęzie. Skrót wprost w panelu *Group Bars* otwierałby to samo okno
-  dla atrybutu pasków.
+- [ ] 6.8 🟡 **Kolory grup: przycisk *Colours…* w panelu Group Bars** — zgłoszone
+  2026-08-23 przy przeklikiwaniu 6.3. Miało być tak, że kolory ustawia się
+  w *Appearance* → *Colour by* → *Setup: Colours*, ale ta lista **w ogóle nie
+  pokazuje atrybutów liści**: `AttributeComboHelper` bez `PainterIntent` chodzi
+  tylko po `tree.getNodes()`, a `family` z importu siedzi na obiektach `Taxon`.
+  Czyli dziś kolorów grup nie da się wybrać w ogóle — paski biorą wbudowaną
+  paletę pastelową. Do zrobienia: przycisk otwierający `DiscreteColourScaleDialog`
+  dla atrybutu pasków wprost w panelu *Group Bars* (i/albo dopuszczenie atrybutów
+  liści w *Colour by*). Uwaga na `setupControls()` — blokuje indeks 0 combo,
+  a w *Group Bars* pod zerem jest już prawdziwy atrybut.
+- [ ] 6.9 🔴 **DO ZROBIENIA PRZEZ UŻYTKOWNICZKĘ: sprawdzić słownik śluzowców** —
+  `doc/slowniki/sluzowce.tsv` (63 rodzaje) napisał Claude z pamięci i **wymaga
+  weryfikacji specjalistki**, zanim pójdzie na rycinę do publikacji. Poprawki
+  wpisywać wprost w pliku (zwykły tekst, otwiera się w Excelu i Notatniku).
+  Rodzaje o spornym umiejscowieniu mają komentarz `#` z alternatywą — pierwsze
+  do sprawdzenia: *Perichaena* (Trichiaceae czy Arcyriaceae), *Prototrichia*,
+  *Listerella*, *Diachea*, *Amaurochaete* i *Brefeldia*, *Lamproderma* +
+  *Diacheopsis* + *Leptoderma*, *Colloderma*, *Elaeomyxa*, *Ceratiomyxa*,
+  *Enteridium*. Przyjęty układ: tradycyjny (Martin & Alexopoulos / Lado).
+- [ ] 6.10 🟢 **Instrukcja obsługi** — `doc/instrukcja.md`: krótko, co robi każda
+  opcja dodana w forku, jak uruchamiać program i jak używać plików towarzyszących
+  (`przyklad.tree`, `przyklad_rodziny.tsv`, `doc/slowniki/`). Pierwsza wersja
+  napisana 2026-08-23; do dokończenia zrzuty ekranu, przykłady „przed / po",
+  przepis na typową pracę i rozdział o częstych problemach. Plan:
+  `doc/sesja_F_instrukcja.md`.
