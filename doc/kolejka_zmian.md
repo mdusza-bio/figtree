@@ -223,9 +223,12 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   dopasowań) + przycisk *Assign to selection…* w panelu *Group Bars*.
   Plan: `doc/sesja_B_group_bars.md`. Pliki testowe: `doc/przyklad.tree`,
   `doc/przyklad_rodziny.tsv`. **Czeka na przeklikanie.**
-- [ ] 6.4 🟢 **Cofanie presetu publikacyjnego** — przed zastosowaniem zapamiętać
+- [x] 6.4 🟢 **Cofanie presetu publikacyjnego** — przed zastosowaniem zapamiętać
   poprzednie ustawienia; przycisk zmienia się w *Undo preset*. Plan:
-  `doc/sesja_C_preset_undo.md`.
+  `doc/sesja_C_preset_undo.md`. **Zrobione** — przycisk *Publication preset* w
+  panelu *Appearance* działa jak przełącznik: pierwsze kliknięcie zapamiętuje
+  pełne ustawienia i nakłada preset (napis zmienia się na *Undo preset*),
+  drugie przywraca zapamiętaną kopię. Kopia znika po wczytaniu innego drzewa.
 - [ ] 6.5 🟢 **Etap 5 (mysz/klawiatura)** — plan: `doc/sesja_D_mysz.md`.
 
 - [ ] 6.6 🟡 **Min tip spacing nie wystarcza przy drzewach „drabinkowych"** —
