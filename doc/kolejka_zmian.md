@@ -331,3 +331,9 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   + `.bootstraps`). **Zrobione**: zapis przez plik tymczasowy z podmianą po
   sukcesie, komunikat błędu zamiast cichej śmierci (także w *Export Trees*
   i *Annotate*), oraz zasada w `CLAUDE.md`: przed kompilacją zamknąć program.
+- [x] 6.14 🟢 **Publication preset = zestaw użytkowniczki** — podany 2026-08-25 po
+  pierwszej prawdziwej rycinie: order decreasing, Times 11/9 pt, poparcie ≥ 70 nad
+  gałęzią z Avoid overlap i White backing, `holotypus paratypus isotypus` prosto
+  i pogrubione. Kropki na węzłach i wyrównanie nazw świadomie **wyrzucone**
+  z presetu. Dodatkowo `findSupportAttribute()` sprawdza `bootstrap`, `support`
+  i `label`, bo nazwa atrybutu zależy od tego, co użytkowniczka wpisze przy imporcie.

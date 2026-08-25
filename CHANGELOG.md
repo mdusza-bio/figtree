@@ -107,6 +107,29 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.14 — *Publication preset* to teraz zestaw użytkowniczki
+Przycisk ustawiał mój zestaw „domyślny"; po pierwszej prawdziwej rycinie
+użytkowniczka podała, co faktycznie klika za każdym razem, i to trafiło do presetu:
+
+| ustawienie | wartość |
+|---|---|
+| *Trees* → Order nodes | decreasing |
+| *Tip Labels* → font | Times New Roman 11 pt |
+| *Tip Labels* → Not italic words | domyślne + `holotypus paratypus isotypus` |
+| *Tip Labels* → Highlight | `holotypus,paratypus,isotypus`, pogrubione |
+| *Node Labels* → Display | atrybut poparcia (patrz niżej) |
+| *Node Labels* → font | Times New Roman 9 pt |
+| *Node Labels* → Position | Above branch |
+| *Node Labels* → Show only if >= | 70 |
+| *Node Labels* → Avoid overlap / White backing | włączone |
+
+Wyrzucone z presetu (na jej prośbę): czarne kropki na węzłach ≥ 95 oraz wyrównanie
+nazw do prawej — preset ich nie dotyka, więc zostają takie, jakie sobie ustawi.
+
+Przy okazji: **rozpoznawanie atrybutu z poparciem** sprawdza teraz kolejno
+`bootstrap`, `support`, `label`. FigTree przy imporcie pyta, jak nazwać liczby
+na węzłach, więc nie zawsze jest to domyślne `label`.
+
 ### Etap 6.13 — zapis, który nie może skasować danych
 **Co się stało (2026-08-25).** Program był otwarty, gdy jar został przebudowany.
 Działająca kopia straciła dostęp do klas, których jeszcze nie wczytała, więc

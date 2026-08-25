@@ -230,8 +230,12 @@ public class TreeAppearanceController extends AbstractController {
         // see setControlPalette(); the button stays disabled until it is provided)
         optionsPanel.addSeparator();
         publicationPresetButton = new JButton("Publication preset");
-        publicationPresetButton.setToolTipText("Apply publication-style settings: serif 10pt tip labels with italic genus/species, " +
-                "underscores as spaces, aligned tips, 1pt branches, support values >= 50 below branch, dots on nodes >= 95, white background");
+        publicationPresetButton.setToolTipText("<html>Apply the user's publication settings:<br>" +
+                "decreasing node order, white background, 1pt branches,<br>" +
+                "Times New Roman 11pt tip labels, italics up to the collection number,<br>" +
+                "holotypus / paratypus / isotypus upright and in bold,<br>" +
+                "support values 9pt above the branch, only >= 70, overlap avoided<br>" +
+                "with white backing. Press again to undo.</html>");
         publicationPresetButton.setEnabled(false);
         publicationPresetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
@@ -265,15 +269,25 @@ public class TreeAppearanceController extends AbstractController {
     }
 
     /** Name of the support-value attribute (internal node "label"), or null if the tree has none. */
+    /** the names FigTree gives node labels, in the order we prefer them */
+    private static final String[] SUPPORT_ATTRIBUTE_NAMES = {"bootstrap", "support", "label"};
+
+    /** the type-specimen words: upright inside the name, and bold on the whole label */
+    private static final String TYPE_WORDS = "holotypus paratypus isotypus";
+
     private String findSupportAttribute() {
         java.util.List<Tree> trees = treeViewer.getTrees();
         if (trees == null) {
             return null;
         }
-        for (Tree tree : trees) {
-            for (Node node : tree.getInternalNodes()) {
-                if (node.getAttribute("label") != null) {
-                    return "label";
+        // MyFigTree: on import FigTree asks what to call the numbers on the nodes,
+        // so they can be "bootstrap" just as well as the default "label"
+        for (String name : SUPPORT_ATTRIBUTE_NAMES) {
+            for (Tree tree : trees) {
+                for (Node node : tree.getInternalNodes()) {
+                    if (node.getAttribute(name) != null) {
+                        return name;
+                    }
                 }
             }
         }
@@ -311,13 +325,18 @@ public class TreeAppearanceController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + FOREGROUND_COLOUR_KEY, Color.BLACK);
         settings.put(CONTROLLER_KEY + "." + BRANCH_LINE_WIDTH_KEY, 1.0);
 
-        // Tip labels: serif 10pt, italic name up to the collection number, underscores -> spaces
+        // Trees: decreasing node order (the ladder runs the same way every time)
+        settings.put("trees.order", Boolean.TRUE);
+        settings.put("trees.orderType", "decreasing");
+
+        // Tip labels: Times 11pt, italics up to the collection number, type words upright
         settings.put("tipLabels.isShown", Boolean.TRUE);
         settings.put("tipLabels.fontName", "Times New Roman");
-        settings.put("tipLabels.fontSize", 10);
+        settings.put("tipLabels.fontSize", 11);
         settings.put("tipLabels.fontStyle", Font.PLAIN);
         settings.put("tipLabels.italicMode", LabelStyle.ItalicMode.UNTIL_NUMBER.name());
-        settings.put("tipLabels.nonItalicWords", LabelStyle.DEFAULT_NON_ITALIC_WORDS);
+        settings.put("tipLabels.nonItalicWords",
+                LabelStyle.DEFAULT_NON_ITALIC_WORDS + " " + TYPE_WORDS);
         settings.put("tipLabels.addRankDots", Boolean.TRUE);
         settings.put("tipLabels.upperCaseIsNumber", Boolean.TRUE);
         settings.put("tipLabels.formatCollectionNumber", Boolean.TRUE);
@@ -325,28 +344,30 @@ public class TreeAppearanceController extends AbstractController {
         settings.put("tipLabels.italicParts", 2);
         settings.put("tipLabels.replaceUnderscores", Boolean.TRUE);
 
-        // Node labels: support values >= 50, below the branch, 8pt
+        // ... and the type specimens in bold so they stand out on the figure
+        settings.put("tipLabels.highlight", TYPE_WORDS.replace(' ', ','));
+        settings.put("tipLabels.highlightBold", Boolean.TRUE);
+
+        // Node labels: support values >= 70, above the branch, 9pt, kept from
+        // colliding with each other and given a white patch to sit on
         if (supportAttribute != null) {
             settings.put("nodeLabels.isShown", Boolean.TRUE);
             settings.put("nodeLabels.displayAttribute", supportAttribute);
         }
         settings.put("nodeLabels.fontName", "Times New Roman");
-        settings.put("nodeLabels.fontSize", 8);
+        settings.put("nodeLabels.fontSize", 9);
         settings.put("nodeLabels.fontStyle", Font.PLAIN);
-        settings.put("nodeLabels.showThreshold", "50");
-        settings.put("nodeLabels.position", "BELOW_BRANCH");
+        settings.put("nodeLabels.showThreshold", "70");
+        settings.put("nodeLabels.position", "ABOVE_BRANCH");
+        settings.put("nodeLabels.avoidOverlap", Boolean.TRUE);
+        settings.put("nodeLabels.labelBacking", Boolean.TRUE);
 
-        // Node shapes: black dots on nodes with support >= 95 (off when there is no support value)
-        settings.put("nodeShapeInternal.isShown", supportAttribute != null);
-        settings.put("nodeShapeInternal.shapeType", "CIRCLE");
-        settings.put("nodeShapeInternal.size", 4.0);
-        settings.put("nodeShapeInternal.thresholdAttribute", supportAttribute == null ? "None" : supportAttribute);
-        settings.put("nodeShapeInternal.showThreshold", "95");
-        settings.put("nodeShapeExternal.isShown", Boolean.FALSE);
+        // Node shapes and aligned tip labels are deliberately NOT touched - the
+        // user does not use dots on nodes, and wants the names to stay where the
+        // branch ends (asked 2026-08-25).
 
-        // Layout: rectangular with aligned tip labels
+        // Layout: rectangular
         settings.put("layout.layoutType", "RECTILINEAR");
-        settings.put("rectilinearLayout.alignTipLabels", Boolean.TRUE);
 
         controlPalette.setSettings(settings);
         publicationPresetButton.setText("Undo preset");

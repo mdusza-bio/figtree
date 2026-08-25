@@ -61,10 +61,19 @@ Po otwarciu `.raxml.support` trzeba jeszcze w panelu *Node Labels* ustawić
 
 ## 4. Panel *Appearance*
 
-- **Publication preset** — jedno kliknięcie ustawia wygląd „jak z publikacji":
-  białe tło, linie 1 pt, Times New Roman 10 pt, kursywa nazw gatunkowych,
-  podkreślniki zamienione na spacje, poparcie pod gałęzią z progiem 50, czarne
-  kropki przy poparciu ≥ 95, układ prostokątny z wyrównanymi nazwami.
+- **Publication preset** — jedno kliknięcie ustawia cały Twój stały zestaw
+  (ustalony 2026-08-25):
+  - *Trees*: **Order nodes: decreasing**,
+  - *Appearance*: białe tło, czarne linie 1 pt,
+  - *Tip Labels*: Times New Roman **11 pt**, kursywa do numeru okazu, podkreślniki
+    na spacje, `holotypus paratypus isotypus` pismem prostym **i pogrubione**
+    (wyróżnienie typów na rycinie),
+  - *Node Labels*: poparcie **9 pt nad gałęzią**, tylko **≥ 70**, **Avoid overlap**
+    + **White backing**,
+  - *Layout*: prostokątny.
+
+  Preset **nie rusza** kropek na węzłach (*Node Shapes*) ani wyrównania nazw do
+  prawej (*Align tip labels*) — zostają takie, jakie sobie ustawisz.
 - Po jego użyciu przycisk zmienia się w **Undo preset** — cofa wszystkie
   ustawienia do stanu sprzed kliknięcia. Zapamiętany stan dotyczy tego jednego
   drzewa; po wczytaniu innego przycisk wraca do zwykłej postaci.
