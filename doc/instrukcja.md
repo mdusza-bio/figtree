@@ -132,6 +132,25 @@ Wygląd:
   drukowanych); odznaczony — wszystkie gałęzie zostają w całości czarne,
   nawet jeśli liczba wyląduje na kresce. Do wyboru wedle gustu.
 
+### Przepis: duże drzewo ML z wartościami bootstrap
+
+Sprawdzona kolejność kroków dla gęstego drzewa (setki okazów, klady po
+kilkanaście prawie identycznych sekwencji):
+
+1. Otwórz plik **`.raxml.support`** (nie `bestTree`, nie `modeltest` —
+   patrz rozdział 2).
+2. *Node Labels*: **Display** = `bootstrap`, **Position** = *Above branch*,
+   czcionka wedle potrzeb (8–10 pt).
+3. **Show only if >=** np. `70` — to usuwa większość kolizji, bo słabo
+   wsparte węzły (a tych jest najwięcej w gęstych kladach) nie dostają liczb.
+   W publikacjach i tak zwykle pokazuje się tylko poparcie ≥ 50–70.
+4. *Layout*: **Min tip spacing** ok. `15` — wyrównuje odstępy liści.
+5. Jeśli w najgęstszych miejscach liczby dalej się gryzą: zaznacz
+   **Avoid overlap** (+ **White backing** wedle gustu).
+
+Kolejność ma znaczenie: próg i odstęp liści załatwiają większość, *Avoid
+overlap* jest od ostatnich, pojedynczych kolizji — nie odwrotnie.
+
   Kiedy tego użyć: gdy w gęstym kladzie (dużo bardzo podobnych okazów jednego
   gatunku) liczby nachodzą na siebie mimo **Min tip spacing**. To normalne —
   *Min tip spacing* rozsuwa **liście**, a wartości poparcia siedzą na węzłach

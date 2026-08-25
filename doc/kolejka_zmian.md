@@ -69,8 +69,8 @@ między gałęziami), `TreePane.java` (rysowanie całości).
 - [x] 2.6 🔴 **Automatyczne unikanie kolizji** etykiet węzłów: program sprawdza,
   czy prostokąt tekstu nachodzi na inny, i przesuwa go (w górę/dół, na drugą
   stronę gałęzi). To już prawdziwy algorytm — zrobić dopiero, gdy 2.1–2.5
-  nie wystarczą. **Zrobione w 6.6** (na razie tylko przesuwanie w dół, bez
-  przerzucania na drugą stronę gałęzi).
+  nie wystarczą. **Zrobione w 6.6** (przesuwanie w lewo wzdłuż własnej gałęzi
+  z linią wskazującą; bez przerzucania na drugą stronę gałęzi).
 
 Uwagi do etapu 2 (zrobione 2.1–2.5): nowe kontrolki są w panelach *Node Labels*
 i *Branch Labels* (Position, Offset X/Y, Show only if >=, Second value, Layout)
@@ -254,10 +254,16 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   wisi numer poparcia) leżą tam, gdzie wypada środek między dziećmi — przy
   takiej topologii kilka węzłów wewnętrznych mieści się w przestrzeni węższej
   niż wysokość samej etykiety liczby, niezależnie od odstępu liści. Plan:
-  `doc/sesja_E_min_node_spacing.md`. **Zrobione** — checkbox *Avoid overlap*
-  (pole *Crowded values*) na dole panelu *Node Labels*; przesuwa w dół tylko te
-  wartości poparcia, które naprawdę na siebie wchodzą, nie ruszając drzewa.
-  Klucz w pliku `.tree`: `nodeLabels.avoidOverlap`.
+  `doc/sesja_E_min_node_spacing.md`. **Zrobione** — w polu *Crowded values* na
+  dole panelu *Node Labels* są dwa checkboxy: *Avoid overlap* (kolidująca
+  wartość poparcia odsuwana w lewo nad własną gałąź; jeśli daleko — cienka
+  szara linia wskazuje jej węzeł) i *White backing* (prostokąt w kolorze tła
+  pod każdą liczbą, żeby kreski gałęzi nie przecinały cyfr; można odznaczyć,
+  jeśli gałęzie mają zostać w całości czarne). Drzewo samo nie jest ruszane.
+  Klucze w pliku `.tree`: `nodeLabels.avoidOverlap`, `nodeLabels.labelBacking`.
+  Iterowane na żywo na zrzutach ekranu (v1 zsuwanie w dół — odrzucone, v2
+  w lewo + linie, v3 tło, v4 tło jako osobny checkbox); szczegóły w planie
+  sesji E.
 
   Przy okazji wyszło coś ważniejszego niż sama opcja: pierwotny zrzut ekranu
   pokazywał **zły plik** — `ciemnozarodnikowe_v3_modeltest.tree` to wynik testu
