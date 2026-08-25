@@ -23,6 +23,9 @@ package figtree.treeviewer.painters;
 import figtree.ui.PercentFormat;
 import figtree.ui.components.ColorWellButton;
 import figtree.ui.RomanFormat;
+import jebl.evolution.graphs.Node;
+import jebl.evolution.taxa.Taxon;
+import jebl.evolution.trees.Tree;
 import jam.controlpalettes.AbstractController;
 import jam.controlpalettes.ControllerListener;
 import jam.panels.OptionsPanel;
@@ -435,6 +438,17 @@ public class LabelPainterController extends AbstractController {
                 public void changedUpdate(DocumentEvent e) { applyItalicMode(); }
             });
 
+            styleTipsButton = new JButton("Style selected tips...");
+            styleTipsButton.putClientProperty("JComponent.sizeVariant", "small");
+            styleTipsButton.setToolTipText("<html>Set italics and bold by hand for the tips selected in the tree,<br>" +
+                    "for the names the general rules get wrong (e.g. keeping<br>" +
+                    "<i>holotypus</i> upright). Overrides everything above for those tips.</html>");
+            styleTipsButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    styleSelectedTips(treeViewer);
+                }
+            });
+
             ActionListener italicModeListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     applyItalicMode();
@@ -485,6 +499,7 @@ public class LabelPainterController extends AbstractController {
         } else {
             italicPartsSpinner = null;
             italicModeCombo = null;
+            styleTipsButton = null;
             nonItalicWordsText = null;
             addRankDotsCheck = null;
             upperCaseNumberCheck = null;
@@ -531,6 +546,8 @@ public class LabelPainterController extends AbstractController {
             addComponent(formatNumberCheck);
             addComponent(optionsPanel.addComponentWithLabel("Dot after codes:", dotCodesText));
             addComponent(dotCodesText);
+            optionsPanel.addSpanningComponent(styleTipsButton);
+            addComponent(styleTipsButton);
             addComponent(optionsPanel.addComponentWithLabel("Case (italic parts):", italicCaseCombo));
             addComponent(italicCaseCombo);
             addComponent(optionsPanel.addComponentWithLabel("Italic parts style:", stylePanel(italicBoldCheck, italicColourButton)));
@@ -650,6 +667,106 @@ public class LabelPainterController extends AbstractController {
         upperCaseNumberCheck.setEnabled(untilNumber);
         formatNumberCheck.setEnabled(untilNumber);
         dotCodesText.setEnabled(untilNumber && formatNumberCheck.isSelected());
+    }
+
+    /**
+     * MyFigTree (Etap 6.11): italics and bold set by hand for the tips that are
+     * selected in the tree. The escape hatch for names the general rules get
+     * wrong - e.g. "Trichia sordida holotypus", where the whole name goes italic
+     * but "holotypus" should stay upright. Saved on the tip itself (attributes
+     * !labelItalic / !labelBold), so it travels with the tree file.
+     */
+    private void styleSelectedTips(TreeViewer treeViewer) {
+
+        if (!(treeViewer instanceof ExtendedTreeViewer) || !(labelPainter instanceof BasicLabelPainter)) {
+            return;
+        }
+
+        java.util.Set<Node> tips = ((ExtendedTreeViewer) treeViewer).getSelectedTipNodes();
+        if (tips.isEmpty()) {
+            JOptionPane.showMessageDialog(optionsPanel,
+                    "Nothing is selected in the tree.\n\n" +
+                            "Click the tip you want to fix first (shift-click for more\n" +
+                            "than one), then press this button again.",
+                    "Style Selected Tips",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Node first = tips.iterator().next();
+        LabelStyle style = labelPainter.getLabelStyle();
+        Tree tree = treeViewer.getCurrentTree();
+        Taxon taxon = (tree == null ? null : tree.getTaxon(first));
+        String rawName = (String) first.getAttribute("!name");
+        if (rawName == null && taxon != null) {
+            rawName = (String) taxon.getAttribute("!name");
+            if (rawName == null) {
+                rawName = taxon.getName();
+            }
+        }
+        if (rawName == null) {
+            return;
+        }
+        String[] parts = ((BasicLabelPainter) labelPainter).getLabelFormatter().getParts(rawName);
+        java.util.List<String> pieces = style.displayItems(parts);
+        if (pieces.isEmpty()) {
+            return;
+        }
+
+        boolean[] current = BasicLabelPainter.parseItalicOverride(
+                first.getAttribute(BasicLabelPainter.ITALIC_OVERRIDE_ATTRIBUTE));
+        if (current == null) {
+            current = style.displayItalic(parts);
+        }
+
+        OptionsPanel dialogPanel = new OptionsPanel(6, 6);
+        if (tips.size() > 1) {
+            dialogPanel.addSpanningComponent(new JLabel("<html>The pieces below come from <b>"
+                    + rawName + "</b>;<br>the same setting goes on all "
+                    + tips.size() + " selected tips.</html>"));
+        }
+        JCheckBox[] checks = new JCheckBox[pieces.size()];
+        for (int i = 0; i < pieces.size(); i++) {
+            checks[i] = new JCheckBox("italic", i < current.length && current[i]);
+            checks[i].setOpaque(false);
+            dialogPanel.addComponentWithLabel(pieces.get(i) + ":", checks[i]);
+        }
+        JCheckBox boldCheck = new JCheckBox("bold whole label",
+                BasicLabelPainter.isTrue(first.getAttribute(BasicLabelPainter.BOLD_OVERRIDE_ATTRIBUTE)));
+        boldCheck.setOpaque(false);
+        dialogPanel.addSpanningComponent(boldCheck);
+
+        Object[] buttons = {"Apply", "Back to rules", "Cancel"};
+        int result = JOptionPane.showOptionDialog(optionsPanel, dialogPanel,
+                tips.size() == 1 ? "Style Selected Tip" : "Style Selected Tips",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                buttons, buttons[0]);
+
+        if (result == 0) {
+            boolean[] mask = new boolean[checks.length];
+            for (int i = 0; i < checks.length; i++) {
+                mask[i] = checks[i].isSelected();
+            }
+            String text = BasicLabelPainter.italicOverrideText(mask);
+            for (Node tip : tips) {
+                tip.setAttribute(BasicLabelPainter.ITALIC_OVERRIDE_ATTRIBUTE, text);
+                if (boldCheck.isSelected()) {
+                    tip.setAttribute(BasicLabelPainter.BOLD_OVERRIDE_ATTRIBUTE, "true");
+                } else {
+                    tip.removeAttribute(BasicLabelPainter.BOLD_OVERRIDE_ATTRIBUTE);
+                }
+            }
+        } else if (result == 1) {
+            // "Back to rules" - forget the hand-made setting on these tips
+            for (Node tip : tips) {
+                tip.removeAttribute(BasicLabelPainter.ITALIC_OVERRIDE_ATTRIBUTE);
+                tip.removeAttribute(BasicLabelPainter.BOLD_OVERRIDE_ATTRIBUTE);
+            }
+        } else {
+            return;
+        }
+
+        labelPainter.labelStyleChanged();
     }
 
     private void applyGroupStyles() {
@@ -1003,6 +1120,7 @@ public class LabelPainterController extends AbstractController {
 
     private final JSpinner italicPartsSpinner;
     private final JComboBox italicModeCombo;
+    private final JButton styleTipsButton;
     private final JTextField nonItalicWordsText;
     private final JCheckBox addRankDotsCheck;
     private final JCheckBox upperCaseNumberCheck;

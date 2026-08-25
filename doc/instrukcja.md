@@ -102,6 +102,22 @@ Kursywa i skład nazwy:
 - **Dot after codes** — lista skrótów kolekcji cytowanych z kropką, domyślnie `CA`
   (`UARK CA. 6-131`). Puste pole = żadnych kropek.
 
+Ręczna poprawka pojedynczego liścia (gdy reguły się mylą):
+- **Style selected tips...** — klikasz w drzewie liść, który wyszedł źle
+  (Shift+klik, żeby zaznaczyć kilka), naciskasz ten przycisk i w okienku
+  odznaczasz **italic** przy tych członach nazwy, które mają być pismem prostym.
+  Klasyczny przypadek: `Trichia sordida holotypus` — reguła robi kursywą wszystko,
+  bo w nazwie nie ma numeru, a `holotypus` powinien zostać prosto.
+- **bold whole label** w tym samym okienku pogrubia całą nazwę tego liścia —
+  wygodne do zaznaczenia typu na rycinie.
+- Człony w okienku są pokazane tak, jak się rysują, więc sklejony numer
+  (`KRAM M-2749`) jest jednym polem, nie dwoma.
+- **Back to rules** kasuje ręczne ustawienie i liść wraca do ogólnych reguł.
+- Ustawienie siedzi na tym konkretnym liściu i zapisuje się z drzewem
+  (atrybuty `!labelItalic` / `!labelBold` w pliku `.tree`).
+- Jeśli to samo słowo wraca w wielu nazwach (np. `holotypus`, `paratypus`),
+  szybciej dopisać je do **Not italic words** niż poprawiać liść po liściu.
+
 Wygląd:
 - **Case (italic parts)** / **Case (other parts)** — wielkość liter osobno dla
   części kursywnych i pozostałych: *As is / UPPER / lower / Sentence*.
@@ -219,6 +235,7 @@ patrz [slowniki/README.md](slowniki/README.md).
 ## 11. Co się zapisuje
 
 Wszystkie ustawienia z paneli zapisują się przy *Save* w pliku `.tree` (w bloku
-FigTree wewnątrz NEXUS-a) razem z atrybutami liści. Pliki zapisane zwykłym
+FigTree wewnątrz NEXUS-a) razem z atrybutami liści — w tym ręczne poprawki
+z **Style selected tips...** (`!labelItalic`, `!labelBold` przy nazwie liścia). Pliki zapisane zwykłym
 FigTree otwierają się bez zmian, a pliki z tego programu otwarte w zwykłym
 FigTree po prostu zignorują nieznane ustawienia.

@@ -163,12 +163,36 @@ public class ExtendedTreeViewer extends DefaultTreeViewer implements StatusProvi
      */
     public int annotateSelectedTaxa(String name, Object value) {
 
-        RootedTree tree = treePane.getTree();
-        if (tree == null) {
-            return 0;
+        Set<Taxon> taxa = getSelectedTipTaxa();
+
+        for (Taxon taxon : taxa) {
+            taxon.setAttribute(name, value);
         }
 
-        Set<Taxon> taxa = new LinkedHashSet<Taxon>(getSelectedTaxa());
+        if (!taxa.isEmpty() && !getAnnotationDefinitions().containsKey(name)) {
+            getAnnotationDefinitions().put(name,
+                    new AnnotationDefinition(name, AnnotationDefinition.Type.STRING));
+        }
+
+        fireAnnotationsChanged();
+
+        return taxa.size();
+    }
+
+    /**
+     * MyFigTree (Etap 6.11): every tip of the current selection - tips picked one by
+     * one and all the tips below a selected branch.
+     */
+    public Set<Taxon> getSelectedTipTaxa() {
+
+        Set<Taxon> taxa = new LinkedHashSet<Taxon>();
+
+        RootedTree tree = treePane.getTree();
+        if (tree == null) {
+            return taxa;
+        }
+
+        taxa.addAll(getSelectedTaxa());
 
         for (Node node : getSelectedTips()) {
             Taxon taxon = tree.getTaxon(node);
@@ -186,18 +210,37 @@ public class ExtendedTreeViewer extends DefaultTreeViewer implements StatusProvi
             }
         }
 
-        for (Taxon taxon : taxa) {
-            taxon.setAttribute(name, value);
+        return taxa;
+    }
+
+    /**
+     * MyFigTree (Etap 6.11): the tip NODES of the current selection. Per-tip label
+     * settings have to sit on the node - the NEXUS exporter writes node attributes
+     * into the tree string, but drops attributes put on a taxon.
+     */
+    public Set<Node> getSelectedTipNodes() {
+
+        Set<Node> tips = new LinkedHashSet<Node>();
+
+        RootedTree tree = treePane.getTree();
+        if (tree == null) {
+            return tips;
         }
 
-        if (!taxa.isEmpty() && !getAnnotationDefinitions().containsKey(name)) {
-            getAnnotationDefinitions().put(name,
-                    new AnnotationDefinition(name, AnnotationDefinition.Type.STRING));
+        tips.addAll(getSelectedTips());
+
+        for (Taxon taxon : getSelectedTaxa()) {
+            Node node = tree.getNode(taxon);
+            if (node != null) {
+                tips.add(node);
+            }
         }
 
-        fireAnnotationsChanged();
+        for (Node node : getSelectedNodes()) {
+            tips.addAll(RootedTreeUtils.getDescendantTips(tree, node));
+        }
 
-        return taxa.size();
+        return tips;
     }
 
     public Map<String, AnnotationDefinition> getAnnotationDefinitions() {

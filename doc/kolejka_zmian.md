@@ -309,3 +309,10 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   napisana 2026-08-23; do dokończenia zrzuty ekranu, przykłady „przed / po",
   przepis na typową pracę i rozdział o częstych problemach. Plan:
   `doc/sesja_F_instrukcja.md`.
+- [x] 6.11 🟡 **Ręczna poprawka pojedynczego liścia** — zgłoszone 2026-08-23 ze
+  zrzutem: `Trichia sordida holotypus` idzie w całości kursywą, bo w nazwie nie
+  ma numeru, na którym reguła mogłaby się zatrzymać. **Zrobione**: przycisk
+  **Style selected tips…** w panelu *Tip Labels* — kursywa człon po członie
+  i pogrubienie całej nazwy dla zaznaczonych liści, *Back to rules* kasuje
+  poprawkę. Ustawienie siedzi na węźle (`!labelItalic`, `!labelBold`), więc
+  zapisuje się z drzewem — atrybuty taksonów eksporter NEXUS-a gubi.

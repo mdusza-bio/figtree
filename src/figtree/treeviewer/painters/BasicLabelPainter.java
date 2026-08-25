@@ -117,12 +117,21 @@ public class BasicLabelPainter extends LabelPainter<Node> {
      * than Names, or a second value is shown).
      */
     private List<LabelStyle.Run> getStyledRuns(Tree tree, Node node) {
-        if (labelStyle.isPlain() || !displayAttribute.equalsIgnoreCase(NAMES)) {
+        if (!displayAttribute.equalsIgnoreCase(NAMES)) {
             return null;
         }
         if (secondAttribute != null && secondAttribute.length() > 0 && !secondAttribute.equals(NONE)) {
             return null;
         }
+
+        // MyFigTree (Etap 6.11): what the user set by hand on this one tip wins
+        boolean[] italicOverride = parseItalicOverride(node.getAttribute(ITALIC_OVERRIDE_ATTRIBUTE));
+        boolean boldOverride = isTrue(node.getAttribute(BOLD_OVERRIDE_ATTRIBUTE));
+
+        if (labelStyle.isPlain() && italicOverride == null && !boldOverride) {
+            return null;
+        }
+
         String rawName = getRawName(tree, node);
         if (rawName == null) {
             return null;
@@ -131,7 +140,40 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         if (parts.length == 0) {
             return null;
         }
-        return labelStyle.getRuns(parts, rawName);
+        return labelStyle.getRuns(parts, rawName, italicOverride, boldOverride);
+    }
+
+    /**
+     * MyFigTree (Etap 6.11): reads "1,1,0" (one flag per drawn piece of the name)
+     * off a tip; null when the tip has no hand-made setting.
+     */
+    public static boolean[] parseItalicOverride(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String text = value.toString().trim();
+        if (text.length() == 0) {
+            return null;
+        }
+        String[] flags = text.split(",");
+        boolean[] mask = new boolean[flags.length];
+        for (int i = 0; i < flags.length; i++) {
+            mask[i] = flags[i].trim().equals("1");
+        }
+        return mask;
+    }
+
+    public static String italicOverrideText(boolean[] mask) {
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < mask.length; i++) {
+            if (i > 0) text.append(',');
+            text.append(mask[i] ? '1' : '0');
+        }
+        return text.toString();
+    }
+
+    public static boolean isTrue(Object value) {
+        return value != null && value.toString().trim().equalsIgnoreCase("true");
     }
 
     private static Font runFont(Font base, LabelStyle.Run run) {
@@ -500,6 +542,10 @@ public class BasicLabelPainter extends LabelPainter<Node> {
     }
 
     // MyFigTree: per-part label styling (Etap 3)
+
+    /** MyFigTree (Etap 6.11): per-tip settings, saved with the tree */
+    public static final String ITALIC_OVERRIDE_ATTRIBUTE = "!labelItalic";
+    public static final String BOLD_OVERRIDE_ATTRIBUTE = "!labelBold";
 
     public LabelStyle getLabelStyle() {
         return labelStyle;

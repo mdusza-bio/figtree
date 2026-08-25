@@ -107,6 +107,23 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.11 — ręczna poprawka pojedynczego liścia
+Ogólne reguły kursywy nie mają jak zgadnąć wszystkiego — np.
+`Trichia_sordida_holotypus` nie ma w nazwie numeru, więc całość łącznie ze słowem
+`holotypus` szła kursywą. Panel *Tip Labels* dostaje przycisk
+**Style selected tips...**:
+- zaznaczasz liść (albo kilka) w drzewie i w okienku odznaczasz **italic** przy
+  tych członach, które mają być pismem prostym;
+- **bold whole label** pogrubia całą nazwę tego liścia;
+- człony są pokazane tak, jak się rysują — sklejony numer `KRAM M-2749` jest
+  jednym polem;
+- **Back to rules** kasuje ręczne ustawienie i liść wraca do ogólnych reguł.
+
+Ręczne ustawienie siedzi na liściu (atrybuty `!labelItalic`, `!labelBold`) i
+zapisuje się razem z drzewem. Uwaga: musi być trzymane na **węźle**, nie na
+taksonie — eksporter NEXUS-a zapisuje atrybuty węzłów, a atrybuty taksonów
+gubi.
+
 ### Etap 6.2 — usunięty *Advanced template*
 Pole **Advanced template** (szablon typu `{1-2:i} {3:U}` z etapu 3.5) zostało
 usunięte z panelu *Tip Labels*: tryby **Italic mode** z 6.1 robią to samo bez

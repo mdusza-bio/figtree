@@ -540,12 +540,54 @@ public class LabelStyle {
      * the other.
      */
     public List<Run> getRuns(String[] parts, String rawName) {
+        return getRuns(parts, rawName, null, false);
+    }
+
+    /**
+     * The pieces of text a name is drawn as, in the order they appear on the
+     * figure - one entry per checkbox in the "Style selected tips" dialog (6.11).
+     * The collection number counts as one piece, so "KRAM M-2749" is not split.
+     */
+    public List<String> displayItems(String[] parts) {
+        List<String> items = new ArrayList<String>(parts.length);
+        List<Boolean> italic = new ArrayList<Boolean>(parts.length);
+        buildItems(parts, items, italic);
+        return items;
+    }
+
+    /**
+     * @return what the general rules make italic, one flag per {@link #displayItems}
+     *         entry - the starting point the dialog shows before the user edits it
+     */
+    public boolean[] displayItalic(String[] parts) {
+        List<String> items = new ArrayList<String>(parts.length);
+        List<Boolean> italic = new ArrayList<Boolean>(parts.length);
+        buildItems(parts, items, italic);
+        boolean[] mask = new boolean[italic.size()];
+        for (int i = 0; i < italic.size(); i++) {
+            mask[i] = italic.get(i);
+        }
+        return mask;
+    }
+
+    /**
+     * @param italicOverride one flag per {@link #displayItems} entry, set by hand
+     *                       for this one tip; null = follow the general rules
+     * @param boldOverride   draw the whole label bold (set by hand for this tip)
+     */
+    public List<Run> getRuns(String[] parts, String rawName, boolean[] italicOverride, boolean boldOverride) {
         List<Run> runs = new ArrayList<Run>();
 
         {
             List<String> items = new ArrayList<String>(parts.length);
             List<Boolean> italic = new ArrayList<Boolean>(parts.length);
             buildItems(parts, items, italic);
+            if (italicOverride != null) {
+                // the user decided piece by piece for this tip
+                for (int i = 0; i < italic.size(); i++) {
+                    italic.set(i, i < italicOverride.length && italicOverride[i]);
+                }
+            }
             // one run per stretch of pieces that share the same italic/upright state
             int i = 0;
             while (i < items.size()) {
@@ -556,6 +598,14 @@ public class LabelStyle {
                 runs.add(makeRun(items, i, j, italic.get(i) ? italicGroup : otherGroup, j < items.size()));
                 i = j;
             }
+        }
+
+        if (boldOverride) {
+            List<Run> bolded = new ArrayList<Run>(runs.size());
+            for (Run run : runs) {
+                bolded.add(new Run(run.text, run.italic, true, run.colour));
+            }
+            runs = bolded;
         }
 
         if (isHighlighted(rawName) && (highlightBold || highlightColour != null)) {
