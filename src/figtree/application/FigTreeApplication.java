@@ -237,9 +237,15 @@ public class FigTreeApplication extends MultiDocApplication {
     // Main entry point
     static public void main(String[] args) {
 
-        // There is a major issue with languages that use the comma as a decimal separator.
-        // To ensure compatibility between programs in the package, enforce the US locale.
-        //Locale.setDefault(Locale.US);
+        // There is a major issue with languages that use the comma as a decimal
+        // separator. The original left the fix below commented out, and on a Polish
+        // Windows every saved tree came out with branch lengths like "0,001243" -
+        // which FigTree itself then refused to read back ("Taxon in tree,
+        // '00124300' is unknown"). It cost the user a file on 2026-08-25.
+        //
+        // Only the FORMAT category is forced, so numbers are written and read with
+        // a dot everywhere while the interface language stays as the system says.
+        Locale.setDefault(Locale.Category.FORMAT, Locale.ROOT);
 
         Arguments arguments = new Arguments(
                 new Arguments.Option[] {

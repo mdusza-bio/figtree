@@ -107,6 +107,29 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.17 — przecinek dziesiętny psuł zapisane pliki
+**Co się stało (2026-08-25).** Zapisany plik nie chciał się otworzyć:
+*„Taxon in tree, '00124300' is unknown"*. Przyczyna: na polskim Windowsie Java
+formatuje liczby z **przecinkiem**, więc długości gałęzi zapisały się jako
+`0,001243`. Przy odczycie przecinek jest separatorem gałęzi, więc `0,001243`
+rozpadało się na `0` i nowy „takson" `001243`.
+
+Autor oryginalnego FigTree ten problem znał — w `FigTreeApplication.main()` jest
+jego komentarz *„There is a major issue with languages that use the comma as
+a decimal separator"* i **zakomentowana** linijka z poprawką. Została włączona,
+w wersji łagodniejszej: wymuszona jest tylko kategoria `FORMAT`
+(`Locale.setDefault(Locale.Category.FORMAT, Locale.ROOT)`), więc liczby są
+zapisywane i czytane z **kropką**, a język interfejsu zostaje systemowy.
+
+Skutek uboczny: pola liczbowe w panelach (odstępy, grubości) przyjmują teraz
+**kropkę**, nie przecinek — tak samo jak pliki i jak większość programów
+filogenetycznych.
+
+Uszkodzony plik użytkowniczki został naprawiony (763 liczby, zamiana przecinka
+na kropkę między cyframi) i sprawdzony importerem programu: 383 taksony,
+142 ustawienia wczytują się poprawnie. Przegląd pozostałych plików z drzewami
+na Pulpicie nie wykazał innych uszkodzonych.
+
 ### Etap 6.16 — przesuwanie pojedynczej wartości poparcia
 *Offset X / Offset Y* przesuwają wszystkie etykiety naraz, a w praktyce zawsze
 znajdzie się jedna liczba, która wypada źle, choć reszta jest w porządku. Panel

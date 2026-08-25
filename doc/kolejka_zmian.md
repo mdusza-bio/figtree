@@ -351,3 +351,11 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   `!labelDX` / `!labelDY`. Etykieta ruszona ręcznie jest pomijana przez
   *Avoid overlap* (ale liczy się dla niego jako przeszkoda).
   Ewentualne rozszerzenie na przyszłość: przeciąganie etykiety myszą.
+- [x] 6.17 🔴 **Przecinek dziesiętny psuł każdy zapisany plik** — awaria
+  2026-08-25: `Save` zapisywał długości gałęzi jako `0,001243` (polska
+  lokalizacja), a własny importer się na tym wykładał (*Taxon in tree,
+  '00124300' is unknown*). W `FigTreeApplication.main()` autor oryginalu zostawil
+  zakomentowana poprawke `Locale.setDefault(Locale.US)`. **Zrobione**: włączona
+  jako `Locale.setDefault(Locale.Category.FORMAT, Locale.ROOT)` — liczby z kropką,
+  język interfejsu bez zmian. Uszkodzony plik użytkowniczki naprawiony skryptem
+  i zweryfikowany importerem.

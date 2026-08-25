@@ -282,7 +282,21 @@ potem na **nowym** tekście, więc `Trichia sordida HOLOTYPE` wyjdzie jako
 
 Jeśli menu *Annotate…* jest wyszarzone — nic nie jest zaznaczone w drzewie.
 
-## 13. Gdy zapis się nie uda
+## 13. Liczby zawsze z kropką
+
+Program świadomie używa **kropki** jako separatora dziesiętnego, niezależnie od
+ustawień Windowsa — i w plikach, i w polach w panelach (`0.5`, nie `0,5`).
+Inaczej zapisane drzewo ma długości gałęzi typu `0,001243`, a przecinek w pliku
+NEXUS oddziela gałęzie — taki plik nie otwiera się ani tu, ani w żadnym innym
+programie filogenetycznym.
+
+Jeśli masz **starszy plik** zapisany z przecinkami (objaw: przy otwieraniu
+*Error reading tree file: Taxon in tree, '00124300' is unknown*), wystarczy
+zamienić w nim przecinki **stojące między cyframi** na kropki — przecinki
+oddzielające gałęzie stoją zawsze przed literą albo nawiasem, więc ich to nie
+dotyczy.
+
+## 14. Gdy zapis się nie uda
 
 Od etapu 6.13 nieudany zapis **nie rusza pliku, który już masz na dysku** — drzewo
 idzie najpierw do pliku tymczasowego i podmienia stary dopiero, gdy zapisze się
