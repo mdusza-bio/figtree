@@ -259,3 +259,24 @@ potem na **nowym** tekście, więc `Trichia sordida HOLOTYPE` wyjdzie jako
 **ALL CAPS** kończy na nich kursywę).
 
 Jeśli menu *Annotate…* jest wyszarzone — nic nie jest zaznaczone w drzewie.
+
+## 13. Gdy zapis się nie uda
+
+Od etapu 6.13 nieudany zapis **nie rusza pliku, który już masz na dysku** — drzewo
+idzie najpierw do pliku tymczasowego i podmienia stary dopiero, gdy zapisze się
+w całości. Jeśli coś pójdzie nie tak, zobaczysz okienko *Save Failed* z treścią
+błędu.
+
+Gdyby program zaczął się dziwnie zachowywać — menu nie otwiera okienek, zapis
+milczy — najczęstsza przyczyna jest prozaiczna: **program był otwarty, gdy został
+przebudowany**. Zamknij go i uruchom ponownie.
+
+Drzewo ML z RAxML-a zawsze da się odtworzyć z plików, które zostają po analizie:
+
+```
+raxml-ng --support --tree NAZWA.raxml.bestTree --bs-trees NAZWA.raxml.bootstraps --prefix NAZWA_odtworzony
+```
+
+(użytkowniczka ma `raxml-ng` w WSL-u, w `/home/magda/raxml-ng/bin/`). Powstaje
+`NAZWA_odtworzony.raxml.support` — to samo drzewo z tymi samymi wartościami
+bootstrap. Giną tylko ustawienia wyglądu zapisane wcześniej w pliku.

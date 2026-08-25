@@ -107,6 +107,29 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.13 — zapis, który nie może skasować danych
+**Co się stało (2026-08-25).** Program był otwarty, gdy jar został przebudowany.
+Działająca kopia straciła dostęp do klas, których jeszcze nie wczytała, więc
+*Tree → Annotate*, *File → Export Trees* i **zapis** przestały działać — w zupełnej
+ciszy, bez komunikatu. Gorzej: zapis najpierw **czyścił plik docelowy**, a dopiero
+potem pisał do niego drzewo, więc po nieudanym *Save* został plik 0-bajtowy.
+Drzewo użytkowniczki (`ML_SmE.raxml.support`) zostało odtworzone RAxML-em
+z ocalałych `.bestTree` + `.bootstraps`.
+
+**Poprawki:**
+- **Zapis do pliku tymczasowego + podmiana.** Drzewo idzie najpierw do pliku
+  `figtree*.part` obok docelowego i dopiero kompletny plik podmienia stary
+  (atomowo, jeśli system plików to potrafi). Nieudany zapis nie rusza tego,
+  co już masz na dysku.
+- **Nieudany zapis mówi, co się stało** — okienko z treścią błędu i zapewnieniem,
+  że stary plik jest nietknięty. Wcześniej błąd inny niż `IOException` przechodził
+  bez śladu.
+- To samo dla *File → Export Trees…* i *Tree → Annotate…* — zamiast „nic się nie
+  dzieje" pokazuje się komunikat.
+
+**Zasada pracy** (dopisana do `CLAUDE.md`): przed każdą kompilacją zamknąć
+działający program.
+
 ### Etap 6.12 — zmiana podpisu liścia i kropka tylko przy skrótach
 - **Zmiana podpisu (*Tree → Annotate… → Name*) często „nic nie robiła".** *Annotate*
   zapisuje nową nazwę na **taksonie**, gdy zaznaczona jest etykieta liścia, ale na

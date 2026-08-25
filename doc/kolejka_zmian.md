@@ -323,3 +323,11 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   a `BasicLabelPainter.getRawName()` dla liści zaglądał wyłącznie do taksonu.
   W efekcie zmiana nazwy „nic nie robiła" przy jednym ze sposobów zaznaczania.
   **Zrobione**: dla liści sprawdzany jest też `!name` z węzła.
+- [x] 6.13 🔴 **Nieudany zapis kasował plik z drzewem** — awaria 2026-08-25.
+  Jar został przebudowany, gdy program był otwarty; działająca kopia przestała
+  wczytywać nowe klasy, więc *Annotate*, *Export Trees* i *Save* umarły bez
+  komunikatu — a `writeToFile()` zdążyło wyczyścić plik docelowy przed awarią
+  (`ML_SmE.raxml.support` → 0 bajtów; odtworzone RAxML-em z `.bestTree`
+  + `.bootstraps`). **Zrobione**: zapis przez plik tymczasowy z podmianą po
+  sukcesie, komunikat błędu zamiast cichej śmierci (także w *Export Trees*
+  i *Annotate*), oraz zasada w `CLAUDE.md`: przed kompilacją zamknąć program.

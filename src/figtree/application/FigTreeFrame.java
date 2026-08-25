@@ -58,6 +58,8 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.*;
@@ -571,6 +573,17 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
     }
 
     private void annotateSelected() {
+        try {
+            annotateSelectedImpl();
+        } catch (Throwable t) {
+            // MyFigTree: this used to die without opening anything and without
+            // saying why - see doSave for the same problem
+            JOptionPane.showMessageDialog(this, "Could not open the annotation dialog: " + t,
+                    "Annotate", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void annotateSelectedImpl() {
         treeViewer.setToolMode(TreePaneSelector.ToolMode.SELECT);
 
         List<AnnotationDefinition> definitions = new ArrayList<AnnotationDefinition>();
@@ -944,14 +957,62 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         Map<String, Object> settings = new TreeMap<String, Object>();
         controlPalette.getSettings(settings);
 
-        FileWriter writer = new FileWriter(file);
-        FigTreeNexusExporter exporter = new FigTreeNexusExporter(writer, true);
-        exporter.exportTrees(treeViewer.getTrees(), true);
-        exporter.writeFigTreeBlock(settings);
+        // MyFigTree: write the whole file to a temporary one first and put it in
+        // place only once it is complete. The original opened the real file
+        // straight away, so anything going wrong half way through left an EMPTY
+        // file and the tree was gone - which is exactly what happened on
+        // 2026-08-25, and without a word of warning.
+        File folder = file.getAbsoluteFile().getParentFile();
+        File temp = File.createTempFile("figtree", ".part", folder);
 
-        writer.close();
+        try {
+            Writer writer = new FileWriter(temp);
+            try {
+                FigTreeNexusExporter exporter = new FigTreeNexusExporter(writer, true);
+                exporter.exportTrees(treeViewer.getTrees(), true);
+                exporter.writeFigTreeBlock(settings);
+            } finally {
+                writer.close();
+            }
+        } catch (Throwable t) {
+            temp.delete();
+            reportSaveFailure(t, file);
+            throw new IOException("Could not write the tree file: " + t, t);
+        }
+
+        try {
+            moveIntoPlace(temp, file);
+        } catch (IOException ioe) {
+            temp.delete();
+            reportSaveFailure(ioe, file);
+            throw ioe;
+        }
 
         return true;
+    }
+
+    private static void moveIntoPlace(File temp, File file) throws IOException {
+        try {
+            Files.move(temp.toPath(), file.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (Exception e) {
+            // not every file system can do an atomic move - fall back to a plain one
+            Files.move(temp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /**
+     * MyFigTree: a save that dies has to say so. It used to fail in complete
+     * silence, which is how an empty file could look like a successful save.
+     */
+    private void reportSaveFailure(Throwable t, File file) {
+        JOptionPane.showMessageDialog(this,
+                "<html>The tree could <b>not</b> be saved.<br><br>" +
+                        "Your existing file has been left exactly as it was:<br>" +
+                        file.getPath() + "<br><br>" +
+                        "What went wrong:<br><tt>" + t + "</tt></html>",
+                "Save Failed",
+                JOptionPane.ERROR_MESSAGE);
     }
 
     public final void doImport() {
@@ -1417,8 +1478,10 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
                             exportTreeDialog.includeAnnotations(),
                             false);
                     writer.close();
-                } catch (IOException ioe) {
-                    JOptionPane.showMessageDialog(this, "Error writing tree file: " + ioe.getMessage(),
+                } catch (Throwable t) {
+                    // MyFigTree: an Error (not just an IOException) used to kill this
+                    // silently, leaving the user staring at a menu that did nothing
+                    JOptionPane.showMessageDialog(this, "Error writing tree file: " + t,
                             "Export Error",
                             JOptionPane.ERROR_MESSAGE);
                 }

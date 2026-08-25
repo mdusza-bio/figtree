@@ -64,6 +64,24 @@ Uruchomienie:
 Użytkowniczka woli kompilować **raz na koniec sesji pracy**, po kilku zmianach naraz —
 nie po każdej pojedynczej edycji.
 
+### ⚠ Przed kompilacją poproś o zamknięcie działającego programu
+
+Ant kasuje i tworzy `dist/figtree.jar` od nowa. Jeśli w tym czasie **program jest
+uruchomiony**, działająca kopia traci dostęp do klas, których jeszcze nie zdążyła
+wczytać — i od tej chwili wszystko, co sięga po nową klasę (okna dialogowe,
+*Tree → Annotate*, *File → Export Trees*, **zapis pliku**), umiera bez żadnego
+komunikatu.
+
+**To nie jest teoria: 2026-08-25 kosztowało to plik z drzewem** — nieudany *Save*
+zdążył wyczyścić plik użytkowniczki, zanim się wywalił (`ML_SmE.raxml.support`,
+0 bajtów). Drzewo udało się odtworzyć RAxML-em z `.bestTree` + `.bootstraps`,
+a sam zapis został uodporniony (zapis do pliku tymczasowego i podmiana dopiero po
+sukcesie — etap 6.13), ale **stara wersja programu, którą użytkowniczka ma
+akurat otwartą, nadal jest podatna**.
+
+Zasada: zanim uruchomisz `/compile`, napisz żeby zamknęła program; po kompilacji
+podaj komendę do ponownego uruchomienia.
+
 ## Struktura kodu
 
 Java 8, Swing/AWT, budowane Antem (`build.xml`). Biblioteki jako jary w `lib/`
