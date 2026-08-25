@@ -176,15 +176,25 @@ wysokości etykiety. Feedback użytkowniczki (2026-08-24, zrzuty ekranu):
 liczba lądowała „tylko trochę niżej", w przypadkowym miejscu, i nie było
 widać, do którego węzła należy.
 
-**Wersja 2 (obecna):** wzór wzięty z ryciny w innym artykule, podesłanej
+**Wersja 2:** wzór wzięty z ryciny w innym artykule, podesłanej
 przez użytkowniczkę — kolidująca liczba jest odsuwana **w lewo**, w pustą
 przestrzeń nad własną gałęzią (kilka przejść, bo po przesunięciu może wpaść
 na trzecią liczbę). Jeśli odsunięcie przekroczy wysokość etykiety, od prawej
 krawędzi liczby do punktu węzła rysowana jest cienka szara linia (0,5 pt),
-która jednoznacznie wskazuje przypisanie.
+która jednoznacznie wskazuje przypisanie. Feedback (2026-08-24): kierunek
+dobry, na mniejszym drzewie działa bardzo dobrze, ale na dużym gęstym
+drzewie przesunięta liczba i tak ląduje na liniach gałęzi — pustego
+miejsca po prostu nie ma.
+
+**Wersja 3 (obecna):** dodatkowo, przy włączonym *Avoid overlap*, każda
+wartość poparcia dostaje pod spodem prostokąt w kolorze tła panelu
+(z 1 px zapasu po bokach) — linie gałęzi nie przecinają cyfr, dokładnie
+tak, jak na rycinach drukowanych (przykład z artykułu z ML + MrBayes).
+Linie wskazujące rysowane są **przed** etykietami, więc przechodzą „pod"
+białymi prostokątami i nie przecinają innych liczb.
 
 ## Co zostało na przyszłość
 
-Gdyby przesuwanie w lewo okazało się za mało: przerzucanie etykiety nad
-gałąź / pod gałąź tam, gdzie jest luźniej, oraz sprawdzanie kolizji także
-z nazwami liści (dziś porównywane są tylko wartości poparcia między sobą).
+Gdyby to wciąż było za mało: przerzucanie etykiety nad gałąź / pod gałąź
+tam, gdzie jest luźniej, oraz sprawdzanie kolizji także z nazwami liści
+(dziś porównywane są tylko wartości poparcia między sobą).

@@ -123,8 +123,11 @@ Wygląd:
   w pustą przestrzeń nad swoją gałęzią (tak, jak robi się to ręcznie na rycinach
   w publikacjach). Jeśli musi odjechać dalej niż o własną wysokość, od liczby do
   jej węzła rysowana jest cienka szara **linia wskazująca**, żeby nie było
-  wątpliwości, do której gałęzi należy. Samo drzewo się nie zmienia — przesuwa
-  się wyłącznie tekst; wartości, które się nie gryzą, zostają na miejscu.
+  wątpliwości, do której gałęzi należy. Dodatkowo każda wartość poparcia dostaje
+  pod spodem **prostokąt w kolorze tła** — na gęstym drzewie, gdzie pustego
+  miejsca brakuje, linie gałęzi nie przecinają wtedy cyfr (tak jak na rycinach
+  drukowanych). Samo drzewo się nie zmienia — przesuwa się wyłącznie tekst;
+  wartości, które się nie gryzą, zostają na miejscu.
 
   Kiedy tego użyć: gdy w gęstym kladzie (dużo bardzo podobnych okazów jednego
   gatunku) liczby nachodzą na siebie mimo **Min tip spacing**. To normalne —
