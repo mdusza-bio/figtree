@@ -1931,6 +1931,43 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
         // Paint node labels
         if (nodeLabelPainter != null && nodeLabelPainter.isVisible()) {
+
+            // MyFigTree (Etap 6.6): thin pointer lines from support values that
+            // "Avoid overlap" had to move away from their node. Drawn first so
+            // they pass underneath the labels and their background patches.
+            if (!nodeLabelCallouts.isEmpty()) {
+                Paint calloutOldPaint = g2.getPaint();
+                Stroke calloutOldStroke = g2.getStroke();
+                g2.setPaint(Color.GRAY);
+                g2.setStroke(new BasicStroke(0.5f));
+                for (Line2D callout : nodeLabelCallouts.values()) {
+                    g2.draw(callout);
+                }
+                g2.setPaint(calloutOldPaint);
+                g2.setStroke(calloutOldStroke);
+            }
+
+            // MyFigTree (Etap 6.6): in a dense tree there may be no truly empty
+            // spot left, so when "Avoid overlap" is on every support value gets a
+            // patch of background colour under it - the way published figures
+            // knock branch lines out from behind the numbers
+            if (nodeLabelPainter.isAvoidOverlap()) {
+                Paint patchOldPaint = g2.getPaint();
+                g2.setPaint(getBackground());
+                for (Node node : nodeLabelTransforms.keySet()) {
+                    Shape labelShape = nodeLabelBounds.get(node);
+                    if (labelShape != null) {
+                        Rectangle2D r = labelShape.getBounds2D();
+                        if (r.getWidth() > 0.0 && r.getHeight() > 0.0) {
+                            g2.fill(new Rectangle2D.Double(
+                                    r.getX() - 1.0, r.getY(),
+                                    r.getWidth() + 2.0, r.getHeight()));
+                        }
+                    }
+                }
+                g2.setPaint(patchOldPaint);
+            }
+
             for (Node node : nodeLabelTransforms.keySet() ) {
 
                 AffineTransform nodeTransform = nodeLabelTransforms.get(node);
@@ -1944,20 +1981,6 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                         new Rectangle2D.Double(0.0, 0.0, nodeLabelPainter.getPreferredWidth(), nodeLabelPainter.getPreferredHeight()));
 
                 g2.setTransform(oldTransform);
-            }
-
-            // MyFigTree (Etap 6.6): thin pointer lines from support values that
-            // "Avoid overlap" had to move away from their node
-            if (!nodeLabelCallouts.isEmpty()) {
-                Paint calloutOldPaint = g2.getPaint();
-                Stroke calloutOldStroke = g2.getStroke();
-                g2.setPaint(Color.GRAY);
-                g2.setStroke(new BasicStroke(0.5f));
-                for (Line2D callout : nodeLabelCallouts.values()) {
-                    g2.draw(callout);
-                }
-                g2.setPaint(calloutOldPaint);
-                g2.setStroke(calloutOldStroke);
             }
         }
 
