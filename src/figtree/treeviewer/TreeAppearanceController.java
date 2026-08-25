@@ -272,8 +272,16 @@ public class TreeAppearanceController extends AbstractController {
     /** the names FigTree gives node labels, in the order we prefer them */
     private static final String[] SUPPORT_ATTRIBUTE_NAMES = {"bootstrap", "support", "label"};
 
-    /** the type-specimen words: upright inside the name, and bold on the whole label */
+    /** the type-specimen words that stay upright inside an italic name */
     private static final String TYPE_WORDS = "holotypus paratypus isotypus";
+
+    /**
+     * What makes a whole label bold. Both spellings are listed on purpose: the raw
+     * FASTA names carry PARATYPE in capitals, while a name typed by hand may say
+     * holotypus - and the match is case sensitive.
+     */
+    private static final String TYPE_HIGHLIGHT =
+            "holotypus,paratypus,isotypus,HOLOTYPE,PARATYPE,ISOTYPE";
 
     private String findSupportAttribute() {
         java.util.List<Tree> trees = treeViewer.getTrees();
@@ -345,7 +353,7 @@ public class TreeAppearanceController extends AbstractController {
         settings.put("tipLabels.replaceUnderscores", Boolean.TRUE);
 
         // ... and the type specimens in bold so they stand out on the figure
-        settings.put("tipLabels.highlight", TYPE_WORDS.replace(' ', ','));
+        settings.put("tipLabels.highlight", TYPE_HIGHLIGHT);
         settings.put("tipLabels.highlightBold", Boolean.TRUE);
 
         // Node labels: support values >= 70, above the branch, 9pt, kept from
