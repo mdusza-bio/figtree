@@ -1950,8 +1950,9 @@ public class TreePane extends JComponent implements PainterListener, Printable {
             // MyFigTree (Etap 6.6): in a dense tree there may be no truly empty
             // spot left, so when "Avoid overlap" is on every support value gets a
             // patch of background colour under it - the way published figures
-            // knock branch lines out from behind the numbers
-            if (nodeLabelPainter.isAvoidOverlap()) {
+            // knock branch lines out from behind the numbers. "White backing"
+            // unticked = keep every branch line solid instead.
+            if (nodeLabelPainter.isAvoidOverlap() && nodeLabelPainter.isLabelBacking()) {
                 Paint patchOldPaint = g2.getPaint();
                 g2.setPaint(getBackground());
                 for (Node node : nodeLabelTransforms.keySet()) {

@@ -193,6 +193,12 @@ tak, jak na rycinach drukowanych (przykład z artykułu z ML + MrBayes).
 Linie wskazujące rysowane są **przed** etykietami, więc przechodzą „pod"
 białymi prostokątami i nie przecinają innych liczb.
 
+Na prośbę użytkowniczki (2026-08-24) tło jest osobnym checkboxem **White
+backing** obok *Avoid overlap* (domyślnie zaznaczony; klucz
+`nodeLabels.labelBacking`) — można wybrać: cyfry zawsze czytelne (tło
+wycina kreski) albo wszystkie gałęzie w całości czarne, nawet jeśli
+liczba leży na kresce.
+
 ## Co zostało na przyszłość
 
 Gdyby to wciąż było za mało: przerzucanie etykiety nad gałąź / pod gałąź

@@ -229,6 +229,20 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 		firePainterChanged();
 	}
 
+	/**
+	 * MyFigTree (Etap 6.6): when on (and Avoid overlap is on), every support value
+	 * gets a patch of background colour under it so branch lines do not cross the
+	 * digits. Off = every branch line stays solid, even under a label.
+	 */
+	public boolean isLabelBacking() {
+		return labelBacking;
+	}
+
+	public void setLabelBacking(boolean labelBacking) {
+		this.labelBacking = labelBacking;
+		firePainterChanged();
+	}
+
 	public void setSecondAttribute(String secondAttribute) {
 		// Do nothing
 	}
@@ -270,6 +284,7 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 	private double yPadding = 0.0;
 	private LabelPosition labelPosition = LabelPosition.AT_NODE;
 	private boolean avoidOverlap = false;
+	private boolean labelBacking = true;
 
     private final PainterIntent intent;
 

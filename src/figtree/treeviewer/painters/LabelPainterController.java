@@ -86,6 +86,7 @@ public class LabelPainterController extends AbstractController {
 
     // MyFigTree: pulling crowded support values apart (Etap 6.6)
     public static final String AVOID_OVERLAP_KEY = "avoidOverlap";
+    public static final String LABEL_BACKING_KEY = "labelBacking";
 
     // MyFigTree: per-part styling of tip names (Etap 3)
     public static final String ITALIC_PARTS_KEY = "italicParts";
@@ -319,8 +320,10 @@ public class LabelPainterController extends AbstractController {
 
                 // MyFigTree (Etap 6.6)
                 avoidOverlapCheck = new JCheckBox("Avoid overlap");
-                avoidOverlapCheck.setToolTipText("<html>Nudge support values apart where they would be drawn<br>" +
-                        "on top of each other (clades that add one taxon at a time).<br>" +
+                avoidOverlapCheck.setToolTipText("<html>Slide clashing support values to the left, along their<br>" +
+                        "own branch, where they would be drawn on top of each other<br>" +
+                        "(clades that add one taxon at a time). A value moved far from<br>" +
+                        "its node gets a thin grey pointer line back to it.<br>" +
                         "Only the labels move - the tree itself is not redrawn.</html>");
                 avoidOverlapCheck.setSelected(labelPainter.isAvoidOverlap());
                 avoidOverlapCheck.addActionListener(new ActionListener() {
@@ -328,9 +331,22 @@ public class LabelPainterController extends AbstractController {
                         labelPainter.setAvoidOverlap(avoidOverlapCheck.isSelected());
                     }
                 });
+
+                labelBackingCheck = new JCheckBox("White backing");
+                labelBackingCheck.setToolTipText("<html>Put a patch of background colour under each support value,<br>" +
+                        "so branch lines never cross the digits (as in printed figures).<br>" +
+                        "Untick to keep every branch line solid black, even when a<br>" +
+                        "value ends up sitting on a line.</html>");
+                labelBackingCheck.setSelected(labelPainter.isLabelBacking());
+                labelBackingCheck.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent event) {
+                        labelPainter.setLabelBacking(labelBackingCheck.isSelected());
+                    }
+                });
             } else {
                 positionCombo = null;
                 avoidOverlapCheck = null;
+                labelBackingCheck = null;
             }
 
             thresholdText = new JTextField("", 6);
@@ -360,6 +376,7 @@ public class LabelPainterController extends AbstractController {
             yPaddingSpinner = null;
             positionCombo = null;
             avoidOverlapCheck = null;
+            labelBackingCheck = null;
             thresholdText = null;
             secondAttributeCombo = null;
             secondLayoutCombo = null;
@@ -547,8 +564,10 @@ public class LabelPainterController extends AbstractController {
             addComponent(optionsPanel.addComponentWithLabel("Layout:", secondLayoutCombo));
             addComponent(secondLayoutCombo);
             if (avoidOverlapCheck != null) {
-                addComponent(optionsPanel.addComponentWithLabel("Crowded values:", avoidOverlapCheck));
+                addComponent(optionsPanel.addComponentWithLabel("Crowded values:",
+                        checkPanel(avoidOverlapCheck, labelBackingCheck)));
                 addComponent(avoidOverlapCheck);
+                addComponent(labelBackingCheck);
             }
         }
 
@@ -813,6 +832,11 @@ public class LabelPainterController extends AbstractController {
                 avoidOverlapCheck.setSelected((Boolean) avoid);
                 labelPainter.setAvoidOverlap((Boolean) avoid);
             }
+            Object backing = settings.get(key + "." + LABEL_BACKING_KEY);
+            if (labelBackingCheck != null && backing instanceof Boolean) {
+                labelBackingCheck.setSelected((Boolean) backing);
+                labelPainter.setLabelBacking((Boolean) backing);
+            }
         }
         if (italicPartsSpinner != null) {
             setStyleSettings(settings);
@@ -937,6 +961,7 @@ public class LabelPainterController extends AbstractController {
             settings.put(key + "." + SECOND_LAYOUT_KEY, ((LabelPainter.SecondValueLayout) secondLayoutCombo.getSelectedItem()).name());
             if (avoidOverlapCheck != null) {
                 settings.put(key + "." + AVOID_OVERLAP_KEY, avoidOverlapCheck.isSelected());
+                settings.put(key + "." + LABEL_BACKING_KEY, labelBackingCheck.isSelected());
             }
         }
         if (italicPartsSpinner != null) {
@@ -971,6 +996,7 @@ public class LabelPainterController extends AbstractController {
     private final JSpinner yPaddingSpinner;
     private final JComboBox positionCombo;
     private final JCheckBox avoidOverlapCheck;
+    private final JCheckBox labelBackingCheck;
     private final JTextField thresholdText;
     private final JComboBox secondAttributeCombo;
     private final JComboBox secondLayoutCombo;
