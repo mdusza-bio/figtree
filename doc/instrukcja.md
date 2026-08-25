@@ -93,7 +93,9 @@ Kursywa i skład nazwy:
   (domyślnie `var subsp ssp f sp cf aff nov x`). Nie przerywają kursywy dla
   dalszych członów.
 - **Add dot** — dopisuje kropkę: `var` → `var.`, `sp` → `sp.` (w nagłówkach FASTA
-  kropek zwykle nie ma). Znak krzyżówki `x` kropki nie dostaje.
+  kropek zwykle nie ma). Kropkę dostają tylko **skróty, do 5 liter** — słowo
+  wypisane w całości, np. `holotypus`, zostaje bez kropki. Znak krzyżówki `x`
+  też kropki nie dostaje.
 - **ALL CAPS** — kończy kursywę także na członie pisanym samymi wielkimi literami
   bez cyfr, np. `KRAM` w numerze `KRAM M-1234`.
 - **Join number** — skleja numer okazu rozbity przez podkreślniki w postać, w której
@@ -239,3 +241,21 @@ FigTree wewnątrz NEXUS-a) razem z atrybutami liści — w tym ręczne poprawki
 z **Style selected tips...** (`!labelItalic`, `!labelBold` przy nazwie liścia). Pliki zapisane zwykłym
 FigTree otwierają się bez zmian, a pliki z tego programu otwarte w zwykłym
 FigTree po prostu zignorują nieznane ustawienia.
+
+## 12. Zmiana podpisu liścia ręcznie
+
+Gdy na rycinie ma być coś, czego w nazwie z pliku w ogóle nie ma (np. `holotypus`
+zamieniony na `HOLOTYPE`, żeby pasowało do `PARATYPE` z pozostałych okazów):
+
+1. Kliknij w drzewie **etykietę tego liścia** (sam tekst nazwy) — podświetli się.
+2. Menu **Tree → Annotate…** (skrót Ctrl + `'`).
+3. Z listy *Annotation* wybierz **Name**.
+4. Wpisz tekst, który ma się wyświetlać, i zatwierdź.
+
+Zmienia się tylko podpis na rycinie — oryginalna nazwa zostaje w pliku, a nowa
+dopisuje się obok jako `!name` i zapisuje razem z drzewem. Reguły kursywy działają
+potem na **nowym** tekście, więc `Trichia sordida HOLOTYPE` wyjdzie jako
+*Trichia sordida* HOLOTYPE (bo `HOLOTYPE` to same wielkie litery, a opcja
+**ALL CAPS** kończy na nich kursywę).
+
+Jeśli menu *Annotate…* jest wyszarzone — nic nie jest zaznaczone w drzewie.

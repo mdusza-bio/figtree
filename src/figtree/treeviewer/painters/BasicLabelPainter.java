@@ -97,6 +97,14 @@ public class BasicLabelPainter extends LabelPainter<Node> {
                 if (name != null) {
                     return name;
                 }
+                // MyFigTree: Tree > Annotate puts "!name" on the taxon when a tip
+                // LABEL is selected but on the node when the tip NODE is selected.
+                // The original only looked at the taxon, so renaming a tip did
+                // nothing at all whenever the node was what got picked.
+                name = (String)node.getAttribute("!name");
+                if (name != null) {
+                    return name;
+                }
                 return taxon.getName();
             }
         }

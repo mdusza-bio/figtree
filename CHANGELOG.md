@@ -107,6 +107,17 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.12 — zmiana podpisu liścia i kropka tylko przy skrótach
+- **Zmiana podpisu (*Tree → Annotate… → Name*) często „nic nie robiła".** *Annotate*
+  zapisuje nową nazwę na **taksonie**, gdy zaznaczona jest etykieta liścia, ale na
+  **węźle**, gdy zaznaczony jest węzeł — a program przy rysowaniu nazw liści
+  zaglądał wyłącznie do taksonu. Teraz sprawdza oba miejsca, więc zmiana nazwy
+  działa niezależnie od tego, jak liść został zaznaczony.
+- **Add dot dopisywał kropkę do każdego słowa** z listy *Not italic words* — więc po
+  dopisaniu tam `holotypus` na rycinie wychodziło `holotypus.`. Kropkę dostają teraz
+  tylko skróty, czyli słowa **do 5 liter** (`var` → `var.`, `subsp` → `subsp.`),
+  a wypisane w całości słowa zostają nietknięte.
+
 ### Etap 6.11 — ręczna poprawka pojedynczego liścia
 Ogólne reguły kursywy nie mają jak zgadnąć wszystkiego — np.
 `Trichia_sordida_holotypus` nie ma w nazwie numeru, więc całość łącznie ze słowem
@@ -119,10 +130,14 @@ Ogólne reguły kursywy nie mają jak zgadnąć wszystkiego — np.
   jednym polem;
 - **Back to rules** kasuje ręczne ustawienie i liść wraca do ogólnych reguł.
 
-Ręczne ustawienie siedzi na liściu (atrybuty `!labelItalic`, `!labelBold`) i
-zapisuje się razem z drzewem. Uwaga: musi być trzymane na **węźle**, nie na
-taksonie — eksporter NEXUS-a zapisuje atrybuty węzłów, a atrybuty taksonów
-gubi.
+Ręczne ustawienie siedzi na węźle liścia (atrybuty `!labelItalic`, `!labelBold`)
+i zapisuje się razem z drzewem.
+
+**Poprawka do wcześniejszej notatki:** w pierwszej wersji napisałam tu, że
+eksporter gubi atrybuty taksonów. To był błąd — sprawdziłam to metodą
+`exportTree()`, a *Save* używa `exportTrees(..., true)`, który wypisuje też blok
+`taxa`. Atrybuty taksonów (np. `family` z importu, `!name` ze zmiany podpisu)
+zapisują się normalnie.
 
 ### Etap 6.2 — usunięty *Advanced template*
 Pole **Advanced template** (szablon typu `{1-2:i} {3:U}` z etapu 3.5) zostało

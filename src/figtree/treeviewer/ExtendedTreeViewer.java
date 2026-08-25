@@ -215,8 +215,9 @@ public class ExtendedTreeViewer extends DefaultTreeViewer implements StatusProvi
 
     /**
      * MyFigTree (Etap 6.11): the tip NODES of the current selection. Per-tip label
-     * settings have to sit on the node - the NEXUS exporter writes node attributes
-     * into the tree string, but drops attributes put on a taxon.
+     * settings sit on the node, where they are written into the tree string on
+     * Save. (Taxon attributes are kept too - they go into the taxa block - but a
+     * node is what the label painter has in hand while drawing.)
      */
     public Set<Node> getSelectedTipNodes() {
 

@@ -293,14 +293,20 @@ public class LabelStyle {
         return w.toLowerCase();
     }
 
+    /** an abbreviation is short; "holotypus" is a whole word and takes no dot */
+    private static final int MAX_ABBREVIATION_LENGTH = 5;
+
     /**
      * @return the text of one part as it is drawn (with the dot that FASTA headers
-     *         usually lack, when that option is on)
+     *         usually lack, when that option is on). Only abbreviations get the
+     *         dot - "var" -> "var.", but a whole word spelled out in the not-italic
+     *         list, such as "holotypus", is left exactly as it is.
      */
     private String displayPart(String part) {
         if (addRankDots
                 && italicMode == ItalicMode.UNTIL_NUMBER
                 && isNonItalicWord(part)
+                && part.length() <= MAX_ABBREVIATION_LENGTH
                 && !part.endsWith(".")
                 && !isHybridMarker(part)) {
             return part + ".";

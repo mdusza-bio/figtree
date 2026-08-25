@@ -314,5 +314,12 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   ma numeru, na którym reguła mogłaby się zatrzymać. **Zrobione**: przycisk
   **Style selected tips…** w panelu *Tip Labels* — kursywa człon po członie
   i pogrubienie całej nazwy dla zaznaczonych liści, *Back to rules* kasuje
-  poprawkę. Ustawienie siedzi na węźle (`!labelItalic`, `!labelBold`), więc
-  zapisuje się z drzewem — atrybuty taksonów eksporter NEXUS-a gubi.
+  poprawkę. Ustawienie siedzi na węźle (`!labelItalic`, `!labelBold`) i zapisuje
+  się z drzewem. (Atrybuty taksonów też się zapisują — w bloku `taxa`; moja
+  wcześniejsza notatka, że giną, była błędna.)
+- [x] 6.12 🟢 **Zmiana podpisu liścia (*Tree → Annotate… → Name*) nie działała** —
+  zgłoszone 2026-08-23. Przyczyna: *Annotate* zapisuje `!name` na **taksonie**, gdy
+  zaznaczona jest etykieta liścia, ale na **węźle**, gdy zaznaczony jest węzeł —
+  a `BasicLabelPainter.getRawName()` dla liści zaglądał wyłącznie do taksonu.
+  W efekcie zmiana nazwy „nic nie robiła" przy jednym ze sposobów zaznaczania.
+  **Zrobione**: dla liści sprawdzany jest też `!name` z węzła.
