@@ -1650,6 +1650,45 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return PAGE_EXISTS;
     }
 
+    // MyFigTree: how far the hilight box sticks out past the longest tip label
+    private static final double HILIGHT_LABEL_PADDING = 4.0;
+    // MyFigTree: cap on the corner radius of the rounded hilight box
+    private static final double HILIGHT_CORNER_RADIUS = 14.0;
+
+    /**
+     * MyFigTree: turns the rectangular hilight shape from the layout into a
+     * rounded rectangle that also covers the clade's tip labels (which are drawn
+     * in screen space, so the layout cannot know how wide they are). Other
+     * layouts (polar, radial) keep the original shape.
+     */
+    private Shape roundedHilightShape(Node node, Shape transShape) {
+        if (!(treeLayout instanceof RectilinearTreeLayout)) {
+            return transShape;
+        }
+        Rectangle2D bounds = transShape.getBounds2D();
+        double maxX = bounds.getMaxX();
+        if (tipLabelPainter != null && tipLabelPainter.isVisible()) {
+            maxX = Math.max(maxX, maxTipLabelRight(node) + HILIGHT_LABEL_PADDING);
+        }
+        double w = maxX - bounds.getX();
+        double h = bounds.getHeight();
+        double arc = Math.min(HILIGHT_CORNER_RADIUS, Math.min(w, h) / 2.0);
+        return new RoundRectangle2D.Double(bounds.getX(), bounds.getY(), w, h, arc * 2.0, arc * 2.0);
+    }
+
+    /** MyFigTree: screen x of the right edge of the widest tip label below this node. */
+    private double maxTipLabelRight(Node node) {
+        if (tree.isExternal(node)) {
+            Shape labelBounds = tipLabelBounds.get(node);
+            return labelBounds != null ? labelBounds.getBounds2D().getMaxX() : Double.NEGATIVE_INFINITY;
+        }
+        double max = Double.NEGATIVE_INFINITY;
+        for (Node child : tree.getChildren(node)) {
+            max = Math.max(max, maxTipLabelRight(child));
+        }
+        return max;
+    }
+
     public void drawTree(Graphics2D g2, double width, double height) {
 
         final RenderingHints rhints = g2.getRenderingHints();
@@ -1722,6 +1761,9 @@ public class TreePane extends JComponent implements PainterListener, Printable {
             Shape hilightShape = treeLayoutCache.getHilightShape(node);
 
             Shape transShape = transform.createTransformedShape(hilightShape);
+            // MyFigTree: in the rectangular layout the box gets rounded corners and
+            // stretches to the right so it covers the clade's tip labels in full
+            transShape = roundedHilightShape(node, transShape);
             Paint paint = ((Color)values[2]).darker();
             Paint fillPaint = (Color)values[2];
             Stroke stroke = new BasicStroke(0.5F);
