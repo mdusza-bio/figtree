@@ -337,3 +337,10 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   i pogrubione. Kropki na węzłach i wyrównanie nazw świadomie **wyrzucone**
   z presetu. Dodatkowo `findSupportAttribute()` sprawdza `bootstrap`, `support`
   i `label`, bo nazwa atrybutu zależy od tego, co użytkowniczka wpisze przy imporcie.
+- [x] 6.15 🟢 **„Clear Hilighting" nie do kliknięcia** — zgłoszone 2026-08-25:
+  po podświetleniu kladu nie dało się tego cofnąć. Przyczyna: pozycja menu
+  *Tree → Clear Hilighting…* była włączana tylko przy zaznaczeniu
+  (`clearHilightingAction.setEnabled(hasSelection)`), a `clearHilightedNodes()`
+  bez zaznaczenia czyści **wszystkie** podświetlenia — czyli jedyna droga
+  „skasuj wszystko" była wyszarzona dokładnie wtedy, gdy była potrzebna.
+  **Zrobione**: pozycja zawsze aktywna.

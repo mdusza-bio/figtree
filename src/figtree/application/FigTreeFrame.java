@@ -448,7 +448,11 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
 //                clearCollapsedAction.setEnabled(hasSelection);
                 hilightToolbarAction.setEnabled(hasSelection);
                 hilightAction.setEnabled(hasSelection);
-                clearHilightingAction.setEnabled(hasSelection);
+                // MyFigTree: NOT gated on the selection. With nothing selected
+                // clearHilightedNodes() clears every hilight in the tree, which is
+                // the only way back once a clade has been hilighted - and the
+                // original greyed the menu item out exactly then.
+                clearHilightingAction.setEnabled(true);
 //                midpointRootAction.setEnabled(hasSelection);
                 rerootToolbarAction.setEnabled(hasSelection);
                 rerootAction.setEnabled(hasSelection);

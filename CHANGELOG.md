@@ -107,6 +107,16 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.15 — podświetlenie kladu da się cofnąć
+*Tree → Hilight…* koloruje tło wybranego kladu, ale *Tree → Clear Hilighting…*
+było aktywne **tylko przy zaznaczeniu**. Bez zaznaczenia ta sama funkcja czyści
+wszystkie podświetlenia w drzewie — czyli jedyne „cofnij wszystko" było
+niedostępne dokładnie w chwili, gdy było potrzebne. Pozycja menu jest teraz
+zawsze aktywna.
+
+W starej wersji obejście: zaznaczyć klad ponownie — wtedy menu się odblokowuje
+i czyści podświetlenie w obrębie zaznaczenia.
+
 ### Etap 6.14 — *Publication preset* to teraz zestaw użytkowniczki
 Przycisk ustawiał mój zestaw „domyślny"; po pierwszej prawdziwej rycinie
 użytkowniczka podała, co faktycznie klika za każdym razem, i to trafiło do presetu:
