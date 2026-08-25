@@ -359,3 +359,73 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   jako `Locale.setDefault(Locale.Category.FORMAT, Locale.ROOT)` — liczby z kropką,
   język interfejsu bez zmian. Uszkodzony plik użytkowniczki naprawiony skryptem
   i zweryfikowany importerem.
+
+---
+
+## Do zrobienia przez użytkowniczkę (stan na 2026-08-25, wieczór)
+
+Lista spisana na jej prośbę na koniec długiej sesji. Nic z tego nie wymaga
+programowania — to przeklikanie i decyzje. Kolejność od najważniejszego.
+
+### 1. Sprawdzić odzyskane drzewo — najpierw to
+
+Otworzyć **`ML_SmE_odtworzony_naprawiony.tree`**
+(`Pulpit\jasno sierpień 2026\jasno_wielogenowe\v1\`) i zobaczyć, czy rycina
+wygląda tak, jak została zostawiona o 17:29: Times 11 pt, poparcie ≥ 70 nad
+gałęzią, order decreasing, `Trichia sordida HOLOTYPE`.
+
+Sprawdzone importerem programu (383 taksony, 142 ustawienia wczytują się), ale
+**nikt tego jeszcze nie widział na ekranie**. Jeśli czegoś brakuje — zgłosić.
+
+W tym samym folderze został pusty `ML_SmE.raxml.support` (0 bajtów, po awarii
+zapisu) — do skasowania, gdy naprawiony plik okaże się w porządku.
+
+### 2. Poprawić `xholotypus` w polu *Not italic words*
+
+W zapisanym pliku jest `... aff nov xholotypus paratypus isotypus` — brakuje
+spacji między `x` a `holotypus`, więc program widzi jedno słowo i **ani `x`, ani
+`holotypus` nie są rozpoznawane**. Na rycinie tego nie widać, bo holotyp został
+przemianowany na `HOLOTYPE`. Wystarczy dopisać spację albo kliknąć
+*Publication preset*, który wpisuje poprawną listę.
+
+### 3. Przeklikać to, co zrobione, ale nieoglądane
+
+- [ ] **Publication preset** (6.14) — czy jednym kliknięciem daje to, co dotąd
+  ustawiała ręcznie. Można go bezpiecznie wypróbować na gotowej rycinie:
+  przycisk zmienia się wtedy w *Undo preset* i cofa wszystko.
+- [ ] **Move selected label…** (6.16) — przesuwanie **jednej** wartości poparcia:
+  zaznaczyć gałąź, przycisk w panelu *Node Labels*, wpisać przesunięcie w punktach.
+  Sprawdzić, czy wpisywanie liczb jest znosne — jeśli męczące, do zrobienia
+  przeciąganie myszą (patrz 6.16 wyżej).
+- [ ] **Clear Hilighting** (6.15) — *Tree → Clear Hilighting…* działa teraz zawsze:
+  bez zaznaczenia czyści wszystkie podświetlenia, z zaznaczonym kladem — tylko jego.
+- [ ] **Style selected tips…** (6.11) — ręczna kursywa/pogrubienie na pojedynczym
+  liściu. Zrobione, ale ani razu nieużyte (w praktyce wystarczyło *Not italic words*).
+- [ ] **Group Bars** (6.3) — paski grup i import rodzin z pliku. Zrobione
+  2026-08-23, nadal nieprzeklikane. Pliki testowe: `doc/przyklad.tree`,
+  `doc/przyklad_rodziny.tsv`.
+
+### 4. Decyzje dla mnie (jedno zdanie wystarczy)
+
+- [ ] **Wyróżnienie typów**: preset wpisuje teraz **obie** pisownie — `holotypus,
+  paratypus, isotypus` i `HOLOTYPE, PARATYPE, ISOTYPE`. Zostawić obie czy tylko
+  wielkie litery, skoro tak wyglądają nazwy z FASTA?
+- [ ] **Wartości w presecie** — gdyby po kilku rycinach okazało się, że coś nie
+  pasuje (próg 70, 11/9 pt, order decreasing), zmiana to jedna liczba.
+
+### 5. Sprawdzić słownik śluzowców — patrz 6.9
+
+`doc/slowniki/sluzowce.tsv` (63 rodzaje) napisał Claude z pamięci i **wymaga
+weryfikacji specjalistki**, zanim pójdzie na rycinę do publikacji.
+
+### Na przyszłość, żeby uniknąć dzisiejszych kłopotów
+
+- **Zamykać program, zanim Claude kompiluje.** Podmiana `figtree.jar` pod
+  działającą kopią psuje ją po cichu (menu przestają otwierać okienka, zapis
+  milczy). Claude ma to zapisane w `CLAUDE.md` i ma o to prosić — ale warto
+  wiedzieć, skąd się biorą takie objawy.
+- **Zapisywać pod nową nazwą** (*File → Save As…*), gdy rycina jest ważna.
+  Od 6.13 nieudany zapis nie kasuje już starego pliku, ale osobna kopia i tak
+  nie zaszkodzi.
+- Drzewo ML z RAxML-a zawsze da się odtworzyć z `.bestTree` + `.bootstraps` —
+  przepis w `doc/instrukcja.md`, rozdział 14.
