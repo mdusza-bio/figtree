@@ -313,6 +313,17 @@ public class LabelPainterController extends AbstractController {
             xPaddingSpinner.addChangeListener(paddingListener);
             yPaddingSpinner.addChangeListener(paddingListener);
 
+            moveLabelButton = new JButton("Move selected label...");
+            moveLabelButton.putClientProperty("JComponent.sizeVariant", "small");
+            moveLabelButton.setToolTipText("<html>Nudge the label of the node(s) selected in the tree,<br>" +
+                    "for the one value that lands in a bad spot. A label moved by<br>" +
+                    "hand keeps its place - Avoid overlap leaves it alone.</html>");
+            moveLabelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    moveSelectedLabels(treeViewer);
+                }
+            });
+
             if (intent == LabelPainter.PainterIntent.NODE) {
                 positionCombo = new JComboBox(LabelPainter.LabelPosition.values());
                 positionCombo.addActionListener(new ActionListener() {
@@ -377,6 +388,7 @@ public class LabelPainterController extends AbstractController {
         } else {
             xPaddingSpinner = null;
             yPaddingSpinner = null;
+            moveLabelButton = null;
             positionCombo = null;
             avoidOverlapCheck = null;
             labelBackingCheck = null;
@@ -574,6 +586,8 @@ public class LabelPainterController extends AbstractController {
             addComponent(xPaddingSpinner);
             addComponent(optionsPanel.addComponentWithLabel("Offset Y:", yPaddingSpinner));
             addComponent(yPaddingSpinner);
+            optionsPanel.addSpanningComponent(moveLabelButton);
+            addComponent(moveLabelButton);
             addComponent(optionsPanel.addComponentWithLabel("Show only if >=:", thresholdText));
             addComponent(thresholdText);
             addComponent(optionsPanel.addComponentWithLabel("Second value:", secondAttributeCombo));
@@ -767,6 +781,75 @@ public class LabelPainterController extends AbstractController {
         }
 
         labelPainter.labelStyleChanged();
+    }
+
+    /**
+     * MyFigTree (Etap 6.16): moves the label of the selected node(s) by hand. The
+     * panel's Offset X / Offset Y move every label at once; this moves just the
+     * one that landed badly. Stored on the node, so it is saved with the tree.
+     */
+    private void moveSelectedLabels(TreeViewer treeViewer) {
+
+        if (!(treeViewer instanceof ExtendedTreeViewer)) {
+            return;
+        }
+
+        java.util.Set<Node> selected = new java.util.LinkedHashSet<Node>(treeViewer.getSelectedNodes());
+        if (selected.isEmpty()) {
+            JOptionPane.showMessageDialog(optionsPanel,
+                    "No node is selected in the tree.\n\n" +
+                            "Click the branch (or the value itself) whose label you want\n" +
+                            "to move, then press this button again.",
+                    "Move Label",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Node first = selected.iterator().next();
+        double[] current = TreePane.getLabelOffset(first);
+
+        JSpinner dxSpinner = new JSpinner(new SpinnerNumberModel(
+                current == null ? 0.0 : current[0], -500.0, 500.0, 1.0));
+        JSpinner dySpinner = new JSpinner(new SpinnerNumberModel(
+                current == null ? 0.0 : current[1], -500.0, 500.0, 1.0));
+
+        OptionsPanel dialogPanel = new OptionsPanel(6, 6);
+        if (selected.size() > 1) {
+            dialogPanel.addSpanningComponent(new JLabel(
+                    "<html>The same shift goes on all " + selected.size() + " selected labels.</html>"));
+        }
+        dialogPanel.addComponentWithLabel("Left / right (pt):", dxSpinner);
+        dialogPanel.addComponentWithLabel("Up / down (pt):", dySpinner);
+        dialogPanel.addSpanningComponent(new JLabel(
+                "<html><i>Negative moves left and up.</i></html>"));
+
+        Object[] buttons = {"Apply", "Back to default", "Cancel"};
+        int result = JOptionPane.showOptionDialog(optionsPanel, dialogPanel, "Move Label",
+                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+                buttons, buttons[0]);
+
+        if (result == 0) {
+            double dx = ((Number) dxSpinner.getValue()).doubleValue();
+            double dy = ((Number) dySpinner.getValue()).doubleValue();
+            for (Node node : selected) {
+                if (dx == 0.0 && dy == 0.0) {
+                    node.removeAttribute(TreePane.LABEL_DX_ATTRIBUTE_NAME);
+                    node.removeAttribute(TreePane.LABEL_DY_ATTRIBUTE_NAME);
+                } else {
+                    node.setAttribute(TreePane.LABEL_DX_ATTRIBUTE_NAME, dx);
+                    node.setAttribute(TreePane.LABEL_DY_ATTRIBUTE_NAME, dy);
+                }
+            }
+        } else if (result == 1) {
+            for (Node node : selected) {
+                node.removeAttribute(TreePane.LABEL_DX_ATTRIBUTE_NAME);
+                node.removeAttribute(TreePane.LABEL_DY_ATTRIBUTE_NAME);
+            }
+        } else {
+            return;
+        }
+
+        ((ExtendedTreeViewer) treeViewer).fireAnnotationsChanged();
     }
 
     private void applyGroupStyles() {
@@ -1118,6 +1201,7 @@ public class LabelPainterController extends AbstractController {
     private final JComboBox secondAttributeCombo;
     private final JComboBox secondLayoutCombo;
 
+    private final JButton moveLabelButton;
     private final JSpinner italicPartsSpinner;
     private final JComboBox italicModeCombo;
     private final JButton styleTipsButton;

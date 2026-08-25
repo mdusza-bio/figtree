@@ -344,3 +344,10 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   bez zaznaczenia czyści **wszystkie** podświetlenia — czyli jedyna droga
   „skasuj wszystko" była wyszarzona dokładnie wtedy, gdy była potrzebna.
   **Zrobione**: pozycja zawsze aktywna.
+- [x] 6.16 🟡 **Przesuwanie pojedynczej wartości poparcia** — zgłoszone 2026-08-25:
+  *Offset X/Y* rusza wszystkie etykiety naraz, a zawsze trafi się jedna, którą
+  trzeba odsunąć osobno. **Zrobione**: przycisk **Move selected label…** w panelu
+  *Node Labels*, przesunięcie w punktach na zaznaczonych węzłach, zapisywane jako
+  `!labelDX` / `!labelDY`. Etykieta ruszona ręcznie jest pomijana przez
+  *Avoid overlap* (ale liczy się dla niego jako przeszkoda).
+  Ewentualne rozszerzenie na przyszłość: przeciąganie etykiety myszą.

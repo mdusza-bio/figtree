@@ -159,6 +159,19 @@ Wygląd:
   drukowanych); odznaczony — wszystkie gałęzie zostają w całości czarne,
   nawet jeśli liczba wyląduje na kresce. Do wyboru wedle gustu.
 
+- **Move selected label…** (tylko *Node Labels*) — przesuwa **jedną** wartość, gdy
+  wyląduje w złym miejscu, a reszta drzewa wygląda dobrze:
+  1. kliknij w drzewie gałąź (albo samą liczbę) tego węzła,
+  2. naciśnij przycisk,
+  3. wpisz przesunięcie w punktach — **w lewo/prawo** i **góra/dół**; wartości
+     ujemne przesuwają w lewo i do góry.
+
+  Różnica względem *Offset X / Offset Y*: tamte przesuwają **wszystkie** wartości
+  naraz, ta — tylko zaznaczone. Etykieta przesunięta ręcznie **zostaje tam, gdzie
+  ją postawisz**: *Avoid overlap* jej nie rusza, a jedynie omija ją przy
+  rozsuwaniu pozostałych. **Back to default** kasuje przesunięcie. Ustawienie
+  siedzi na węźle (`!labelDX`, `!labelDY`) i zapisuje się z drzewem.
+
 ### Przepis: duże drzewo ML z wartościami bootstrap
 
 Sprawdzona kolejność kroków dla gęstego drzewa (setki okazów, klady po

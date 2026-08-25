@@ -107,6 +107,18 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.16 — przesuwanie pojedynczej wartości poparcia
+*Offset X / Offset Y* przesuwają wszystkie etykiety naraz, a w praktyce zawsze
+znajdzie się jedna liczba, która wypada źle, choć reszta jest w porządku. Panel
+*Node Labels* dostaje przycisk **Move selected label…**: zaznaczasz węzeł
+w drzewie, wpisujesz przesunięcie w punktach (w lewo/prawo i góra/dół, ujemne
+w lewo i do góry), **Back to default** kasuje.
+
+Etykieta przesunięta ręcznie jest wyłączona z automatycznego rozsuwania
+(*Avoid overlap*) — zostaje dokładnie tam, gdzie ją postawisz, a pozostałe
+wartości ją omijają. Przesunięcie siedzi na węźle (`!labelDX`, `!labelDY`),
+więc zapisuje się razem z drzewem.
+
 ### Etap 6.15 — podświetlenie kladu da się cofnąć
 *Tree → Hilight…* koloruje tło wybranego kladu, ale *Tree → Clear Hilighting…*
 było aktywne **tylko przy zaznaczeniu**. Bez zaznaczenia ta sama funkcja czyści
