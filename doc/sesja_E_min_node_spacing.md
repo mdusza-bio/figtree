@@ -162,22 +162,29 @@ bezpiecznym zakresie — `TreePane.spreadOverlappingNodeLabels()`:
   przybliżenia z pozycji `y`;
 - porównuje też **poziom**, więc wartości na odległych gałęziach zostają
   nietknięte;
-- przesuwa etykiety **wyłącznie w dół** i tylko o tyle, ile trzeba;
 - **nie rusza drzewa** — węzły, gałęzie i skala zostają na miejscu
   (to główna przewaga nad E2, które psuło proporcje);
-- przesunięcie jest ograniczone do 3× wysokości etykiety, żeby liczba nie
-  odpłynęła od swojego węzła;
 - tylko układ prostokątny (w polarnym/radialnym etykiety są obrócone
-  i „w dół" nic nie znaczy).
+  i kierunki przesuwania tracą sens).
 
 Włącznik: checkbox **Avoid overlap** (pole *Crowded values*) na dole panelu
 *Node Labels*, domyślnie wyłączony. Zapis do `.tree`:
 `nodeLabels.avoidOverlap`.
 
+**Wersja 1 (odrzucona):** kolidująca liczba zsuwana w dół, z limitem 3×
+wysokości etykiety. Feedback użytkowniczki (2026-08-24, zrzuty ekranu):
+liczba lądowała „tylko trochę niżej", w przypadkowym miejscu, i nie było
+widać, do którego węzła należy.
+
+**Wersja 2 (obecna):** wzór wzięty z ryciny w innym artykule, podesłanej
+przez użytkowniczkę — kolidująca liczba jest odsuwana **w lewo**, w pustą
+przestrzeń nad własną gałęzią (kilka przejść, bo po przesunięciu może wpaść
+na trzecią liczbę). Jeśli odsunięcie przekroczy wysokość etykiety, od prawej
+krawędzi liczby do punktu węzła rysowana jest cienka szara linia (0,5 pt),
+która jednoznacznie wskazuje przypisanie.
+
 ## Co zostało na przyszłość
 
-Etykieta może być przesunięta tylko w dół. Gdyby to okazało się za mało,
-kolejne kroki (w kolejności rosnącej trudności): przesuwanie w obie strony
-(rozsuwanie symetryczne wokół gęstego miejsca), przerzucanie etykiety nad
-gałąź / pod gałąź tam, gdzie jest luźniej, oraz linia odniesienia
-(*callout*) rysowana od przesuniętej liczby do jej węzła.
+Gdyby przesuwanie w lewo okazało się za mało: przerzucanie etykiety nad
+gałąź / pod gałąź tam, gdzie jest luźniej, oraz sprawdzanie kolizji także
+z nazwami liści (dziś porównywane są tylko wartości poparcia między sobą).
