@@ -1945,6 +1945,20 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
                 g2.setTransform(oldTransform);
             }
+
+            // MyFigTree (Etap 6.6): thin pointer lines from support values that
+            // "Avoid overlap" had to move away from their node
+            if (!nodeLabelCallouts.isEmpty()) {
+                Paint calloutOldPaint = g2.getPaint();
+                Stroke calloutOldStroke = g2.getStroke();
+                g2.setPaint(Color.GRAY);
+                g2.setStroke(new BasicStroke(0.5f));
+                for (Line2D callout : nodeLabelCallouts.values()) {
+                    g2.draw(callout);
+                }
+                g2.setPaint(calloutOldPaint);
+                g2.setStroke(calloutOldStroke);
+            }
         }
 
         // Paint branch labels
@@ -2339,6 +2353,8 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         nodeLabelBounds.clear();
         nodeLabelTransforms.clear();
         nodeLabelJustifications.clear();
+        nodeLabelAnchors.clear();
+        nodeLabelCallouts.clear();
 
         if (nodeLabelPainter != null && nodeLabelPainter.isVisible()) {
             // Iterate though the external nodes with node labels
@@ -2360,6 +2376,14 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
                 // Store the transform in the map for use when drawing
                 nodeLabelTransforms.put(node, labelTransform);
+
+                // MyFigTree (Etap 6.6): where the node itself is on screen, so a
+                // pointer line can be drawn if the label has to be moved away
+                Point2D anchor = new Point2D.Double(labelPath.getX1(), labelPath.getY1());
+                if (transform != null) {
+                    transform.transform(anchor, anchor);
+                }
+                nodeLabelAnchors.put(node, anchor);
 
                 // Store the alignment in the map for use when drawing
                 if (labelPath.getX1() < labelPath.getX2()) {
@@ -2549,26 +2573,28 @@ public class TreePane extends JComponent implements PainterListener, Printable {
     }
 
     /**
-     * MyFigTree (Etap 6.6): move node labels down where they would be drawn on top
-     * of an earlier one.
+     * MyFigTree (Etap 6.6): move node labels out of the way where they would be
+     * drawn on top of an earlier one.
      * <p>
      * Min tip spacing cannot fix this: it spreads the <em>tips</em> evenly, but the
      * internal nodes that carry the support values sit wherever their children
      * average out, so in a clade that adds one taxon at a time several of them land
      * within a fraction of one tip spacing. Here the real, laid-out text rectangles
      * are compared, so only labels that genuinely clash are touched - and only when
-     * they also overlap horizontally, which leaves values on far-apart branches
+     * they also overlap vertically, which leaves values on far-apart branches
      * exactly where the layout put them.
      * <p>
-     * Labels are walked from the top down and each one is pushed just far enough
-     * below the ones already placed. A label never moves further than
-     * {@link #MAX_LABEL_SHIFT} times its own height, so a value always stays near
-     * the node it belongs to even in hopelessly crowded spots.
+     * A clashing label is slid <em>left</em>, along its own branch, into the empty
+     * space before the node - the way crowded support values are typeset in
+     * published figures. When it ends up too far from its node to be read
+     * unambiguously, a thin grey pointer line is drawn from the label to the node
+     * it belongs to.
      */
     private void spreadOverlappingNodeLabels() {
 
-        // only the rectangular layout draws node labels upright and in rows;
-        // in the polar and radial layouts they are rotated, so "down" is meaningless
+        // only the rectangular layout draws node labels upright with horizontal
+        // branches; in the polar and radial layouts they are rotated, so sliding
+        // "left along the branch" is meaningless
         if (!(treeLayout instanceof RectilinearTreeLayout) || nodeLabelBounds.size() < 2) {
             return;
         }
@@ -2599,61 +2625,63 @@ public class TreePane extends JComponent implements PainterListener, Printable {
             }
         });
 
-        // labels placed so far that can still be in the way further down
-        List<Rectangle2D> active = new ArrayList<Rectangle2D>();
+        // labels already placed (in their final spot)
+        List<Rectangle2D> placed = new ArrayList<Rectangle2D>();
 
         for (Node node : nodes) {
             final Rectangle2D bounds = nodeLabelBounds.get(node).getBounds2D();
-            final double top = bounds.getY();
+            final double originalX = bounds.getX();
 
-            // anything finishing above this label can no longer collide with
-            // it or with any label below it (the list is in top-to-bottom order)
-            for (Iterator<Rectangle2D> iterator = active.iterator(); iterator.hasNext(); ) {
-                if (iterator.next().getMaxY() + LABEL_GAP <= top) {
-                    iterator.remove();
-                }
-            }
-
-            double y = top;
-            // one sweep can uncover a new clash, so settle it in a few passes
+            // one slide can land the label on a third one, so settle in a few passes
             for (int pass = 0; pass < MAX_LABEL_PASSES; pass++) {
-                double newY = y;
-                for (Rectangle2D other : active) {
-                    if (bounds.getMaxX() <= other.getX() || bounds.getX() >= other.getMaxX()) {
-                        continue;   // side by side - no clash whatever the heights
+                boolean moved = false;
+                for (Rectangle2D other : placed) {
+                    if (bounds.getY() >= other.getMaxY() + LABEL_GAP_Y
+                            || bounds.getMaxY() + LABEL_GAP_Y <= other.getY()) {
+                        continue;   // clear above or below - no clash
                     }
-                    if (newY + bounds.getHeight() + LABEL_GAP <= other.getY()
-                            || newY >= other.getMaxY() + LABEL_GAP) {
-                        continue;   // clear above or below
+                    if (bounds.getX() >= other.getMaxX() + LABEL_GAP_X
+                            || bounds.getMaxX() + LABEL_GAP_X <= other.getX()) {
+                        continue;   // side by side with enough breathing room
                     }
-                    newY = other.getMaxY() + LABEL_GAP;
+                    // slide left until this label sits clear before the other one
+                    bounds.setRect(other.getX() - LABEL_GAP_X - bounds.getWidth(),
+                            bounds.getY(), bounds.getWidth(), bounds.getHeight());
+                    moved = true;
                 }
-                if (newY == y) {
+                if (!moved) {
                     break;
                 }
-                y = newY;
             }
 
-            double shift = Math.min(y - top, bounds.getHeight() * MAX_LABEL_SHIFT);
-            if (shift > 0.0) {
+            double shift = bounds.getX() - originalX;
+            if (shift < 0.0) {
                 AffineTransform labelTransform = nodeLabelTransforms.get(node);
                 // the shift is in screen coordinates, so it goes on after the
                 // transform that placed the label
-                labelTransform.preConcatenate(AffineTransform.getTranslateInstance(0.0, shift));
-                bounds.setRect(bounds.getX(), top + shift, bounds.getWidth(), bounds.getHeight());
+                labelTransform.preConcatenate(AffineTransform.getTranslateInstance(shift, 0.0));
                 // keep the clickable area on the text
                 nodeLabelBounds.put(node, bounds);
+
+                // once the label has left the immediate neighbourhood of its node,
+                // draw a pointer line so there is no doubt which branch it belongs to
+                Point2D anchor = nodeLabelAnchors.get(node);
+                if (anchor != null && -shift > bounds.getHeight()) {
+                    nodeLabelCallouts.put(node, new Line2D.Double(
+                            bounds.getMaxX() + 1.0, bounds.getCenterY(),
+                            anchor.getX(), anchor.getY()));
+                }
             }
 
-            active.add(bounds);
+            placed.add(bounds);
         }
     }
 
-    /** blank space kept between two node labels that had to be pulled apart */
-    private static final double LABEL_GAP = 1.0;
-    /** how far a node label may be moved, as a multiple of its own height */
-    private static final double MAX_LABEL_SHIFT = 3.0;
-    private static final int MAX_LABEL_PASSES = 4;
+    /** breathing room between two node labels sitting side by side */
+    private static final double LABEL_GAP_X = 5.0;
+    /** vertical distance below which two node labels count as clashing */
+    private static final double LABEL_GAP_Y = 1.0;
+    private static final int MAX_LABEL_PASSES = 6;
 
     /**
      * MyFigTree: transform for a node label taking the chosen position and padding
@@ -2826,6 +2854,10 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
     private Map<Node, AffineTransform> nodeLabelTransforms = new HashMap<Node, AffineTransform>();
     private Map<Node, Shape> nodeLabelBounds = new HashMap<Node, Shape>();
+    // MyFigTree (Etap 6.6): node positions on screen and pointer lines for
+    // support values that had to be moved away from their node
+    private Map<Node, Point2D> nodeLabelAnchors = new HashMap<Node, Point2D>();
+    private Map<Node, Line2D> nodeLabelCallouts = new HashMap<Node, Line2D>();
     private Map<Node, Painter.Justification> nodeLabelJustifications = new HashMap<Node, Painter.Justification>();
 
     private Map<Node, AffineTransform> branchLabelTransforms = new HashMap<Node, AffineTransform>();
