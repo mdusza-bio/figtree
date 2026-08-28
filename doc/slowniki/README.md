@@ -29,33 +29,23 @@ Arcyria	Arcyriaceae	Trichiales
 - Puste komórki są dozwolone: taki okaz po prostu nie dostaje atrybutu (pasek
   grupy się w tym miejscu przerywa).
 
-## Jak tego użyć dzisiaj
+## Jak tego użyć
 
-*Import Annotations…* dopasowuje **pełne nazwy okazów**, a nie rodzaje, więc
-słownik jest na razie tabelą pomocniczą: w Excelu dokleja się rodzinę do listy
-okazów, a dopiero wynik wczytuje do programu.
+Słownik wczytuje się **wprost**: *File → Import Annotations…* i wskazać plik.
+Nazwa jednowyrazowa w pierwszej kolumnie (np. `Trichia`) jest traktowana jak
+rodzaj — jej rodzina i rząd trafiają do **wszystkich** okazów, których nazwa
+zaczyna się od tego rodzaju (`Trichia_lutescens_MA83355`, `Trichia_varia_MA80112`…).
+Okno po imporcie mówi, ile nazw dopasowało się po rodzaju i ile okazów objęły;
+rodzaje, których w drzewie nie ma, są po prostu pomijane (i wypisane w oknie).
 
-1. W Excelu w kolumnie **A** wklej nazwy okazów dokładnie takie, jak w pliku
-   drzewa (`Trichia_lutescens_MA83355`).
-2. W **B** wyciągnij rodzaj, czyli pierwszy człon nazwy:
-   `=LEWY(A2;ZNAJDŹ("_";A2)-1)`
-3. Wklej słownik do drugiego arkusza (nazwij go `slownik`) i w **C** oraz **D**:
-   `=WYSZUKAJ.PIONOWO(B2;slownik!$A:$C;2;FAŁSZ)` — rodzina
-   `=WYSZUKAJ.PIONOWO(B2;slownik!$A:$C;3;FAŁSZ)` — rząd
-4. Skopiuj formuły w dół, zamień wynik na wartości (*Wklej specjalnie → Wartości*),
-   usuń kolumnę B, nagłówki zrób `name`, `family`, `order`.
-5. Zapisz jako tekst rozdzielany tabulatorami i wczytaj przez
-   *File → Import Annotations…* Okno powie, ile nazw udało się dopasować.
+Gdy w drzewie trafi się rodzaj, którego słownik nie zna, doda się go najprościej
+przez *File → Export Group Template…* — program wypisze alfabetyczną listę
+rodzajów otwartego drzewa z pustymi kolumnami; brakujące wiersze można przekleić
+do słownika. Tak słownik z każdym drzewem robi się kompletniejszy.
 
-`#N/D` w kolumnie C oznacza rodzaj, którego w słowniku nie ma — warto go dopisać,
-wtedy słownik z każdym drzewem robi się kompletniejszy.
-
-## Planowane ułatwienie
-
-Docelowo program ma sam dopasowywać takie słowniki po pierwszym członie nazwy
-(czyli po rodzaju) i sam wypisywać listę rodzajów z otwartego drzewa do
-wypełnienia — wtedy kroki 1–4 znikają. Zadanie czeka w
-[kolejce zmian](../kolejka_zmian.md).
+Wyjątki od słownika (np. jeden okaz o spornym przypisaniu) załatwia dodatkowy
+wiersz z **pełną nazwą okazu** — pełna nazwa zawsze wygrywa z rodzajem, obie
+postacie mogą siedzieć w jednym pliku.
 
 ## Uwaga o ujęciach systematycznych
 

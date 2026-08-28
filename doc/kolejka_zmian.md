@@ -274,16 +274,23 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   wybrać `bootstrap`, nie `Node ages`). Samo otwarcie właściwego pliku
   usunęło większość problemu.
 
-- [ ] 6.7 🟡 **Słowniki grup: dopasowanie po rodzaju + szablon do wypełnienia** —
+- [x] 6.7 🟡 **Słowniki grup: dopasowanie po rodzaju + szablon do wypełnienia** —
   zgłoszone 2026-08-23: pisanie pliku `nazwa<TAB>rodzina` dla setek okazów to
   strata czasu, a rodzina i rząd zależą od **rodzaju**, czyli pierwszego członu
-  nazwy liścia. Do zrobienia: (a) przy imporcie, gdy nazwa z pliku nie pasuje do
-  żadnego pełnego imienia okazu, spróbować dopasować ją do pierwszego członu
-  nazw i przypisać atrybut wszystkim okazom tego rodzaju (w podsumowaniu
-  osobno policzyć takie dopasowania); (b) *File → Export Group Template…* —
-  wypisanie z otwartego drzewa listy unikalnych rodzajów z pustymi kolumnami
-  do wypełnienia w Excelu. Wtedy słownik `doc/slowniki/sluzowce.tsv` wczytuje
-  się wprost. Format i obejście na dziś: `doc/slowniki/README.md`.
+  nazwy liścia. **Zrobione 2026-08-28** (impuls: import `sluzowce.tsv` do
+  prawdziwego drzewa dał „Matched 0 of 63"): (a) przy imporcie nazwa
+  **jednowyrazowa** (bez `_` i spacji), która nie pasuje do żadnej pełnej nazwy
+  okazu, jest traktowana jako rodzaj i dostają ją wszystkie okazy o nazwie
+  zaczynającej się od tego rodzaju; podsumowanie osobno liczy takie dopasowania
+  i objęte nimi okazy; wiersz z pełną nazwą zawsze nadpisuje wartość z rodzaju,
+  niezależnie od kolejności w pliku. Nazwy wielowyrazowe celowo **nie** spadają
+  na rodzaj — brakujący w drzewie okaz nie rozleje swoich wartości na cały
+  rodzaj. (b) *File → Export Group Template…* — zapis alfabetycznej listy
+  rodzajów otwartego drzewa z pustymi kolumnami `family`/`order` (zapis przez
+  plik tymczasowy, jak przy Save). Zmiany: `FigTreeFrame.java`
+  (`applyAnnotationTable`, `doExportGroupTemplate`, `genusOf`, `isSingleWord`),
+  nowa pozycja w obu fabrykach menu File. Dokumentacja: `doc/instrukcja.md` §9,
+  `doc/slowniki/README.md`. **Czeka na przeklikanie.**
 - [ ] 6.8 🟡 **Kolory grup: przycisk *Colours…* w panelu Group Bars** — zgłoszone
   2026-08-23 przy przeklikiwaniu 6.3. Miało być tak, że kolory ustawia się
   w *Appearance* → *Colour by* → *Setup: Colours*, ale ta lista **w ogóle nie

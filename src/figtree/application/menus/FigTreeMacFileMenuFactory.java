@@ -114,6 +114,11 @@ public class FigTreeMacFileMenuFactory implements MenuFactory {
             item = new JMenuItem(((FigTreeFileMenuHandler)frame).getImportColourSchemeAction());
             menu.add(item);
 
+            // MyFigTree (Etap 6.7): companion of Import Annotations - writes the list of
+            // genera of the open tree to be filled in and imported back
+            item = new JMenuItem(((FigTreeFileMenuHandler)frame).getExportGroupTemplateAction());
+            menu.add(item);
+
             menu.addSeparator();
 
             item = new JMenuItem(((FigTreeFileMenuHandler)frame).getExportTreesAction());

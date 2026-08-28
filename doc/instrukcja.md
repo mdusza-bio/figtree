@@ -27,7 +27,7 @@ FigTree zainstalowany obok.
 |---|---|---|
 | `doc/przyklad.tree` | drzewko testowe, 8 okazów śluzowców | *File → Open* |
 | `doc/przyklad_rodziny.tsv` | rodziny i rzędy do tego drzewka | *File → Import Annotations…* |
-| `doc/slowniki/sluzowce.tsv` | słownik rodzaj → rodzina → rząd (63 rodzaje) | tabela pomocnicza w Excelu, patrz [slowniki/README.md](slowniki/README.md) |
+| `doc/slowniki/sluzowce.tsv` | słownik rodzaj → rodzina → rząd (63 rodzaje) | *File → Import Annotations…* (dopasowanie po rodzaju), patrz [slowniki/README.md](slowniki/README.md) |
 
 Wszystkie te pliki to zwykły tekst — otwierają się w Notatniku i w Excelu.
 
@@ -228,26 +228,39 @@ Wczytuje tabelkę, która przypisuje okazom dodatkowe informacje — to stąd bi
 się rodziny do *Group Bars*.
 
 Plik: pierwszy wiersz to nagłówki (stają się nazwami atrybutów), pierwsza kolumna
-to nazwy okazów **dokładnie jak w pliku drzewa**, z podkreślnikami:
+to nazwy okazów **dokładnie jak w pliku drzewa** (z podkreślnikami) **albo same
+nazwy rodzajów** — obie postacie mogą być w jednym pliku:
 
 ```
 name	family	order
 Trichia_lutescens_MA83355	Trichiaceae	Trichiales
-Arcyria_ferruginea_MA58962	Arcyriaceae	Trichiales
+Arcyria	Arcyriaceae	Trichiales
 ```
 
+- **Nazwa jednowyrazowa** (bez podkreślników i spacji) jest traktowana jak rodzaj:
+  jej wartości dostają **wszystkie** okazy, których nazwa zaczyna się od tego
+  rodzaju. Dzięki temu słownik `doc/slowniki/sluzowce.tsv` wczytuje się wprost.
+- Jeśli jakiś okaz jest w pliku wymieniony i z pełnej nazwy, i „załapuje się"
+  przez rodzaj, wygrywa wiersz z pełną nazwą — można więc słownikiem opisać
+  całość, a pojedyncze wyjątki nadpisać osobnym wierszem.
 - Kolumny rozdzielone tabulatorem, przecinkiem albo średnikiem — w Excelu
   wystarczy *Zapisz jako → Tekst rozdzielany tabulatorami*.
 - Puste wiersze, cudzysłowy i wiersze zaczynające się od `#` nie przeszkadzają.
 - Pusta komórka = brak atrybutu, czyli pasek grupy się w tym miejscu przerywa.
-- Po wczytaniu okno mówi, **ile nazw udało się dopasować** i wypisuje te, których
+- Po wczytaniu okno mówi, **ile nazw udało się dopasować** (osobno licząc
+  dopasowania po rodzaju i liczbę objętych nimi okazów) i wypisuje nazwy, których
   w drzewie nie ma. Jeśli widzisz „Matched 0 of…", prawie zawsze znaczy to, że
   w pierwszej kolumnie są nazwy w innej postaci niż w drzewie.
 - Atrybuty zapisują się przy *Save* w pliku `.tree`, więc następnym razem są już
   na miejscu.
 
-Jak zrobić taki plik dla drzewa z setkami okazów, nie przepisując nazw ręcznie —
-patrz [slowniki/README.md](slowniki/README.md).
+### Menu *File → Export Group Template…*
+
+Odwrotność importu: wypisuje z otwartego drzewa **listę rodzajów** (alfabetycznie,
+bez powtórzeń) do pliku z pustymi kolumnami `family` i `order`. Plik uzupełnia się
+w Excelu albo Notatniku i wczytuje z powrotem przez *Import Annotations…* — nie
+trzeba przepisywać ani jednej nazwy. Nagłówki kolumn można zmieniać i dodawać
+własne (np. `substrat`); więcej w [slowniki/README.md](slowniki/README.md).
 
 ## 10. Eksport ryciny
 

@@ -107,6 +107,28 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.7 — słowniki grup: dopasowanie po rodzaju (2026-08-28)
+**Skąd się wzięło.** Import słownika `doc/slowniki/sluzowce.tsv` do prawdziwego
+drzewa kończył się komunikatem *„Matched 0 of 63"* — bo import porównywał tylko
+**pełne** nazwy okazów, a słownik ma same rodzaje.
+
+- *File → Import Annotations…*: nazwa **jednowyrazowa** (bez podkreślników
+  i spacji), która nie pasuje do żadnej pełnej nazwy okazu, jest traktowana jako
+  **rodzaj** — jej wartości dostają wszystkie okazy, których nazwa zaczyna się od
+  tego rodzaju. Słownik wczytuje się więc wprost, bez doklejania rodzin w Excelu.
+- Podsumowanie po imporcie osobno liczy dopasowania po rodzaju i liczbę objętych
+  nimi okazów.
+- Wiersz z pełną nazwą okazu zawsze **wygrywa** z wartością odziedziczoną po
+  rodzaju, niezależnie od kolejności w pliku — pojedyncze wyjątki od słownika
+  załatwia jeden dodatkowy wiersz.
+- Nazwy wielowyrazowe (np. okaz, którego nie ma w drzewie) celowo **nie** spadają
+  na dopasowanie po rodzaju — brakujący okaz nie rozleje swoich wartości na cały
+  rodzaj; taka nazwa jest po prostu wypisana jako niedopasowana.
+- Nowe *File → Export Group Template…* — zapisuje alfabetyczną listę rodzajów
+  otwartego drzewa z pustymi kolumnami `family`/`order`; plik uzupełnia się
+  w Excelu/Notatniku i wczytuje z powrotem. Zapis przez plik tymczasowy, jak
+  przy *Save* (etap 6.13).
+
 ### Etap 6.17 — przecinek dziesiętny psuł zapisane pliki
 **Co się stało (2026-08-25).** Zapisany plik nie chciał się otworzyć:
 *„Taxon in tree, '00124300' is unknown"*. Przyczyna: na polskim Windowsie Java

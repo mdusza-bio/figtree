@@ -41,6 +41,9 @@ public interface FigTreeFileMenuHandler {
 
     Action getExportTreesAction();
 
+    // MyFigTree (Etap 6.7)
+    Action getExportGroupTemplateAction();
+
 //	Action getExportGraphicAction();
 
     Action getExportPNGGraphicAction();

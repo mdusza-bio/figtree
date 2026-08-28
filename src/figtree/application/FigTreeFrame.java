@@ -1062,6 +1062,86 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
     }
 
     /**
+     * MyFigTree (Etap 6.7): writes the genera of the open tree as a table with empty columns,
+     * ready to be filled in (in Excel or a text editor) and read back with Import Annotations.
+     */
+    public final void doExportGroupTemplate() {
+
+        Set<String> genera = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        List<Tree> trees = treeViewer.getTrees();
+        if (trees != null) {
+            for (Tree tree : trees) {
+                for (Taxon taxon : tree.getTaxa()) {
+                    String genus = genusOf(taxon.getName());
+                    if (genus.length() > 0) {
+                        genera.add(genus);
+                    }
+                }
+            }
+        }
+
+        if (genera.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "The tree has no tips to take genus names from.",
+                    "Export Group Template",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        FileDialog dialog = new FileDialog(this,
+                "Export Group Template...",
+                FileDialog.SAVE);
+        dialog.setFile("rodzaje.tsv");
+
+        dialog.setVisible(true);
+        if (dialog.getFile() == null) {
+            return;
+        }
+        File file = new File(dialog.getDirectory(), dialog.getFile());
+
+        try {
+            // same careful order as saving a tree: write a temporary file first,
+            // put it in place only once it is complete
+            File folder = file.getAbsoluteFile().getParentFile();
+            File temp = File.createTempFile("figtree", ".part", folder);
+            try {
+                Writer writer = new OutputStreamWriter(new FileOutputStream(temp), "UTF-8");
+                try {
+                    writer.write("# Genera of the open tree. Fill in the empty columns and load this file\n");
+                    writer.write("# back with File > Import Annotations. The column headers become the\n");
+                    writer.write("# attribute names - rename or add columns freely. Lines starting with #\n");
+                    writer.write("# and empty cells are ignored.\n");
+                    writer.write("genus\tfamily\torder\n");
+                    for (String genus : genera) {
+                        writer.write(genus);
+                        writer.write("\t\t\n");
+                    }
+                } finally {
+                    writer.close();
+                }
+                moveIntoPlace(temp, file);
+            } catch (Throwable t) {
+                temp.delete();
+                throw t instanceof IOException ? (IOException) t : new IOException(t.toString(), t);
+            }
+        } catch (IOException ioe) {
+            JOptionPane.showMessageDialog(this,
+                    "<html>The template could <b>not</b> be written:<br><tt>" + ioe + "</tt></html>",
+                    "Export Group Template",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this,
+                "Wrote " + genera.size() + (genera.size() == 1 ? " genus" : " genera") + " to:\n" +
+                        file.getPath() + "\n\n" +
+                        "Fill in the empty columns and load the file back with\n" +
+                        "File > Import Annotations...",
+                "Export Group Template",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
      * MyFigTree (Etap 6.3): applies an imported table of annotations to the taxa of the loaded trees
      * and reports how many names were actually matched - a silent import that matched nothing used to
      * look exactly like one that worked.
@@ -1072,21 +1152,36 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         // spaces treated alike) catches names that were tidied up in the spreadsheet
         Map<String, Taxon> taxonByName = new LinkedHashMap<String, Taxon>();
         Map<String, Taxon> taxonByLooseName = new HashMap<String, Taxon>();
+        // MyFigTree (Etap 6.7): tips grouped by genus - the first word of the tip name - so that
+        // a dictionary file of bare genus names can annotate every specimen of each genus at once
+        Map<String, List<Taxon>> taxaByGenus = new HashMap<String, List<Taxon>>();
         List<Tree> trees = treeViewer.getTrees();
         if (trees != null) {
             for (Tree tree : trees) {
                 for (Taxon taxon : tree.getTaxa()) {
                     taxonByName.put(taxon.getName(), taxon);
                     taxonByLooseName.put(looseName(taxon.getName()), taxon);
+                    String genus = looseName(genusOf(taxon.getName()));
+                    if (genus.length() > 0) {
+                        List<Taxon> genusTaxa = taxaByGenus.get(genus);
+                        if (genusTaxa == null) {
+                            genusTaxa = new ArrayList<Taxon>();
+                            taxaByGenus.put(genus, genusTaxa);
+                        }
+                        genusTaxa.add(taxon);
+                    }
                 }
             }
         }
 
-        Map<String, Taxon> resolved = new LinkedHashMap<String, Taxon>();
+        Map<String, List<Taxon>> resolved = new LinkedHashMap<String, List<Taxon>>();
+        Set<String> genusRows = new HashSet<String>();
         List<String> unmatched = new ArrayList<String>();
         int looseMatchCount = 0;
+        int genusTipCount = 0;
 
         for (String rowName : table.rowNames) {
+            List<Taxon> rowTaxa = null;
             Taxon taxon = taxonByName.get(rowName);
             if (taxon == null) {
                 taxon = taxonByLooseName.get(looseName(rowName));
@@ -1094,12 +1189,24 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
                     looseMatchCount++;
                 }
             }
-            if (taxon == null) {
+            if (taxon != null) {
+                rowTaxa = Collections.singletonList(taxon);
+            } else if (isSingleWord(rowName)) {
+                // a one-word name that is no tip's full name is taken to be a genus; names of
+                // several words never fall back this way, so a missing specimen cannot silently
+                // spill its values over the whole genus
+                rowTaxa = taxaByGenus.get(looseName(rowName));
+                if (rowTaxa != null) {
+                    genusRows.add(rowName);
+                    genusTipCount += rowTaxa.size();
+                }
+            }
+            if (rowTaxa == null) {
                 unmatched.add(rowName);
                 // keep it anyway - it may match a tree opened later in this window
-                taxon = Taxon.getTaxon(rowName);
+                rowTaxa = Collections.singletonList(Taxon.getTaxon(rowName));
             }
-            resolved.put(rowName, taxon);
+            resolved.put(rowName, rowTaxa);
         }
 
         Map<AnnotationDefinition, Map<Taxon, Object>> annotations =
@@ -1107,8 +1214,21 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         for (AnnotationDefinition definition : table.columns.keySet()) {
             Map<String, Object> column = table.columns.get(definition);
             Map<Taxon, Object> values = new HashMap<Taxon, Object>();
+            // genus rows first, full-name rows second: a row naming one specimen outright always
+            // wins over the value its genus would give it, wherever it sits in the file
             for (String rowName : column.keySet()) {
-                values.put(resolved.get(rowName), column.get(rowName));
+                if (genusRows.contains(rowName)) {
+                    for (Taxon taxon : resolved.get(rowName)) {
+                        values.put(taxon, column.get(rowName));
+                    }
+                }
+            }
+            for (String rowName : column.keySet()) {
+                if (!genusRows.contains(rowName)) {
+                    for (Taxon taxon : resolved.get(rowName)) {
+                        values.put(taxon, column.get(rowName));
+                    }
+                }
             }
             annotations.put(definition, values);
         }
@@ -1117,7 +1237,10 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
 
         int matchCount = table.rowNames.size() - unmatched.size();
 
-        Set<Taxon> annotatedTaxa = new HashSet<Taxon>(resolved.values());
+        Set<Taxon> annotatedTaxa = new HashSet<Taxon>();
+        for (List<Taxon> rowTaxa : resolved.values()) {
+            annotatedTaxa.addAll(rowTaxa);
+        }
         int tipsWithoutAnnotation = 0;
         for (Taxon taxon : taxonByName.values()) {
             if (!annotatedTaxa.contains(taxon)) {
@@ -1141,9 +1264,25 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         message.append("Matched ").append(matchCount).append(" of ").append(table.rowNames.size())
                 .append(table.rowNames.size() == 1 ? " name" : " names")
                 .append(" in the file to tips of the tree");
+        List<String> matchNotes = new ArrayList<String>();
         if (looseMatchCount > 0) {
-            message.append(" (").append(looseMatchCount)
-                    .append(" of them ignoring case, spaces and underscores)");
+            matchNotes.add(looseMatchCount + " of them ignoring case, spaces and underscores");
+        }
+        if (!genusRows.isEmpty()) {
+            matchNotes.add(genusRows.size() +
+                    (genusRows.size() == 1 ? " of them as a genus name, covering " :
+                            " of them as genus names, covering ") +
+                    genusTipCount + (genusTipCount == 1 ? " tip" : " tips"));
+        }
+        if (!matchNotes.isEmpty()) {
+            message.append(" (");
+            for (int i = 0; i < matchNotes.size(); i++) {
+                if (i > 0) {
+                    message.append("; ");
+                }
+                message.append(matchNotes.get(i));
+            }
+            message.append(")");
         }
         message.append(".\n");
 
@@ -1165,8 +1304,9 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         }
 
         if (matchCount == 0) {
-            message.append("\nNothing was annotated. Check that the first column of the file holds the\n")
-                    .append("taxon names exactly as they appear in the tree file (with underscores).");
+            message.append("\nNothing was annotated. The first column of the file should hold either the\n")
+                    .append("taxon names exactly as they appear in the tree file (with underscores),\n")
+                    .append("or bare genus names - the first word of a tip name.");
         }
 
         JOptionPane.showMessageDialog(this, message.toString(),
@@ -1178,6 +1318,24 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
     /** Name reduced to a form that survives tidying up in a spreadsheet: lower case, one space per gap. */
     private static String looseName(String name) {
         return name.trim().toLowerCase().replaceAll("[\\s_]+", " ");
+    }
+
+    /** The genus part of a tip name: everything before the first underscore or space. */
+    private static String genusOf(String name) {
+        String trimmed = name.trim();
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            if (c == '_' || Character.isWhitespace(c)) {
+                return trimmed.substring(0, i);
+            }
+        }
+        return trimmed;
+    }
+
+    /** True for a name of a single word - no underscores or spaces - i.e. a possible genus name. */
+    private static boolean isSingleWord(String name) {
+        String trimmed = name.trim();
+        return trimmed.length() > 0 && genusOf(trimmed).length() == trimmed.length();
     }
 
     /**
@@ -1979,6 +2137,11 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         return exportTreesAction;
     }
 
+    @Override
+    public Action getExportGroupTemplateAction() {
+        return exportGroupTemplateAction;
+    }
+
 //    public Action getExportGraphicAction() {
 //        return exportGraphicAction;
 //    }
@@ -2125,6 +2288,13 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
     private AbstractAction exportTreesAction = new AbstractAction("Export Trees...") {
         public void actionPerformed(ActionEvent ae) {
             doExport();
+        }
+    };
+
+    // MyFigTree (Etap 6.7)
+    private AbstractAction exportGroupTemplateAction = new AbstractAction("Export Group Template...") {
+        public void actionPerformed(ActionEvent ae) {
+            doExportGroupTemplate();
         }
     };
 
