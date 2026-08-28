@@ -295,7 +295,43 @@ potem na **nowym** tekście, więc `Trichia sordida HOLOTYPE` wyjdzie jako
 
 Jeśli menu *Annotate…* jest wyszarzone — nic nie jest zaznaczone w drzewie.
 
-## 13. Liczby zawsze z kropką
+## 13. Zmiana oryginalnej nazwy okazu w pliku
+
+Rozdział 12 podmienia tylko **podpis na rycinie** — oryginalna nazwa zostaje.
+Gdy zmienić ma się sama nazwa okazu w pliku drzewa (np. robocze `MERspi_…`
+na docelowe `Meriderma_…`), robi się to Notatnikiem, bo plik drzewa to zwykły
+tekst:
+
+1. **Zrób kopię pliku** (Ctrl+C, Ctrl+V w Eksploratorze) — gdyby coś poszło
+   nie tak, oryginał zostaje.
+2. Otwórz plik w Notatniku i wciśnij **Ctrl+H** (Zamień). W „Znajdź" stara
+   nazwa (wystarczy wspólny początek, np. `MERspi`), w „Zamień na" — nowa.
+3. Kliknij **Zamień wszystko** — koniecznie *wszystko*: w pliku zapisanym przez
+   program (NEXUS) ta sama nazwa występuje w kilku miejscach (lista taksonów,
+   tabela tłumaczeń, czasem adnotacje) i wszystkie muszą się zgadzać. W surowym
+   pliku z RAxML-a (`.support`) nazwa jest tylko raz.
+4. Zapisz i otwórz w programie.
+
+Pułapki:
+
+- **Nowa nazwa bez znaków specjalnych** — tylko litery, cyfry, podkreślniki,
+  ewentualnie kropki i myślniki. Spacje, przecinki, dwukropki, średniki
+  i nawiasy to znaki sterujące formatu drzewa — **rozwalą plik**.
+- **Każdy okaz musi zachować unikalną nazwę.** Zamiana samego przedrostka jest
+  bezpieczna (końcówki z numerami zostają różne); nie zamieniać pełnych nazw
+  dwóch okazów na jedną i tę samą.
+- **Krótka szukana fraza może złapać za dużo** — „Zamień wszystko" nie pyta.
+  Przy nietypowym przedrostku w stylu `MERspi` nic nie grozi, przy krótszych
+  warto najpierw poklikać *Znajdź następny* i obejrzeć trafienia.
+- **Przyrównanie zostaje po staremu.** Zmiana w pliku drzewa nie zmienia nazw
+  w FASTA, z którego drzewo policzono — przy ponownej analizie nazwy wrócą
+  stare. Na rycinę bez znaczenia; dla porządku można zmienić w obu miejscach
+  albo świadomie zostawić rozjazd.
+- Po zmianie nazwy na taką z prawdziwym rodzajem (np. `Meriderma_…`) słownik
+  łapie okaz zwykłym wierszem rodzaju — wpis roboczy (np. `MERspi`) w słowniku
+  przestaje być potrzebny.
+
+## 14. Liczby zawsze z kropką
 
 Program świadomie używa **kropki** jako separatora dziesiętnego, niezależnie od
 ustawień Windowsa — i w plikach, i w polach w panelach (`0.5`, nie `0,5`).
@@ -309,7 +345,7 @@ zamienić w nim przecinki **stojące między cyframi** na kropki — przecinki
 oddzielające gałęzie stoją zawsze przed literą albo nawiasem, więc ich to nie
 dotyczy.
 
-## 14. Gdy zapis się nie uda
+## 15. Gdy zapis się nie uda
 
 Od etapu 6.13 nieudany zapis **nie rusza pliku, który już masz na dysku** — drzewo
 idzie najpierw do pliku tymczasowego i podmienia stary dopiero, gdy zapisze się

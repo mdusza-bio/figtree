@@ -435,4 +435,4 @@ weryfikacji specjalistki**, zanim pójdzie na rycinę do publikacji.
   Od 6.13 nieudany zapis nie kasuje już starego pliku, ale osobna kopia i tak
   nie zaszkodzi.
 - Drzewo ML z RAxML-a zawsze da się odtworzyć z `.bestTree` + `.bootstraps` —
-  przepis w `doc/instrukcja.md`, rozdział 14.
+  przepis w `doc/instrukcja.md`, rozdział 15.
