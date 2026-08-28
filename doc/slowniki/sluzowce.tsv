@@ -60,6 +60,7 @@ Macbrideola	Stemonitidaceae	Stemonitales
 Enerthenema	Stemonitidaceae	Stemonitales
 Symphytocarpus	Stemonitidaceae	Stemonitales
 Lamproderma	Stemonitidaceae	Stemonitales
+Meriderma	Stemonitidaceae	Stemonitales
 Diacheopsis	Stemonitidaceae	Stemonitales
 Leptoderma	Stemonitidaceae	Stemonitales
 # Lamproderma, Diacheopsis i Leptoderma bywaja wydzielane do Lamprodermataceae.
@@ -88,4 +89,8 @@ Physarina	Didymiaceae	Physarales
 Trabrooksia	Didymiaceae	Physarales
 Wilczekia	Didymiaceae	Physarales
 Diachea	Didymiaceae	Physarales
-# Diachea w starszych ujeciach bywa w Stemonitales (Stemonitidaceae).
+# Diachea w starszych ujeciach bywa w Stemonitales (Stemonitidaceae)
+# MERspi to nie rodzaj, tylko robocza nazwa dwoch sekwencji, celowo zostawiona
+# w przyrownaniu; pierwszy czlon nazwy dziala przy imporcie jak rodzaj,
+# wiec ten wiersz je lapie
+MERspi	Stemonitidaceae	Stemonitales
