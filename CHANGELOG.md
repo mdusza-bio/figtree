@@ -129,6 +129,12 @@ drzewa kończył się komunikatem *„Matched 0 of 63"* — bo import porównywa
   w Excelu/Notatniku i wczytuje z powrotem. Zapis przez plik tymczasowy, jak
   przy *Save* (etap 6.13).
 
+### Poprawka — węższy znak `//` na skróconej gałęzi (2026-09-02)
+Znak przerwania w **Shorten branches longer than** miał szerokość zależną od
+długości rysowanej gałęzi, więc na bardzo długiej gałęzi (outgrupa) dwa ukośniki
+lądowały daleko od siebie. Teraz przerwa ma stałą, małą szerokość liczoną od
+szerokości całego drzewa — `//` wygląda jak w publikacjach.
+
 ### Etap 6.17 — przecinek dziesiętny psuł zapisane pliki
 **Co się stało (2026-08-25).** Zapisany plik nie chciał się otworzyć:
 *„Taxon in tree, '00124300' is unknown"*. Przyczyna: na polskim Windowsie Java
