@@ -265,6 +265,13 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   (tip labels) i etykiety gałęzi, nie tylko inne wartości poparcia — zgłoszone
   ze zrzutami: liczby lądowały na nazwach taksonów przy różnym rozciągnięciu
   drzewa i trzeba je było rozsuwać w Corelu.
+  Uzupełnienie 2026-09-02 (2): przeszkodami są też **pionowe linie kladów** —
+  zgłoszone jako „ucięte wartości": ostatnia cyfra zlewała się z czarną pionową
+  kreską (np. „72" wyglądało jak „7|") i to niezależnie od pozycji, bo w gęstej
+  drabince liczba po przesunięciu lądowała na kolejnej linii. Reprodukowane
+  i zweryfikowane renderem CLI (`-graphic PNG`) na syntetycznym drzewie.
+  Wartość zatrzymuje się `LINE_GAP_X` = 2 pkt przed linią; poziome odcinki
+  gałęzi celowo nie są przeszkodami (liczba sunie wzdłuż własnej gałęzi).
   Iterowane na żywo na zrzutach ekranu (v1 zsuwanie w dół — odrzucone, v2
   w lewo + linie, v3 tło, v4 tło jako osobny checkbox); szczegóły w planie
   sesji E.

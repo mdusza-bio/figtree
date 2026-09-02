@@ -193,9 +193,12 @@ Wygląd:
 - **Second value** + **Layout** — druga wartość obok pierwszej (np. PP obok
   bootstrapu), w formie `a / b` albo jedna nad drugą (*stacked*).
 - **Crowded values → Avoid overlap** (tylko *Node Labels*) — gdy wartość
-  poparcia wypadłaby na innej wartości, **na nazwie okazu** albo na etykiecie
-  gałęzi, kolidująca liczba jest odsuwana **w lewo**, w pustą przestrzeń nad
-  swoją gałęzią (tak, jak robi się to ręcznie na rycinach w publikacjach).
+  poparcia wypadłaby na innej wartości, **na nazwie okazu**, na etykiecie
+  gałęzi albo **na pionowej linii kladu** (czarna kreska przez cyfry robiła
+  z „72" nieczytelne „7|"), kolidująca liczba jest odsuwana **w lewo**, w pustą
+  przestrzeń nad swoją gałęzią (tak, jak robi się to ręcznie na rycinach
+  w publikacjach). Liczba zatrzymuje się ok. 2 pkt przed pionową linią, więc
+  cyfry nigdy się z nią nie zlewają.
   Nazwy okazów nigdy nie są ruszane — to liczby je omijają. Jeśli liczba musi
   odjechać dalej niż o własną wysokość, od liczby do jej węzła rysowana jest
   cienka szara **linia wskazująca**, żeby nie było wątpliwości, do której

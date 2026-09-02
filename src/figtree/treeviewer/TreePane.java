@@ -2852,7 +2852,9 @@ public class TreePane extends JComponent implements PainterListener, Printable {
      * <p>
      * Taxon names (tip labels) and branch labels are obstacles too: a support
      * value that lands on a name slides left past it, just as it would past
-     * another value. The names themselves are never moved.
+     * another value. The names themselves are never moved. So are the vertical
+     * clade lines - a black stroke through the digits makes the last digit
+     * unreadable, so a value stops just short of a line instead of on it.
      */
     private void spreadOverlappingNodeLabels() {
 
@@ -2906,6 +2908,39 @@ public class TreePane extends JComponent implements PainterListener, Printable {
             }
         }
 
+        // The vertical connector lines of the clades are obstacles too: a value
+        // whose digits sit on such a line is unreadable (the black stroke fuses
+        // with the last digit), so a value stops just short of a line instead of
+        // on it. Only truly vertical segments count - the label slides along its
+        // own horizontal branch, which must not push it away.
+        List<Rectangle2D> lineObstacles = new ArrayList<Rectangle2D>();
+        if (transform != null) {
+            double[] coords = new double[6];
+            for (Shape branchPath : treeLayoutCache.getBranchPathMap().values()) {
+                PathIterator segments = transform.createTransformedShape(branchPath)
+                        .getPathIterator(null);
+                double lastX = 0.0;
+                double lastY = 0.0;
+                while (!segments.isDone()) {
+                    int type = segments.currentSegment(coords);
+                    if (type == PathIterator.SEG_LINETO) {
+                        if (Math.abs(coords[0] - lastX) < 0.01
+                                && Math.abs(coords[1] - lastY) > 0.01) {
+                            lineObstacles.add(new Rectangle2D.Double(
+                                    lastX - 0.5, Math.min(lastY, coords[1]),
+                                    1.0, Math.abs(coords[1] - lastY)));
+                        }
+                        lastX = coords[0];
+                        lastY = coords[1];
+                    } else if (type == PathIterator.SEG_MOVETO) {
+                        lastX = coords[0];
+                        lastY = coords[1];
+                    }
+                    segments.next();
+                }
+            }
+        }
+
         // MyFigTree (Etap 6.16): a label the user moved by hand stays exactly where
         // it was put - it only counts as an obstacle for the others
         List<Node> automatic = new ArrayList<Node>();
@@ -2936,6 +2971,22 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                     }
                     // slide left until this label sits clear before the other one
                     bounds.setRect(other.getX() - LABEL_GAP_X - bounds.getWidth(),
+                            bounds.getY(), bounds.getWidth(), bounds.getHeight());
+                    moved = true;
+                }
+                // vertical clade lines use a smaller gap: enough that the black
+                // stroke never fuses with the digits, small enough not to shove
+                // the default "at node" labels (which start 5 px past the line)
+                for (Rectangle2D line : lineObstacles) {
+                    if (bounds.getY() >= line.getMaxY() + LABEL_GAP_Y
+                            || bounds.getMaxY() + LABEL_GAP_Y <= line.getY()) {
+                        continue;
+                    }
+                    if (bounds.getX() >= line.getMaxX() + LINE_GAP_X
+                            || bounds.getMaxX() + LINE_GAP_X <= line.getX()) {
+                        continue;
+                    }
+                    bounds.setRect(line.getX() - LINE_GAP_X - bounds.getWidth(),
                             bounds.getY(), bounds.getWidth(), bounds.getHeight());
                     moved = true;
                 }
@@ -2998,6 +3049,8 @@ public class TreePane extends JComponent implements PainterListener, Printable {
     private static final double LABEL_GAP_X = 5.0;
     /** vertical distance below which two node labels count as clashing */
     private static final double LABEL_GAP_Y = 1.0;
+    /** breathing room between a node label and a vertical clade line */
+    private static final double LINE_GAP_X = 2.0;
     private static final int MAX_LABEL_PASSES = 6;
 
     /**
