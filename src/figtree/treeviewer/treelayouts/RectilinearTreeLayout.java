@@ -87,8 +87,10 @@ public class RectilinearTreeLayout extends AbstractTreeLayout {
         double xm = (x1 + x0) / 2.0;
         // half width of the gap: a fixed fraction of the whole tree's width, so the
         // "//" stays narrow even on very long branches; never wider than the branch
-        double d = Math.min(maxXPosition * 0.012, Math.abs(x1 - x0) * 0.3);
-        double w = d * 0.6;                          // horizontal extent of each slash
+        double d = Math.min(maxXPosition * 0.004, Math.abs(x1 - x0) * 0.25);
+        // slashes lean further than the gap is wide, so the pair nearly touches
+        // like the break marks in journal figures
+        double w = d * 1.5;                          // horizontal extent of each slash
         double h = yIncrement * 0.3;                 // vertical extent of each slash
         double dir = x1 > x0 ? 1.0 : -1.0;
 
