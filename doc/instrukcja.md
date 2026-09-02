@@ -57,7 +57,7 @@ Po otwarciu `.raxml.support` trzeba jeszcze w panelu *Node Labels* ustawić
   wewnętrznych mogą nadal kolidować — na to jest osobna opcja **Avoid overlap**
   w panelu *Node Labels* (rozdział 6).
 - **Shorten branches longer than** — bardzo długie gałęzie (np. do outgrupy) są
-  skracane i oznaczane `//`. Uwaga: skrócona gałąź nie odpowiada już skali.
+  skracane i oznaczane `//`. Uwaga: skrócona gałąź nie odpowiada już skali. Wartość wpisać z kropka, przecinek nie działa, np. 0.2
 
 ## 4. Panel *Appearance*
 
