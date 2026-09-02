@@ -36,6 +36,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -230,12 +234,6 @@ public class TreeAppearanceController extends AbstractController {
         // see setControlPalette(); the button stays disabled until it is provided)
         optionsPanel.addSeparator();
         publicationPresetButton = new JButton("Publication preset");
-        publicationPresetButton.setToolTipText("<html>Apply the user's publication settings:<br>" +
-                "decreasing node order, white background, 1pt branches,<br>" +
-                "Times New Roman 11pt tip labels, italics up to the collection number,<br>" +
-                "holotypus / paratypus / isotypus upright and in bold,<br>" +
-                "support values 9pt above the branch, only >= 70, overlap avoided<br>" +
-                "with white backing. Press again to undo.</html>");
         publicationPresetButton.setEnabled(false);
         publicationPresetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
@@ -243,6 +241,22 @@ public class TreeAppearanceController extends AbstractController {
             }
         });
         optionsPanel.addSpanningComponent(publicationPresetButton);
+
+        // MyFigTree: lets the user redefine what the preset button applies, without
+        // recompiling - the current state of every panel goes into a small file in
+        // the home directory and the preset button replays it from then on.
+        saveAsPresetButton = new JButton("Save current as preset");
+        saveAsPresetButton.setToolTipText("<html>Remember the settings currently shown in all panels<br>" +
+                "as the new <b>Publication preset</b>.</html>");
+        saveAsPresetButton.setEnabled(false);
+        saveAsPresetButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                saveCurrentAsPreset();
+            }
+        });
+        optionsPanel.addSpanningComponent(saveAsPresetButton);
+
+        updatePresetTooltip();
 
         // MyFigTree: the "undo" copy only makes sense for the tree it was taken
         // from, so drop it (and revert the button) as soon as a different tree
@@ -266,6 +280,7 @@ public class TreeAppearanceController extends AbstractController {
     public void setControlPalette(ControlPalette controlPalette) {
         this.controlPalette = controlPalette;
         publicationPresetButton.setEnabled(controlPalette != null);
+        saveAsPresetButton.setEnabled(controlPalette != null);
     }
 
     /** Name of the support-value attribute (internal node "label"), or null if the tree has none. */
@@ -326,6 +341,26 @@ public class TreeAppearanceController extends AbstractController {
         controlPalette.getSettings(settings);
         beforePreset = new HashMap<String, Object>(settings);
 
+        Map<String, Object> saved = loadSavedPreset();
+        if (saved != null) {
+            settings.putAll(saved);
+            // The support values can sit under a different attribute name in every
+            // file ("bootstrap" vs "label"), so it is re-detected on each tree
+            // instead of replaying the name that happened to be saved.
+            String supportAttribute = findSupportAttribute();
+            if (supportAttribute != null && Boolean.TRUE.equals(settings.get("nodeLabels.isShown"))) {
+                settings.put("nodeLabels.displayAttribute", supportAttribute);
+            }
+        } else {
+            applyBuiltInPreset(settings);
+        }
+
+        controlPalette.setSettings(settings);
+        publicationPresetButton.setText("Undo preset");
+    }
+
+    /** The original hard-wired publication style, agreed on 2026-08-25. */
+    private void applyBuiltInPreset(Map<String, Object> settings) {
         String supportAttribute = findSupportAttribute();
 
         // Appearance
@@ -376,9 +411,177 @@ public class TreeAppearanceController extends AbstractController {
 
         // Layout: rectangular
         settings.put("layout.layoutType", "RECTILINEAR");
+    }
 
-        controlPalette.setSettings(settings);
-        publicationPresetButton.setText("Undo preset");
+    /** Where the user's own preset is remembered between sessions. */
+    private static File getPresetFile() {
+        return new File(System.getProperty("user.home"), "MyFigTree_publication_preset.txt");
+    }
+
+    /**
+     * MyFigTree: snapshots the current state of every panel into the preset file,
+     * so the "Publication preset" button applies exactly this state from then on.
+     * Offers a way back to the built-in style (by deleting the file).
+     */
+    private void saveCurrentAsPreset() {
+        if (controlPalette == null) {
+            return;
+        }
+        File file = getPresetFile();
+        boolean hasSaved = file.exists();
+
+        Object[] options = hasSaved
+                ? new Object[] { "Save", "Back to original preset", "Cancel" }
+                : new Object[] { "Save", "Cancel" };
+        String message = hasSaved
+                ? "<html>Replace the saved preset with the settings currently<br>" +
+                  "shown in all panels?<br><br>" +
+                  "<i>Back to original preset</i> forgets the saved copy, so the<br>" +
+                  "button goes back to the built-in style from 2026-08-25.</html>"
+                : "<html>Remember the settings currently shown in all panels?<br>" +
+                  "The <b>Publication preset</b> button will apply them from now on.</html>";
+
+        int choice = JOptionPane.showOptionDialog(saveAsPresetButton, message,
+                "Save current as preset", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        if (choice == 0) {
+            Map<String, Object> settings = new TreeMap<String, Object>();
+            controlPalette.getSettings(settings);
+            try {
+                writePresetFile(file, settings);
+            } catch (IOException ioe) {
+                JOptionPane.showMessageDialog(saveAsPresetButton,
+                        "The preset could not be saved to\n" + file.getPath() +
+                                "\n\n" + ioe.getMessage(),
+                        "Save current as preset", JOptionPane.ERROR_MESSAGE);
+            }
+        } else if (hasSaved && choice == 1) {
+            file.delete();
+        }
+        updatePresetTooltip();
+    }
+
+    /**
+     * Values are written the same way as in the FigTree block of a NEXUS file
+     * (see FigTreeNexusExporter): colours as #rrggbb, strings in quotes, numbers
+     * and booleans as they are - so loading gives back the same kinds of values
+     * the panels already accept when a saved tree file is opened.
+     */
+    private void writePresetFile(File file, Map<String, Object> settings) throws IOException {
+        // Written to a temporary file first and swapped in only on success, so a
+        // failed save cannot leave a half-written preset behind.
+        File tmp = new File(file.getPath() + ".tmp");
+        Writer out = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(tmp), StandardCharsets.UTF_8));
+        try {
+            out.write("# MyFigTree publication preset - written by \"Save current as preset\"" +
+                    " (Appearance panel) on " + new Date() + "\n");
+            for (Map.Entry<String, Object> entry : settings.entrySet()) {
+                if (entry.getValue() == null) {
+                    continue;
+                }
+                // Rooting depends on the one tree it was set on (especially a
+                // hand-picked root), so it must not be replayed on other trees.
+                if (entry.getKey().equals("trees.rooting") || entry.getKey().equals("trees.rootingType")) {
+                    continue;
+                }
+                out.write(entry.getKey() + "=" + encodeValue(entry.getValue()) + "\n");
+            }
+        } finally {
+            out.close();
+        }
+        Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /** The saved preset, or null if there is none (or it cannot be read). */
+    private Map<String, Object> loadSavedPreset() {
+        File file = getPresetFile();
+        if (!file.exists()) {
+            return null;
+        }
+        Map<String, Object> saved = new LinkedHashMap<String, Object>();
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(file), StandardCharsets.UTF_8));
+            try {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    int eq = line.indexOf('=');
+                    if (eq <= 0 || line.startsWith("#")) {
+                        continue;
+                    }
+                    String key = line.substring(0, eq).trim();
+                    String value = line.substring(eq + 1).trim();
+                    Object decoded = decodeValue(value);
+                    if (key.length() > 0 && decoded != null) {
+                        saved.put(key, decoded);
+                    }
+                }
+            } finally {
+                in.close();
+            }
+        } catch (IOException ioe) {
+            JOptionPane.showMessageDialog(publicationPresetButton,
+                    "The saved preset could not be read from\n" + file.getPath() +
+                            "\n\nThe built-in preset is used instead.\n\n" + ioe.getMessage(),
+                    "Publication preset", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        return saved.isEmpty() ? null : saved;
+    }
+
+    private static String encodeValue(Object value) {
+        if (value instanceof Color) {
+            return String.format("#%06x", ((Color) value).getRGB() & 0xFFFFFF);
+        }
+        if (value instanceof String) {
+            return "\"" + value + "\"";
+        }
+        return value.toString();
+    }
+
+    private static Object decodeValue(String value) {
+        if (value.length() >= 2 && value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length() - 1);
+        }
+        if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
+            return Boolean.valueOf(value);
+        }
+        if (value.startsWith("#")) {
+            try {
+                return Color.decode("0x" + value.substring(1));
+            } catch (NumberFormatException nfe) {
+                // fall through
+            }
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException nfe) {
+            // fall through
+        }
+        try {
+            return Double.valueOf(value);
+        } catch (NumberFormatException nfe) {
+            // fall through
+        }
+        return value;
+    }
+
+    /** The preset button describes whichever set it will actually apply. */
+    private void updatePresetTooltip() {
+        if (getPresetFile().exists()) {
+            publicationPresetButton.setToolTipText("<html>Apply your own saved publication settings<br>" +
+                    "(remembered with <b>Save current as preset</b>).<br>" +
+                    "Press again to undo.</html>");
+        } else {
+            publicationPresetButton.setToolTipText("<html>Apply the user's publication settings:<br>" +
+                    "decreasing node order, white background, 1pt branches,<br>" +
+                    "Times New Roman 11pt tip labels, italics up to the collection number,<br>" +
+                    "holotypus / paratypus / isotypus upright and in bold,<br>" +
+                    "support values 9pt above the branch, only >= 70, overlap avoided<br>" +
+                    "with white backing. Press again to undo.</html>");
+        }
     }
 
     private void setupBranchDecorators() {
@@ -486,6 +689,7 @@ public class TreeAppearanceController extends AbstractController {
     private final OptionsPanel optionsPanel;
 
     private final JButton publicationPresetButton;
+    private final JButton saveAsPresetButton;
     private ControlPalette controlPalette = null;
     /** Full settings snapshot from before the preset was applied, or null if no undo is pending. */
     private Map<String, Object> beforePreset = null;

@@ -107,6 +107,27 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.18 — własny zapis presetu publikacyjnego (2026-09-02)
+**Skąd się wzięło.** Zestaw pod przyciskiem *Publication preset* był wpisany na
+stałe w kod (stan ustalony 2026-08-25) — każda korekta wymagała zmiany w kodzie
+i kompilacji.
+
+- Nowy przycisk **Save current as preset** w panelu *Appearance*: ustawiasz
+  wszystko ręcznie tak, jak ma być, klikasz — i od tej pory *Publication preset*
+  przywraca dokładnie ten zapamiętany stan (wszystkie panele, łącznie z kropkami
+  na węzłach i wyrównaniem nazw — co widzisz, to się zapisuje).
+- Zapamiętane **nie** jest ukorzenienie (*Rooting*) — zależy od konkretnego
+  drzewa; nazwa atrybutu z poparciem (`bootstrap`/`label`) jest jak dotąd
+  wykrywana na nowo w każdym otwartym drzewie.
+- Zestaw ląduje w pliku `MyFigTree_publication_preset.txt` w folderze domowym
+  (`C:\Users\Magdalena Dusza`), zapisywanym przez plik tymczasowy z podmianą
+  po sukcesie (jak *Save*, etap 6.13). Wartości w tym samym formacie co blok
+  FigTree w NEXUS-ie.
+- Gdy zapisany zestaw istnieje, okienko zapisu ma dodatkowo **Back to original
+  preset** — usuwa własny zestaw i przywraca wbudowany styl z 2026-08-25.
+  Podpowiedź na przycisku *Publication preset* mówi, który zestaw zadziała.
+- *Undo preset* działa bez zmian — cofa także własny zestaw.
+
 ### Etap 6.7 — słowniki grup: dopasowanie po rodzaju (2026-08-28)
 **Skąd się wzięło.** Import słownika `doc/slowniki/sluzowce.tsv` do prawdziwego
 drzewa kończył się komunikatem *„Matched 0 of 63"* — bo import porównywał tylko

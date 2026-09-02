@@ -77,6 +77,25 @@ Po otwarciu `.raxml.support` trzeba jeszcze w panelu *Node Labels* ustawić
 - Po jego użyciu przycisk zmienia się w **Undo preset** — cofa wszystkie
   ustawienia do stanu sprzed kliknięcia. Zapamiętany stan dotyczy tego jednego
   drzewa; po wczytaniu innego przycisk wraca do zwykłej postaci.
+- **Save current as preset** — gdy zestaw z 2026-08-25 się zdeaktualizuje, nie
+  trzeba nic programować: ustaw wszystko ręcznie w panelach tak, jak ma być,
+  i kliknij ten przycisk. Od tej pory **Publication preset** będzie przywracał
+  właśnie ten zapamiętany stan (całość: czcionki, kolory, układ, także kropki
+  na węzłach i wyrównanie nazw — dokładnie to, co widać w chwili zapisu).
+  Szczegóły:
+  - zapamiętywane jest wszystko **oprócz ukorzenienia** (*Rooting*) — ono zależy
+    od konkretnego drzewa, więc preset go nie przestawia; podobnie nazwa
+    atrybutu z poparciem (`bootstrap`/`label`) jest za każdym razem wykrywana
+    na nowo w otwartym drzewie,
+  - zapis trafia do małego pliku `MyFigTree_publication_preset.txt` w Twoim
+    folderze domowym (`C:\Users\Magdalena Dusza`) — przetrwa zamknięcie
+    programu; można go skopiować na inny komputer albo dołączyć do kopii
+    zapasowej,
+  - jeśli zapisany zestaw już istnieje, okienko zapytania ma dodatkowy przycisk
+    **Back to original preset** — usuwa zapamiętany zestaw i przywraca
+    wbudowany styl z 2026-08-25,
+  - najechanie myszą na **Publication preset** podpowiada, który zestaw
+    zadziała: własny zapisany czy wbudowany.
 - **Colour by** — kolorowanie gałęzi według atrybutu **węzłów** (np. `bootstrap`).
   Uwaga: nie widać tu atrybutów przypisanych do liści (jak `family` z importu) —
   te są na razie dostępne tylko w panelach etykiet i w *Group Bars* (zadanie 6.8).

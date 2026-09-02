@@ -366,6 +366,14 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   jako `Locale.setDefault(Locale.Category.FORMAT, Locale.ROOT)` — liczby z kropką,
   język interfejsu bez zmian. Uszkodzony plik użytkowniczki naprawiony skryptem
   i zweryfikowany importerem.
+- [x] 6.18 🟢 **Własny zapis presetu publikacyjnego** — zgłoszone 2026-09-02:
+  zestaw z 6.14 był na stałe w kodzie, a użytkowniczka chce go móc odświeżać
+  bez programowania. **Zrobione**: przycisk **Save current as preset** w panelu
+  *Appearance* zapamiętuje bieżący stan wszystkich paneli w pliku
+  `MyFigTree_publication_preset.txt` (folder domowy); *Publication preset*
+  odtwarza ten plik, a bez niego — wbudowany zestaw z 2026-08-25 (powrót:
+  **Back to original preset** w okienku zapisu). Pomijane ukorzenienie,
+  atrybut poparcia wykrywany na nowo per drzewo. Zapis przez plik tymczasowy.
 
 ---
 
