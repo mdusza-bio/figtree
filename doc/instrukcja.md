@@ -96,6 +96,19 @@ Po otwarciu `.raxml.support` trzeba jeszcze w panelu *Node Labels* ustawić
     wbudowany styl z 2026-08-25,
   - najechanie myszą na **Publication preset** podpowiada, który zestaw
     zadziała: własny zapisany czy wbudowany.
+
+  **A po udostępnieniu programu innym (np. kolegom z instytutu):** nic nie
+  trzeba konfigurować. Plik z zestawem nie jest częścią programu i nie musi
+  istnieć — u nowej osoby *Publication preset* po prostu stosuje wbudowany
+  styl z 2026-08-25. Plik powstaje dopiero, gdy ktoś sam kliknie
+  *Save current as preset* — u każdego użytkownika osobno, w **jego** folderze
+  domowym (ścieżka jest brana z systemu, nie wpisana na sztywno), więc zestawy
+  różnych osób się nie mieszają, nawet na wspólnym komputerze z osobnymi
+  kontami Windows. Udostępniając program, przekazujesz sam folder z
+  `figtree.jar` — swojego pliku z zestawem **nie** dołączasz. A jeśli ktoś ma
+  dostać dokładnie Twoje ustawienia: kopiujesz mu Twój
+  `MyFigTree_publication_preset.txt` do jego `C:\Users\<nazwa>` i przy
+  najbliższym kliknięciu *Publication preset* program go podchwyci.
 - **Colour by** — kolorowanie gałęzi według atrybutu **węzłów** (np. `bootstrap`).
   Uwaga: nie widać tu atrybutów przypisanych do liści (jak `family` z importu) —
   te są na razie dostępne tylko w panelach etykiet i w *Group Bars* (zadanie 6.8).
