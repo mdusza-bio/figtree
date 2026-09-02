@@ -223,6 +223,14 @@ Wygląd:
   punktów**. Działa też na kilku zaznaczonych wartościach naraz (przesuwają się
   razem). Gdy nic nie jest zaznaczone, strzałki normalnie przewijają widok.
 
+- **Linia wskazująca przy ręcznym przesunięciu** — wartość odsunięta ręcznie
+  (strzałkami, myszką albo okienkiem) **dalej niż o wysokość własnej cyfry**
+  dostaje automatycznie tę samą cienką szarą linię do swojego węzła, którą
+  rysuje *Avoid overlap* — żeby na rycinie nie było wątpliwości, do której
+  gałęzi należy. Małe dosunięcie (kilka punktów „dla oddechu") linii nie
+  dostaje. Przy przeciąganiu linia pojawia się i znika na żywo, więc od razu
+  widać, kiedy liczba jest już „za daleko".
+
 - **Move selected label…** (tylko *Node Labels*) — to samo, ale z wpisywaniem
   dokładnych liczb, gdy trzeba np. przesunąć kilka etykiet o identyczny odcinek:
   1. kliknij w drzewie **samą liczbę** — to zaznacza dokładnie jej węzeł,

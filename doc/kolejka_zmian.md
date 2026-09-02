@@ -376,6 +376,12 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   działa na wielu zaznaczonych naraz; bez zaznaczenia strzałki dalej przewijają
   widok (zdarzenie jest konsumowane tylko, gdy jakaś etykieta faktycznie się
   ruszyła).
+  Uzupełnienie 2026-09-02 (4): **linia wskazująca także przy ręcznym
+  przesunięciu** — prośba użytkowniczki (zrzut przed/po): wartość odsunięta
+  ręcznie dalej niż o wysokość własnej etykiety dostaje tę samą szarą linię do
+  węzła co przesunięcia z *Avoid overlap*; linia startuje z krawędzi etykiety
+  zwróconej ku węzłowi (ręcznie przesunięta liczba może być z każdej strony,
+  nie tylko po lewej). Przy przeciąganiu widać ją na żywo.
 - [x] 6.17 🔴 **Przecinek dziesiętny psuł każdy zapisany plik** — awaria
   2026-08-25: `Save` zapisywał długości gałęzi jako `0,001243` (polska
   lokalizacja), a własny importer się na tym wykładał (*Taxon in tree,

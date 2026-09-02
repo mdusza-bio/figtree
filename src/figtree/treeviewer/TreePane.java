@@ -2626,6 +2626,21 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                 }
                 nodeLabelAnchors.put(node, anchor);
 
+                // MyFigTree: a value moved by hand (arrows, drag or the dialog)
+                // far from its node gets the same thin pointer line that "Avoid
+                // overlap" draws, so there is no doubt which branch it belongs
+                // to. "Far" is the same rule as there: more than the label's own
+                // height. A small nudge to breathe stays line-free.
+                double[] nudge = getEffectiveLabelOffset(node);
+                if (nudge != null) {
+                    double moved = Math.sqrt(nudge[0] * nudge[0] + nudge[1] * nudge[1]);
+                    Rectangle2D movedBounds = nodeLabelBounds.get(node).getBounds2D();
+                    if (moved > movedBounds.getHeight()
+                            && movedBounds.getWidth() > 0.0 && movedBounds.getHeight() > 0.0) {
+                        nodeLabelCallouts.put(node, calloutTowards(movedBounds, anchor));
+                    }
+                }
+
                 // Store the alignment in the map for use when drawing
                 if (labelPath.getX1() < labelPath.getX2()) {
                     nodeLabelJustifications.put(node, Painter.Justification.LEFT);
@@ -2953,6 +2968,30 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
             placed.add(bounds);
         }
+    }
+
+    /**
+     * MyFigTree: a pointer line from a label to its node, starting at the middle
+     * of whichever edge of the label faces the node - a hand-moved value can sit
+     * on any side of it, not only to the left like the "Avoid overlap" slides.
+     */
+    private static Line2D calloutTowards(Rectangle2D bounds, Point2D anchor) {
+        final double startX;
+        final double startY;
+        if (anchor.getX() > bounds.getMaxX()) {
+            startX = bounds.getMaxX() + 1.0;
+            startY = bounds.getCenterY();
+        } else if (anchor.getX() < bounds.getX()) {
+            startX = bounds.getX() - 1.0;
+            startY = bounds.getCenterY();
+        } else if (anchor.getY() > bounds.getMaxY()) {
+            startX = bounds.getCenterX();
+            startY = bounds.getMaxY() + 1.0;
+        } else {
+            startX = bounds.getCenterX();
+            startY = bounds.getY() - 1.0;
+        }
+        return new Line2D.Double(startX, startY, anchor.getX(), anchor.getY());
     }
 
     /** breathing room between two node labels sitting side by side */
