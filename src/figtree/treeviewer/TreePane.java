@@ -161,6 +161,51 @@ public class TreePane extends JComponent implements PainterListener, Printable {
     private Node draggedLabelNode = null;
     private double[] draggedLabelOffset = null;
 
+    /**
+     * MyFigTree: nudge the labels of the selected nodes by the given screen
+     * distance (in points) - the arrow keys' precise alternative to dragging.
+     * Only nodes whose label is actually drawn are touched. An offset nudged
+     * back to exactly zero is removed, returning the label to automatic
+     * placement.
+     *
+     * @return true if at least one label moved (so the caller can consume the
+     *         key stroke instead of letting it scroll the view)
+     */
+    public boolean nudgeSelectedNodeLabels(double dxScreen, double dyScreen) {
+        if (nodeLabelPainter == null || !nodeLabelPainter.isVisible()) {
+            return false;
+        }
+        boolean any = false;
+        for (Node node : getSelectedNodes()) {
+            if (!nodeLabelBounds.containsKey(node)) {
+                continue;
+            }
+            // start from where the label is actually drawn now, like a drag does
+            double[] offset = getLabelOffset(node);
+            if (offset == null) {
+                double[] auto = nodeLabelAutoShifts.get(node);
+                offset = (auto == null) ? new double[] { 0.0, 0.0 }
+                        : screenDeltaToLabelDelta(node, auto[0], auto[1]);
+            }
+            double[] delta = screenDeltaToLabelDelta(node, dxScreen, dyScreen);
+            double dx = Math.round((offset[0] + delta[0]) * 10.0) / 10.0;
+            double dy = Math.round((offset[1] + delta[1]) * 10.0) / 10.0;
+            if (dx == 0.0 && dy == 0.0) {
+                node.removeAttribute(LABEL_DX_ATTRIBUTE_NAME);
+                node.removeAttribute(LABEL_DY_ATTRIBUTE_NAME);
+            } else {
+                node.setAttribute(LABEL_DX_ATTRIBUTE_NAME, dx);
+                node.setAttribute(LABEL_DY_ATTRIBUTE_NAME, dy);
+            }
+            any = true;
+        }
+        if (any) {
+            recalibrate();
+            repaint();
+        }
+        return any;
+    }
+
     private static Double asNumber(Object value) {
         if (value instanceof Number) {
             return ((Number) value).doubleValue();

@@ -385,6 +385,28 @@ public class TreePaneSelector implements MouseListener, MouseMotionListener, Key
     }
 
     public void keyPressed(KeyEvent event) {
+        // MyFigTree (Etap 6.16): arrow keys move the labels of the selected
+        // nodes - the precise alternative to dragging with the mouse. One press
+        // is 1 pt, with Shift 10 pt. Click the value first (that selects its
+        // node), then steer. With nothing selected the arrows keep their old
+        // job of scrolling the view.
+        double stepX = 0.0;
+        double stepY = 0.0;
+        switch (event.getKeyCode()) {
+            case KeyEvent.VK_LEFT:  stepX = -1.0; break;
+            case KeyEvent.VK_RIGHT: stepX = 1.0; break;
+            case KeyEvent.VK_UP:    stepY = -1.0; break;
+            case KeyEvent.VK_DOWN:  stepY = 1.0; break;
+        }
+        if (stepX != 0.0 || stepY != 0.0) {
+            final double size = event.isShiftDown() ? 10.0 : 1.0;
+            if (treePane.getTree() != null
+                    && treePane.nudgeSelectedNodeLabels(stepX * size, stepY * size)) {
+                event.consume();
+                return;
+            }
+        }
+
         if (event.getKeyCode() == KeyEvent.VK_SPACE) {
             dragMode = DragMode.SCROLL;
         }

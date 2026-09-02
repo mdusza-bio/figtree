@@ -217,6 +217,12 @@ Wygląd:
   przywraca automatyczne ustawianie. Zwykłe kliknięcie (bez przeciągania)
   dalej tylko zaznacza.
 
+- **Strzałki = precyzyjne dosuwanie** — gdy przeciąganie jest za mało dokładne:
+  kliknij liczbę (to ją zaznacza), a potem naciskaj **strzałki** na klawiaturze.
+  Jedno naciśnięcie przesuwa o **1 punkt**, z przytrzymanym **Shift** — o **10
+  punktów**. Działa też na kilku zaznaczonych wartościach naraz (przesuwają się
+  razem). Gdy nic nie jest zaznaczone, strzałki normalnie przewijają widok.
+
 - **Move selected label…** (tylko *Node Labels*) — to samo, ale z wpisywaniem
   dokładnych liczb, gdy trzeba np. przesunąć kilka etykiet o identyczny odcinek:
   1. kliknij w drzewie **samą liczbę** — to zaznacza dokładnie jej węzeł,

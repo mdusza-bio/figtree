@@ -370,6 +370,12 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   okienko). Przeciągnięcie z powrotem w okolicę punktu wyjścia (±0.5 pt) kasuje
   przesunięcie. Start przeciągania uwzględnia odsunięcie, które wcześniej nadał
   *Avoid overlap*, więc liczba nie skacze przy złapaniu.
+  Uzupełnienie 2026-09-02 (3): **strzałki dosuwają zaznaczone wartości** —
+  feedback po wypróbowaniu przeciągania („fajna opcja, ale czasem mało
+  precyzyjna"). Klik w liczbę + strzałki: 1 pt na naciśnięcie, z Shift 10 pt,
+  działa na wielu zaznaczonych naraz; bez zaznaczenia strzałki dalej przewijają
+  widok (zdarzenie jest konsumowane tylko, gdy jakaś etykieta faktycznie się
+  ruszyła).
 - [x] 6.17 🔴 **Przecinek dziesiętny psuł każdy zapisany plik** — awaria
   2026-08-25: `Save` zapisywał długości gałęzi jako `0,001243` (polska
   lokalizacja), a własny importer się na tym wykładał (*Taxon in tree,
