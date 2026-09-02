@@ -192,13 +192,15 @@ Wygląd:
 - **Show only if >=** — próg; wartości poniżej nie są rysowane (np. bootstrap < 50).
 - **Second value** + **Layout** — druga wartość obok pierwszej (np. PP obok
   bootstrapu), w formie `a / b` albo jedna nad drugą (*stacked*).
-- **Crowded values → Avoid overlap** (tylko *Node Labels*) — gdy dwie wartości
-  poparcia wypadłyby jedna na drugiej, kolidująca liczba jest odsuwana **w lewo**,
-  w pustą przestrzeń nad swoją gałęzią (tak, jak robi się to ręcznie na rycinach
-  w publikacjach). Jeśli musi odjechać dalej niż o własną wysokość, od liczby do
-  jej węzła rysowana jest cienka szara **linia wskazująca**, żeby nie było
-  wątpliwości, do której gałęzi należy. Samo drzewo się nie zmienia — przesuwa
-  się wyłącznie tekst; wartości, które się nie gryzą, zostają na miejscu.
+- **Crowded values → Avoid overlap** (tylko *Node Labels*) — gdy wartość
+  poparcia wypadłaby na innej wartości, **na nazwie okazu** albo na etykiecie
+  gałęzi, kolidująca liczba jest odsuwana **w lewo**, w pustą przestrzeń nad
+  swoją gałęzią (tak, jak robi się to ręcznie na rycinach w publikacjach).
+  Nazwy okazów nigdy nie są ruszane — to liczby je omijają. Jeśli liczba musi
+  odjechać dalej niż o własną wysokość, od liczby do jej węzła rysowana jest
+  cienka szara **linia wskazująca**, żeby nie było wątpliwości, do której
+  gałęzi należy. Samo drzewo się nie zmienia — przesuwa się wyłącznie tekst;
+  wartości, które się nie gryzą, zostają na miejscu.
 
   Obok jest drugi checkbox **White backing**: zaznaczony (domyślnie) — każda
   wartość poparcia dostaje pod spodem **prostokąt w kolorze tła**, więc na
@@ -206,8 +208,17 @@ Wygląd:
   drukowanych); odznaczony — wszystkie gałęzie zostają w całości czarne,
   nawet jeśli liczba wyląduje na kresce. Do wyboru wedle gustu.
 
-- **Move selected label…** (tylko *Node Labels*) — przesuwa **jedną** wartość, gdy
-  wyląduje w złym miejscu, a reszta drzewa wygląda dobrze:
+- **Przeciąganie liczby myszą** — najprostszy sposób na przestawienie
+  **jednej** wartości, gdy wyląduje w złym miejscu, a reszta drzewa wygląda
+  dobrze: najedź kursorem na liczbę (kursor zmienia się w strzałki ✥), wciśnij
+  lewy przycisk i **przeciągnij ją tam, gdzie ma być** — jak w Corelu, tylko od
+  razu w programie. Liczba zostaje tam, gdzie ją puścisz, a pozycja zapisuje
+  się z drzewem. Przeciągnięcie z powrotem w okolicę pierwotnego miejsca
+  przywraca automatyczne ustawianie. Zwykłe kliknięcie (bez przeciągania)
+  dalej tylko zaznacza.
+
+- **Move selected label…** (tylko *Node Labels*) — to samo, ale z wpisywaniem
+  dokładnych liczb, gdy trzeba np. przesunąć kilka etykiet o identyczny odcinek:
   1. kliknij w drzewie **samą liczbę** — to zaznacza dokładnie jej węzeł,
      niezależnie od kafelka trybu zaznaczania (*Clade*/*Node*/*Taxa*/*Tips*)
      u góry okna. Działa też na liczbie odsuniętej od węzła (przez *Avoid

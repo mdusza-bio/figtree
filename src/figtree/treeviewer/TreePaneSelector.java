@@ -191,11 +191,48 @@ public class TreePaneSelector implements MouseListener, MouseMotionListener, Key
         // This is used for dragging in combination with mouseDragged
         // in the MouseMotionListener, below.
         dragPoint = new Point2D.Double(mouseEvent.getPoint().getX(), mouseEvent.getPoint().getY());
+
+        // MyFigTree (Etap 6.16): pressing on a node label (a support value) arms
+        // a label drag - if the mouse then moves, the label follows it instead of
+        // a selection rectangle appearing. A plain click still just selects.
+        draggedLabelNode = null;
+        labelDragActive = false;
+        if (toolMode == ToolMode.SELECT && dragMode == DragMode.SELECT
+                && treePane.getTree() != null) {
+            Node labelNode = treePane.getNodeLabelAt(mouseEvent.getPoint());
+            if (labelNode != null) {
+                draggedLabelNode = labelNode;
+                // start from where the label is actually drawn now: a hand-made
+                // offset if there is one, else the slide "Avoid overlap" applied
+                double[] offset = TreePane.getLabelOffset(labelNode);
+                if (offset == null) {
+                    double[] auto = treePane.getNodeLabelAutoShift(labelNode);
+                    offset = (auto == null) ? new double[] { 0.0, 0.0 }
+                            : treePane.screenDeltaToLabelDelta(labelNode, auto[0], auto[1]);
+                }
+                labelDragBase = offset;
+            }
+        }
     }
 
     public void mouseReleased(MouseEvent mouseEvent) {
         if (treePane.getTree() == null) {
             return;
+        }
+
+        // MyFigTree (Etap 6.16): end of a label drag - write the new position
+        // onto the node. Without an actual drag this falls through, so a plain
+        // click on the value still selects its node as before.
+        if (draggedLabelNode != null) {
+            boolean dragged = labelDragActive;
+            draggedLabelNode = null;
+            labelDragActive = false;
+            labelDragBase = null;
+            if (dragged) {
+                treePane.commitLabelDrag();
+                treePane.setDragRectangle(null);
+                return;
+            }
         }
 
         if (dragMode == DragMode.SELECT) {
@@ -258,6 +295,15 @@ public class TreePaneSelector implements MouseListener, MouseMotionListener, Key
         if (isCommandKeyDown(mouseEvent)) {
             treePane.setCursorPosition(mouseEvent.getPoint());
         }
+
+        // MyFigTree (Etap 6.16): show the four-arrow cursor over a support value,
+        // as a hint that the number can be picked up and dragged
+        if (toolMode == ToolMode.SELECT && dragMode == DragMode.SELECT
+                && !crossHairCursor && treePane.getTree() != null) {
+            boolean overLabel = treePane.getNodeLabelAt(mouseEvent.getPoint()) != null;
+            treePane.setCursor(java.awt.Cursor.getPredefinedCursor(
+                    overLabel ? java.awt.Cursor.MOVE_CURSOR : java.awt.Cursor.DEFAULT_CURSOR));
+        }
     }
 
     /**
@@ -281,6 +327,22 @@ public class TreePaneSelector implements MouseListener, MouseMotionListener, Key
     public void mouseDragged(MouseEvent mouseEvent) {
 
         if (toolMode != ToolMode.SELECT || dragPoint == null) {
+            return;
+        }
+
+        // MyFigTree (Etap 6.16): drag a support value with the mouse. A tiny
+        // wobble within a couple of pixels still counts as a click.
+        if (draggedLabelNode != null) {
+            final double dxScreen = mouseEvent.getX() - dragPoint.getX();
+            final double dyScreen = mouseEvent.getY() - dragPoint.getY();
+            if (!labelDragActive
+                    && Math.abs(dxScreen) < 3.0 && Math.abs(dyScreen) < 3.0) {
+                return;
+            }
+            labelDragActive = true;
+            double[] delta = treePane.screenDeltaToLabelDelta(draggedLabelNode, dxScreen, dyScreen);
+            treePane.setLabelDragOffset(draggedLabelNode,
+                    labelDragBase[0] + delta[0], labelDragBase[1] + delta[1]);
             return;
         }
 
@@ -360,6 +422,11 @@ public class TreePaneSelector implements MouseListener, MouseMotionListener, Key
 
     private DragMode dragMode = DragMode.SELECT;
     private Point2D dragPoint = null;
+
+    // MyFigTree (Etap 6.16): state of a node-label drag in progress
+    private Node draggedLabelNode = null;
+    private double[] labelDragBase = null;
+    private boolean labelDragActive = false;
 
     private boolean crossHairCursor = false;
 }

@@ -87,6 +87,80 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return new double[] { dx == null ? 0.0 : dx, dy == null ? 0.0 : dy };
     }
 
+    /**
+     * MyFigTree: the offset the label of this node is drawn with right now -
+     * during a mouse drag that is the live drag position, otherwise whatever
+     * was stored on the node (or null if the label sits where the layout put it).
+     */
+    private double[] getEffectiveLabelOffset(Node node) {
+        if (node == draggedLabelNode && draggedLabelOffset != null) {
+            return draggedLabelOffset;
+        }
+        return getLabelOffset(node);
+    }
+
+    /**
+     * MyFigTree: how far "Avoid overlap" slid this node's label away from where
+     * the layout first put it, in screen pixels - or null if it was not moved.
+     * Lets a mouse drag pick the label up from where it actually is.
+     */
+    public double[] getNodeLabelAutoShift(Node node) {
+        return nodeLabelAutoShifts.get(node);
+    }
+
+    /**
+     * MyFigTree: converts a mouse movement (screen pixels) into the label's own
+     * frame, undoing the label's rotation. In the rectangular layout labels are
+     * upright, so the numbers pass through unchanged; in polar/radial layouts the
+     * label follows its rotated axes, which is what dragging should feel like.
+     */
+    public double[] screenDeltaToLabelDelta(Node node, double dxScreen, double dyScreen) {
+        AffineTransform labelTransform = nodeLabelTransforms.get(node);
+        if (labelTransform == null) {
+            return new double[] { dxScreen, dyScreen };
+        }
+        // the linear part is a pure rotation, so its inverse is its transpose
+        final double cos = labelTransform.getScaleX();
+        final double sin = labelTransform.getShearY();
+        return new double[] { cos * dxScreen + sin * dyScreen,
+                -sin * dxScreen + cos * dyScreen };
+    }
+
+    /** MyFigTree: live position while a node label is being dragged with the mouse */
+    public void setLabelDragOffset(Node node, double dx, double dy) {
+        draggedLabelNode = node;
+        draggedLabelOffset = new double[] { dx, dy };
+        recalibrate();
+        repaint();
+    }
+
+    /**
+     * MyFigTree: the mouse button was released - keep the dragged label where it
+     * is by writing the offset onto the node (so it is saved with the tree, and
+     * "Move selected label..." shows the same numbers). An offset dragged back
+     * to (almost) zero is removed - the label returns to automatic placement.
+     */
+    public void commitLabelDrag() {
+        if (draggedLabelNode != null && draggedLabelOffset != null) {
+            double dx = Math.round(draggedLabelOffset[0] * 10.0) / 10.0;
+            double dy = Math.round(draggedLabelOffset[1] * 10.0) / 10.0;
+            if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+                draggedLabelNode.removeAttribute(LABEL_DX_ATTRIBUTE_NAME);
+                draggedLabelNode.removeAttribute(LABEL_DY_ATTRIBUTE_NAME);
+            } else {
+                draggedLabelNode.setAttribute(LABEL_DX_ATTRIBUTE_NAME, dx);
+                draggedLabelNode.setAttribute(LABEL_DY_ATTRIBUTE_NAME, dy);
+            }
+        }
+        draggedLabelNode = null;
+        draggedLabelOffset = null;
+        recalibrate();
+        repaint();
+    }
+
+    private Node draggedLabelNode = null;
+    private double[] draggedLabelOffset = null;
+
     private static Double asNumber(Object value) {
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
@@ -2476,6 +2550,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         nodeLabelJustifications.clear();
         nodeLabelAnchors.clear();
         nodeLabelCallouts.clear();
+        nodeLabelAutoShifts.clear();
 
         if (nodeLabelPainter != null && nodeLabelPainter.isVisible()) {
             // Iterate though the external nodes with node labels
@@ -2512,12 +2587,6 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                 } else {
                     nodeLabelJustifications.put(node, Painter.Justification.RIGHT);
                 }
-            }
-
-            // MyFigTree (Etap 6.6): pull apart support values that would be drawn
-            // on top of each other in densely branching parts of the tree
-            if (nodeLabelPainter.isAvoidOverlap()) {
-                spreadOverlappingNodeLabels();
             }
         }
 
@@ -2561,6 +2630,16 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                 // Store the alignment in the map for use when drawing
                 branchLabelJustifications.put(node, just);
             }
+        }
+
+        // MyFigTree (Etap 6.6): pull apart support values that would be drawn on
+        // top of each other in densely branching parts of the tree. Done after
+        // BOTH tip and branch labels are laid out, because taxon names and branch
+        // labels count as obstacles too - a value overlapping a name slides left
+        // exactly the way one overlapping another value does.
+        if (nodeLabelPainter != null && nodeLabelPainter.isVisible()
+                && nodeLabelPainter.isAvoidOverlap()) {
+            spreadOverlappingNodeLabels();
         }
 
         nodeShapeTransforms.clear();
@@ -2710,6 +2789,10 @@ public class TreePane extends JComponent implements PainterListener, Printable {
      * published figures. When it ends up too far from its node to be read
      * unambiguously, a thin grey pointer line is drawn from the label to the node
      * it belongs to.
+     * <p>
+     * Taxon names (tip labels) and branch labels are obstacles too: a support
+     * value that lands on a name slides left past it, just as it would past
+     * another value. The names themselves are never moved.
      */
     private void spreadOverlappingNodeLabels() {
 
@@ -2749,11 +2832,25 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         // labels already placed (in their final spot)
         List<Rectangle2D> placed = new ArrayList<Rectangle2D>();
 
+        // taxon names and branch labels never move - support values go around them
+        for (Shape shape : tipLabelBounds.values()) {
+            Rectangle2D r = shape.getBounds2D();
+            if (r.getWidth() > 0.0 && r.getHeight() > 0.0) {
+                placed.add(r);
+            }
+        }
+        for (Shape shape : branchLabelBounds.values()) {
+            Rectangle2D r = shape.getBounds2D();
+            if (r.getWidth() > 0.0 && r.getHeight() > 0.0) {
+                placed.add(r);
+            }
+        }
+
         // MyFigTree (Etap 6.16): a label the user moved by hand stays exactly where
         // it was put - it only counts as an obstacle for the others
         List<Node> automatic = new ArrayList<Node>();
         for (Node node : nodes) {
-            if (getLabelOffset(node) != null) {
+            if (getEffectiveLabelOffset(node) != null) {
                 placed.add(nodeLabelBounds.get(node).getBounds2D());
             } else {
                 automatic.add(node);
@@ -2795,6 +2892,9 @@ public class TreePane extends JComponent implements PainterListener, Printable {
                 labelTransform.preConcatenate(AffineTransform.getTranslateInstance(shift, 0.0));
                 // keep the clickable area on the text
                 nodeLabelBounds.put(node, bounds);
+                // remembered so a mouse drag can start from where the label
+                // actually is, not from where the layout first put it
+                nodeLabelAutoShifts.put(node, new double[] { shift, 0.0 });
 
                 // once the label has left the immediate neighbourhood of its node,
                 // draw a pointer line so there is no doubt which branch it belongs to
@@ -2830,8 +2930,9 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         // +1 when the label path points to the right (normal case), -1 when mirrored
         final double direction = line.getX2() > line.getX1() ? 1.0 : -1.0;
 
-        // MyFigTree (Etap 6.16): a label this node was nudged by hand
-        final double[] nudge = (node == null ? null : getLabelOffset(node));
+        // MyFigTree (Etap 6.16): a label this node was nudged by hand (or is
+        // being dragged with the mouse right now)
+        final double[] nudge = (node == null ? null : getEffectiveLabelOffset(node));
         final double dx = (nudge == null ? 0.0 : nudge[0]);
         final double dy = (nudge == null ? 0.0 : nudge[1]);
 
@@ -2996,6 +3097,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
     // support values that had to be moved away from their node
     private Map<Node, Point2D> nodeLabelAnchors = new HashMap<Node, Point2D>();
     private Map<Node, Line2D> nodeLabelCallouts = new HashMap<Node, Line2D>();
+    private Map<Node, double[]> nodeLabelAutoShifts = new HashMap<Node, double[]>();
     private Map<Node, Painter.Justification> nodeLabelJustifications = new HashMap<Node, Painter.Justification>();
 
     private Map<Node, AffineTransform> branchLabelTransforms = new HashMap<Node, AffineTransform>();

@@ -261,6 +261,10 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   pod każdą liczbą, żeby kreski gałęzi nie przecinały cyfr; można odznaczyć,
   jeśli gałęzie mają zostać w całości czarne). Drzewo samo nie jest ruszane.
   Klucze w pliku `.tree`: `nodeLabels.avoidOverlap`, `nodeLabels.labelBacking`.
+  Uzupełnienie 2026-09-02: *Avoid overlap* omija teraz także **nazwy okazów**
+  (tip labels) i etykiety gałęzi, nie tylko inne wartości poparcia — zgłoszone
+  ze zrzutami: liczby lądowały na nazwach taksonów przy różnym rozciągnięciu
+  drzewa i trzeba je było rozsuwać w Corelu.
   Iterowane na żywo na zrzutach ekranu (v1 zsuwanie w dół — odrzucone, v2
   w lewo + linie, v3 tło, v4 tło jako osobny checkbox); szczegóły w planie
   sesji E.
@@ -360,7 +364,12 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   Uzupełnienie 2026-09-02: klik w samą liczbę zaznacza dokładnie jej węzeł
   (w każdym trybie zaznaczania) — wcześniej dawało się kliknąć tylko gałąź,
   co w trybie *Clade* łapało wszystkie liczby kladu naraz.
-  Ewentualne rozszerzenie na przyszłość: przeciąganie etykiety myszą.
+  Uzupełnienie 2026-09-02 (2): **przeciąganie etykiety myszą zrobione** —
+  najechanie na liczbę pokazuje kursor ✥, wciśnięcie i przeciągnięcie przenosi
+  ją na żywo, puszczenie zapisuje `!labelDX`/`!labelDY` (te same atrybuty co
+  okienko). Przeciągnięcie z powrotem w okolicę punktu wyjścia (±0.5 pt) kasuje
+  przesunięcie. Start przeciągania uwzględnia odsunięcie, które wcześniej nadał
+  *Avoid overlap*, więc liczba nie skacze przy złapaniu.
 - [x] 6.17 🔴 **Przecinek dziesiętny psuł każdy zapisany plik** — awaria
   2026-08-25: `Save` zapisywał długości gałęzi jako `0,001243` (polska
   lokalizacja), a własny importer się na tym wykładał (*Taxon in tree,
