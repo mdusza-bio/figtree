@@ -120,8 +120,23 @@ Czyszczenie nazwy:
   Zmienia tylko to, co widać na ekranie i na rycinie; plik z drzewem zostaje
   nietknięty. Domyślnie włączone.
 - **Hide parts** — fragmenty do wycięcia z nazwy, po przecinku (np. `EBOV|,_contig1`).
-- **Hide regex** — to samo, ale wyrażeniem regularnym. Błędne wyrażenie jest
-  po prostu ignorowane.
+  Tnie dosłownie i **wszędzie** — każde wystąpienie wpisanego tekstu znika,
+  także ze środka nazwy.
+- **Hide regex** — to samo, ale wyrażeniem regularnym (wzorcem), którym można
+  doprecyzować, **gdzie** wycinać. Błędne wyrażenie jest po prostu ignorowane
+  (nazwa zostaje nietknięta).
+- Który wybrać — na przykładzie ukrycia `_new` z końcówki nazwy:
+  - *Hide parts* z wpisem `_new` utnie `_new` też ze środka — z
+    `Arcyria_newtoniana_MA123` zrobi się po cichu `Arcyriatoniana MA123`;
+  - *Hide regex* z wpisem `_new$` usunie `_new` **tylko na końcu nazwy**
+    (znak `$` znaczy „koniec nazwy") — i to jest właściwe narzędzie tutaj.
+
+  Reguła kciuka: zwykłe „wytnij ten napis" → *Hide parts*; „wytnij, ale tylko
+  na końcu / tylko w konkretnej sytuacji" → *Hide regex*. W obu polach pisz
+  z podkreślnikiem (`_new`, nie ` new`) — wycinanie działa na surowej nazwie
+  z pliku, zanim podkreślniki zamienią się w spacje. Uwaga: w regexie znaki
+  `. | ( ) [ ] $ ^ * + ?` mają specjalne znaczenie (np. `|` znaczy „albo") —
+  dlatego fragment z kreską, jak `EBOV|`, wycina się przez *Hide parts*.
 
 Kursywa i skład nazwy:
 - **Italic mode** — sposób wybierania, co ma być kursywą:
