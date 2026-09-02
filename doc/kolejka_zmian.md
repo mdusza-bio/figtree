@@ -357,6 +357,9 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   *Node Labels*, przesunięcie w punktach na zaznaczonych węzłach, zapisywane jako
   `!labelDX` / `!labelDY`. Etykieta ruszona ręcznie jest pomijana przez
   *Avoid overlap* (ale liczy się dla niego jako przeszkoda).
+  Uzupełnienie 2026-09-02: klik w samą liczbę zaznacza dokładnie jej węzeł
+  (w każdym trybie zaznaczania) — wcześniej dawało się kliknąć tylko gałąź,
+  co w trybie *Clade* łapało wszystkie liczby kladu naraz.
   Ewentualne rozszerzenie na przyszłość: przeciąganie etykiety myszą.
 - [x] 6.17 🔴 **Przecinek dziesiętny psuł każdy zapisany plik** — awaria
   2026-08-25: `Save` zapisywał długości gałęzi jako `0,001243` (polska
@@ -409,7 +412,8 @@ przemianowany na `HOLOTYPE`. Wystarczy dopisać spację albo kliknąć
   ustawiała ręcznie. Można go bezpiecznie wypróbować na gotowej rycinie:
   przycisk zmienia się wtedy w *Undo preset* i cofa wszystko.
 - [ ] **Move selected label…** (6.16) — przesuwanie **jednej** wartości poparcia:
-  zaznaczyć gałąź, przycisk w panelu *Node Labels*, wpisać przesunięcie w punktach.
+  kliknąć samą liczbę (od 2026-09-02 to zaznacza dokładnie jej węzeł), przycisk
+  w panelu *Node Labels*, wpisać przesunięcie w punktach.
   Sprawdzić, czy wpisywanie liczb jest znosne — jeśli męczące, do zrobienia
   przeciąganie myszą (patrz 6.16 wyżej).
 - [ ] **Clear Hilighting** (6.15) — *Tree → Clear Hilighting…* działa teraz zawsze:

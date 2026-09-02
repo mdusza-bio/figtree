@@ -154,6 +154,16 @@ public class TreePaneSelector implements MouseListener, MouseMotionListener, Key
                 }
             }
 
+            // MyFigTree (Etap 6.16): a click landing on a node label (e.g. a
+            // support value) selects exactly that one node, whatever the
+            // selection mode - so "Move selected label..." can target a single
+            // number even when the mode is Clade.
+            Node labelNode = treePane.getNodeLabelAt(mouseEvent.getPoint());
+            if (labelNode != null) {
+                selectedNode = labelNode;
+                mode = SelectionMode.NODES;
+            }
+
             switch (mode) {
                 case NODES:
                     treePane.addSelectedNode(selectedNode, invertSelection, extendSelection);

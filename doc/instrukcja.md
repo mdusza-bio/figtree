@@ -208,10 +208,19 @@ Wygląd:
 
 - **Move selected label…** (tylko *Node Labels*) — przesuwa **jedną** wartość, gdy
   wyląduje w złym miejscu, a reszta drzewa wygląda dobrze:
-  1. kliknij w drzewie gałąź (albo samą liczbę) tego węzła,
+  1. kliknij w drzewie **samą liczbę** — to zaznacza dokładnie jej węzeł,
+     niezależnie od kafelka trybu zaznaczania (*Clade*/*Node*/*Taxa*/*Tips*)
+     u góry okna. Działa też na liczbie odsuniętej od węzła (przez *Avoid
+     overlap* albo wcześniejsze ręczne przesunięcie),
   2. naciśnij przycisk,
   3. wpisz przesunięcie w punktach — **w lewo/prawo** i **góra/dół**; wartości
      ujemne przesuwają w lewo i do góry.
+
+  Można też kliknąć gałąź zamiast liczby, ale uwaga: w trybie *Clade* klik
+  w gałąź zaznacza **cały klad**, więc to samo przesunięcie poszłoby na
+  wszystkie liczby w kladzie (okno wtedy uprzedza, ilu etykiet dotyczy).
+  Do pojedynczej gałęzi przełącz kafelek na *Node* — albo po prostu klikaj
+  w liczbę.
 
   Różnica względem *Offset X / Offset Y*: tamte przesuwają **wszystkie** wartości
   naraz, ta — tylko zaznaczone. Etykieta przesunięta ręcznie **zostaje tam, gdzie

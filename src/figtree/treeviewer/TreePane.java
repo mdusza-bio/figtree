@@ -1379,6 +1379,29 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return null;
     }
 
+    /**
+     * MyFigTree (Etap 6.16): hit-test the node labels (support values) themselves.
+     * The stored bounds follow the label wherever it actually is - after
+     * "Avoid overlap" spreading and after a manual "Move selected label..." nudge.
+     */
+    public Node getNodeLabelAt(Point point) {
+        if (nodeLabelPainter == null || !nodeLabelPainter.isVisible()) {
+            return null;
+        }
+
+        Rectangle rect = new Rectangle(point.x - 1, point.y - 1, 3, 3);
+        rect.translate(-insets.left, -insets.top);
+
+        for (Node node : nodeLabelBounds.keySet()) {
+            Shape labelBounds = nodeLabelBounds.get(node);
+            if (labelBounds != null && labelBounds.intersects(rect)) {
+                return node;
+            }
+        }
+
+        return null;
+    }
+
     public Set<Node> getNodesAt(Graphics2D g2, Rectangle rect) {
 
         Set<Node> nodes = new HashSet<Node>();

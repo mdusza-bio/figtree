@@ -191,6 +191,12 @@ Etykieta przesunięta ręcznie jest wyłączona z automatycznego rozsuwania
 wartości ją omijają. Przesunięcie siedzi na węźle (`!labelDX`, `!labelDY`),
 więc zapisuje się razem z drzewem.
 
+Uzupełnienie 2026-09-02: **klik w samą liczbę** w drzewie zaznacza dokładnie
+jej węzeł — niezależnie od kafelka trybu zaznaczania (*Clade*/*Node*/…), także
+gdy liczba jest odsunięta od węzła. Wcześniej dawało się kliknąć tylko gałąź,
+a w trybie *Clade* zaznaczało to cały klad i przesunięcie szło na wszystkie
+liczby w kladzie naraz.
+
 ### Etap 6.15 — podświetlenie kladu da się cofnąć
 *Tree → Hilight…* koloruje tło wybranego kladu, ale *Tree → Clear Hilighting…*
 było aktywne **tylko przy zaznaczeniu**. Bez zaznaczenia ta sama funkcja czyści
