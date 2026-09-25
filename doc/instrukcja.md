@@ -291,7 +291,10 @@ Pionowe paski po prawej stronie ryciny z nazwą grupy (rodzina, rząd…) obróc
 o 90°. Rysują się według **atrybutu liści** — patrz punkt 9, skąd go wziąć.
 Działa tylko w układzie prostokątnym.
 
-- **Attribute** — który atrybut liści wyznacza grupy (np. `family`).
+- **Attribute** — który atrybut liści wyznacza grupy (np. `family`). Lista
+  pokazuje tylko atrybuty wczytane z pliku albo nadane przez *Assign to
+  selection…*; pierwszy jest wybierany sam. Pusta lista (z podpowiedzią pod
+  spodem) znaczy, że drzewo nie ma jeszcze żadnych grup — zacznij od punktu 9.
 - **Assign to selection…** — zaznacz klad (tryb *Clade*) albo kilka nazw liści,
   kliknij, podaj nazwę atrybutu i wartość. Wszystkie liście z zaznaczenia dostają
   ją naraz, a panel od razu przełącza się na ten atrybut. Wygodne dla kilku grup;
@@ -328,7 +331,9 @@ Arcyria	Arcyriaceae	Trichiales
   przez rodzaj, wygrywa wiersz z pełną nazwą — można więc słownikiem opisać
   całość, a pojedyncze wyjątki nadpisać osobnym wierszem.
 - Kolumny rozdzielone tabulatorem, przecinkiem albo średnikiem — w Excelu
-  wystarczy *Zapisz jako → Tekst rozdzielany tabulatorami*.
+  wystarczy *Zapisz jako → Tekst rozdzielany tabulatorami* (działa też *Tekst
+  Unicode* i *CSV*). Samego pliku `.xlsx` program nie czyta — trzeba go
+  najpierw zapisać jako tekst.
 - Puste wiersze, cudzysłowy i wiersze zaczynające się od `#` nie przeszkadzają.
 - Pusta komórka = brak atrybutu, czyli pasek grupy się w tym miejscu przerywa.
 - Po wczytaniu okno mówi, **ile nazw udało się dopasować** (osobno licząc

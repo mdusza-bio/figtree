@@ -10,6 +10,7 @@ import figtree.treeviewer.AttributeColourController;
 import figtree.treeviewer.ExtendedTreeViewer;
 import figtree.treeviewer.ControllerOptionsPanel;
 import figtree.treeviewer.TreeViewer;
+import figtree.treeviewer.TreeViewerListener;
 import figtree.treeviewer.decorators.ColourDecorator;
 import jam.controlpalettes.AbstractController;
 import jam.controlpalettes.ControllerListener;
@@ -54,8 +55,10 @@ public class GroupBarController extends AbstractController {
         titleCheckBox = new JCheckBox(getTitle());
         titleCheckBox.setSelected(painter.isBarsVisible());
 
+        // only real tip attributes (family, order...) - the built-in label choices such as Names
+        // used to come first, so ticking Group Bars after an import silently drew nothing
         attributeCombo = new JComboBox();
-        new AttributeComboHelper(attributeCombo, treeViewer, LabelPainter.PainterIntent.TIP).addListener(new AttributeComboHelperListener() {
+        AttributeComboHelper.attributesOnly(attributeCombo, treeViewer, LabelPainter.PainterIntent.TIP).addListener(new AttributeComboHelperListener() {
             @Override
             public void attributeComboChanged() {
                 updateBarAttribute();
@@ -63,12 +66,30 @@ public class GroupBarController extends AbstractController {
         });
 
         backgroundAttributeCombo = new JComboBox();
-        new AttributeComboHelper(backgroundAttributeCombo, treeViewer, LabelPainter.PainterIntent.TIP).addListener(new AttributeComboHelperListener() {
+        AttributeComboHelper.attributesOnly(backgroundAttributeCombo, treeViewer, LabelPainter.PainterIntent.TIP).addListener(new AttributeComboHelperListener() {
             @Override
             public void attributeComboChanged() {
                 updateBackgroundAttribute();
             }
         });
+
+        // registered after the combo helpers, so it runs once the lists have been refilled: the first
+        // attribute to appear (say family, just imported) is picked by the combo without an event,
+        // and the bars have to follow what the combo shows
+        treeViewer.addTreeViewerListener(new TreeViewerListener() {
+            public void treeChanged() {
+                updateBarAttribute();
+                updateBackgroundAttribute();
+                updateHint();
+            }
+
+            public void treeSettingsChanged() {
+                updateHint();
+            }
+        });
+
+        hintLabel = new JLabel();
+        hintLabel.putClientProperty("JComponent.sizeVariant", "small");
 
         // follow changes to the colour schemes ("Colour by" in Appearance)
         colourController.addControllerListener(new ControllerListener() {
@@ -128,7 +149,12 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        titleCheckBox.setToolTipText("<html>Coloured bars to the right of the tip labels, one per group of<br>" +
+                "neighbouring tips sharing a value (e.g. the same family).<br>" +
+                "Drawn in the rectangular layout only.</html>");
+
         final JLabel label1 = optionsPanel.addComponentWithLabel("Attribute:", attributeCombo);
+        optionsPanel.addSpanningComponent(hintLabel);
         optionsPanel.addSpanningComponent(assignButton);
         final JLabel label2 = optionsPanel.addComponentWithLabel("Bar width:", barWidthSpinner);
         final JLabel label3 = optionsPanel.addComponentWithLabel("Gap from labels:", gapSpinner);
@@ -148,6 +174,7 @@ public class GroupBarController extends AbstractController {
         addComponent(fontSizeSpinner);
         enableComponents(titleCheckBox.isSelected());
         enableBackgroundComponents();
+        updateHint();
 
         titleCheckBox.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
@@ -229,6 +256,15 @@ public class GroupBarController extends AbstractController {
         if (!titleCheckBox.isSelected()) {
             titleCheckBox.setSelected(true);
         }
+    }
+
+    /** Says what to do when there is nothing to group by yet, instead of showing an empty list. */
+    private void updateHint() {
+        boolean empty = attributeCombo.getItemCount() == 0;
+        hintLabel.setText(empty ?
+                "<html><i>No groups yet: use File &gt; Import Annotations...<br>" +
+                        "or select a clade and Assign to selection...</i></html>" : "");
+        hintLabel.setVisible(empty);
     }
 
     private void enableBackgroundComponents() {
@@ -325,6 +361,7 @@ public class GroupBarController extends AbstractController {
     private final OptionsPanel optionsPanel;
 
     private final JButton assignButton;
+    private final JLabel hintLabel;
     private String lastAssignedName = "group";
     private String lastAssignedValue = "";
 

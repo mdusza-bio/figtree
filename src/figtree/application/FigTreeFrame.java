@@ -1032,6 +1032,21 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
             try {
                 AnnotationTable table = readAnnotationTable(file);
 
+                if (!table.rowNames.isEmpty() && table.columns.isEmpty()) {
+                    // MyFigTree: typically a template from Export Group Template that was never filled in
+                    JOptionPane.showMessageDialog(this,
+                            "This file lists " + table.rowNames.size() +
+                                    (table.rowNames.size() == 1 ? " name" : " names") +
+                                    ", but every other column is empty -\n" +
+                                    "there are no values (such as family names) to import.\n\n" +
+                                    "Is it a template from File > Export Group Template that has not\n" +
+                                    "been filled in yet? Fill in the columns (or import a ready\n" +
+                                    "dictionary such as sluzowce.tsv) and try again.",
+                            "Import Annotations",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 if (table.rowNames.isEmpty() || table.columns.isEmpty()) {
                     JOptionPane.showMessageDialog(this,
                             "No annotations were found in this file.\n\n" +
@@ -1509,11 +1524,29 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         return Arrays.copyOf(cells, length);
     }
 
-    /** Reads a text file as UTF-8 if it is valid UTF-8 and in the system encoding otherwise. */
+    /**
+     * Reads a text file as UTF-16 if it says so (Excel's "Unicode Text"), as UTF-8 if it is valid
+     * UTF-8 and in the system encoding otherwise. An Excel workbook itself is refused with a hint.
+     */
     private static List<String> readLines(File file) throws IOException {
         byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+
+        // MyFigTree: a workbook (.xlsx is a zip, .xls an OLE file) is not text at all
+        if (startsWith(bytes, 0x50, 0x4B, 0x03, 0x04) || startsWith(bytes, 0xD0, 0xCF, 0x11, 0xE0)) {
+            throw new IOException("this is an Excel workbook, not a text file.\n\n" +
+                    "In Excel use File > Save As and pick \"Text (Tab delimited) (*.txt)\"\n" +
+                    "(\"Tekst (rozdzielany tabulatorami)\"), then import that file.");
+        }
+
         String text;
-        try {
+        if (startsWith(bytes, 0xFF, 0xFE) || startsWith(bytes, 0xFE, 0xFF) || looksLikeUtf16(bytes)) {
+            // MyFigTree: Excel's "Unicode Text" (Tekst Unicode) is UTF-16 - read as UTF-8 it used to
+            // come out as a single garbled column
+            java.nio.charset.Charset utf16 = startsWith(bytes, 0xFE, 0xFF) ?
+                    java.nio.charset.StandardCharsets.UTF_16BE : java.nio.charset.StandardCharsets.UTF_16LE;
+            int start = startsWith(bytes, 0xFF, 0xFE) || startsWith(bytes, 0xFE, 0xFF) ? 2 : 0;
+            text = new String(bytes, start, bytes.length - start, utf16);
+        } else try {
             java.nio.charset.CharsetDecoder decoder = java.nio.charset.StandardCharsets.UTF_8.newDecoder()
                     .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
                     .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT);
@@ -1525,6 +1558,33 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
             text = text.substring(1);
         }
         return Arrays.asList(text.split("\r\n|\r|\n", -1));
+    }
+
+    private static boolean startsWith(byte[] bytes, int... prefix) {
+        if (bytes.length < prefix.length) {
+            return false;
+        }
+        for (int i = 0; i < prefix.length; i++) {
+            if ((bytes[i] & 0xFF) != prefix[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** UTF-16 without a byte order mark: plain ASCII text with a zero byte after every character. */
+    private static boolean looksLikeUtf16(byte[] bytes) {
+        int n = Math.min(bytes.length, 400) & ~1;
+        if (n < 4) {
+            return false;
+        }
+        int zeros = 0;
+        for (int i = 1; i < n; i += 2) {
+            if (bytes[i] == 0) {
+                zeros++;
+            }
+        }
+        return zeros > n / 4;
     }
 
 

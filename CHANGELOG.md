@@ -107,6 +107,27 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.19 — Group Bars i Import Annotations „nie działały" (2026-09-25)
+**Skąd się wzięło.** Przy pokazywaniu programu współpracownikowi import i paski
+grup sprawiały wrażenie zepsutych. Test automatyczny (import → Group Bars →
+zapis → ponowne otwarcie) pokazał, że samo dopasowanie działa, ale były trzy
+pułapki bez żadnego komunikatu:
+- **Lista *Attribute* w Group Bars zaczynała się od „Names"** (i innych
+  wbudowanych pozycji: *Solid box*, *Node ages*…), które do grupowania się nie
+  nadają. Po imporcie zaznaczenie *Group Bars* nic nie rysowało, dopóki ktoś
+  sam nie wybrał `family`. Teraz lista zawiera **tylko prawdziwe atrybuty**
+  (`family`, `order`…), pierwszy z nich jest od razu wybrany, a paski od razu
+  go rysują. Gdy atrybutów jeszcze nie ma, panel podpowiada: *File → Import
+  Annotations…* albo *Assign to selection…*. To samo w liście tła
+  (*Backgrounds*) i w oknie *Assign to selection…*.
+- **Plik z Excela zapisany jako „Tekst Unicode (*.txt)"** kończył się komunikatem
+  „the header line has only one column". Teraz jest wczytywany normalnie.
+  Wskazanie samego skoroszytu (`.xlsx` / `.xls`) daje jasny komunikat, jak
+  zapisać go jako tekst.
+- **Niewypełniony szablon** z *Export Group Template* (same rodzaje, puste
+  kolumny) dawał mylący komunikat o nagłówku — teraz program mówi wprost, że
+  kolumny są puste i trzeba je uzupełnić (albo wczytać gotowy słownik).
+
 ### Etap 6.18 — własny zapis presetu publikacyjnego (2026-09-02)
 **Skąd się wzięło.** Zestaw pod przyciskiem *Publication preset* był wpisany na
 stałe w kod (stan ustalony 2026-08-25) — każda korekta wymagała zmiany w kodzie

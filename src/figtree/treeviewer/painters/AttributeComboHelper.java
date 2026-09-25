@@ -94,6 +94,26 @@ public class AttributeComboHelper {
                                 final boolean numericalOnly,
                                 final boolean includeLineageColourings) {
 
+        this(attributeComboBox, treeViewer, defaultOption, intent, numericalOnly, includeLineageColourings, true);
+    }
+
+    /**
+     * MyFigTree: with builtIns false the list holds only the attributes read from the trees or
+     * imported (such as family) and none of the built-in label choices (Names, Node ages...) -
+     * for controls such as Group Bars, where those would silently draw nothing.
+     */
+    public static AttributeComboHelper attributesOnly(final JComboBox attributeComboBox, final TreeViewer treeViewer,
+                                                      final LabelPainter.PainterIntent intent) {
+        return new AttributeComboHelper(attributeComboBox, treeViewer, null, intent, false, false, false);
+    }
+
+    private AttributeComboHelper(final JComboBox attributeComboBox, final TreeViewer treeViewer,
+                                 final String defaultOption,
+                                 final LabelPainter.PainterIntent intent,
+                                 final boolean numericalOnly,
+                                 final boolean includeLineageColourings,
+                                 final boolean builtIns) {
+
         treeViewer.addTreeViewerListener(new TreeViewerListener() {
             public void treeChanged() {
                 List<Tree> trees = treeViewer.getTrees();
@@ -110,11 +130,12 @@ public class AttributeComboHelper {
                 }
 
                 if (trees == null) {
+                    addingItems = false;
                     return;
                 }
                 List<String> names = new ArrayList<String>();
                 if (intent != null || numericalOnly) {
-                    getAttributeNames(names, trees, intent, numericalOnly);
+                    getAttributeNames(names, trees, intent, numericalOnly, builtIns);
                 } else {
                     getAttributeNames(names, trees, includeLineageColourings);
                 }
@@ -148,6 +169,13 @@ public class AttributeComboHelper {
     public static void getAttributeNames(List<String> attributeNames, Collection<? extends Tree> trees,
                                          LabelPainter.PainterIntent intent,
                                          boolean numericalOnly) {
+        getAttributeNames(attributeNames, trees, intent, numericalOnly, true);
+    }
+
+    private static void getAttributeNames(List<String> attributeNames, Collection<? extends Tree> trees,
+                                          LabelPainter.PainterIntent intent,
+                                          boolean numericalOnly,
+                                          boolean builtIns) {
 
         Set<String> nodeAttributes = new LinkedHashSet<>();
         if (trees != null) {
@@ -203,7 +231,7 @@ public class AttributeComboHelper {
             nodeAttributes = continuousNodeAttributes;
         }
 
-        if (intent != null) {
+        if (intent != null && builtIns) {
             switch( intent ) {
                 case TIP: {
                     attributeNames.add(LabelPainter.NAMES);
