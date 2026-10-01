@@ -35,8 +35,15 @@ Słownik wczytuje się **wprost**: *File → Import Annotations…* i wskazać p
 Nazwa jednowyrazowa w pierwszej kolumnie (np. `Trichia`) jest traktowana jak
 rodzaj — jej rodzina i rząd trafiają do **wszystkich** okazów, których nazwa
 zaczyna się od tego rodzaju (`Trichia_lutescens_MA83355`, `Trichia_varia_MA80112`…).
-Okno po imporcie mówi, ile nazw dopasowało się po rodzaju i ile okazów objęły;
-rodzaje, których w drzewie nie ma, są po prostu pomijane (i wypisane w oknie).
+Okno po imporcie mówi, ile nazw dopasowało się po rodzaju i ile okazów objęły,
+oraz wymienia z nazwy **okazy, które nie dostały grupy** — to jedyne, co trzeba
+uzupełnić. Rodzaje ze słownika, których w drzewie nie ma, są pomijane i tylko
+policzone (to normalne). Jak czytać to okno: `doc/instrukcja.md`, rozdział 9.
+
+Pliki w tym folderze:
+- `sluzowce.tsv` — właściwy słownik do rycin;
+- `rodzaje_test.tsv` — tylko do testów: pusty szablon z *Export Group Template*
+  (same rodzaje, bez rodzin). Import go nie użyje, dopóki nie wypełnisz kolumn.
 
 Gdy w drzewie trafi się rodzaj, którego słownik nie zna, doda się go najprościej
 przez *File → Export Group Template…* — program wypisze alfabetyczną listę
