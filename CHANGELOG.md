@@ -107,6 +107,16 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.22 — okno po imporcie przy wielu brakach (2026-10-01)
+Gdy słownik nie obejmie wielu okazów, okno po *Import Annotations* nie ucina
+już listy po 10 nazwach:
+- okazy bez grupy są **pogrupowane po rodzaju** (`MERspi: 12 tips`), bo jeden
+  wiersz słownika naprawia cały rodzaj; przy rodzaju z jednym okazem widać
+  jego pełną nazwę;
+- długi raport przewija się w oknie;
+- przycisk **Save missing genera…** zapisuje brakujące rodzaje do tabelki
+  z kolumnami importowanego pliku — do uzupełnienia i wklejenia do słownika.
+
 ### Etap 6.20 / 6.21 — kropki pełnego poparcia, kierunek napisów grup (2026-10-01)
 Nowy panel **Support Dots** (zaraz pod *Node Labels*):
 - czarna kropka na gałęzi, która osiągnęła **maksymalne poparcie** — w jednej

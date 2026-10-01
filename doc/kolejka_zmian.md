@@ -428,6 +428,11 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   - okno po imporcie: wymienia z nazwy okazy, które nie dostały grupy (to jedyna
     rzecz do poprawienia), a rodzaje ze słownika nieobecne w drzewie podaje tylko
     liczbą, bez ostrzeżenia. Opis okna w `instrukcja.md` §9.
+- [x] 6.22 🟢 **Okno po imporcie przy wielu brakach** — zgłoszone 2026-10-01:
+  lista 10 okazów nie wystarczy, gdy braków są dziesiątki. **Zrobione**: braki
+  pogrupowane po rodzaju, długi raport przewijany, przycisk **Save missing
+  genera…** zapisuje brakujące rodzaje do tabelki do uzupełnienia i wklejenia
+  do słownika.
 
 ---
 

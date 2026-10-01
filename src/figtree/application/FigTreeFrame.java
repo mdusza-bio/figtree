@@ -1103,14 +1103,35 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
             return;
         }
 
-        FileDialog dialog = new FileDialog(this,
-                "Export Group Template...",
-                FileDialog.SAVE);
-        dialog.setFile("rodzaje.tsv");
+        File file = writeGenusTemplate(genera, Arrays.asList("family", "order"), "rodzaje.tsv",
+                "Genera of the open tree", "Export Group Template");
+        if (file == null) {
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this,
+                "Wrote " + genera.size() + (genera.size() == 1 ? " genus" : " genera") + " to:\n" +
+                        file.getPath() + "\n\n" +
+                        "Fill in the empty columns and load the file back with\n" +
+                        "File > Import Annotations...",
+                "Export Group Template",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * MyFigTree: asks where to save and writes a table of genera with empty columns to be filled in.
+     *
+     * @return the file written, or null if the user cancelled or writing failed (already reported)
+     */
+    private File writeGenusTemplate(Collection<String> genera, List<String> columns, String suggestedName,
+                                    String what, String title) {
+
+        FileDialog dialog = new FileDialog(this, title + "...", FileDialog.SAVE);
+        dialog.setFile(suggestedName);
 
         dialog.setVisible(true);
         if (dialog.getFile() == null) {
-            return;
+            return null;
         }
         File file = new File(dialog.getDirectory(), dialog.getFile());
 
@@ -1122,14 +1143,21 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
             try {
                 Writer writer = new OutputStreamWriter(new FileOutputStream(temp), "UTF-8");
                 try {
-                    writer.write("# Genera of the open tree. Fill in the empty columns and load this file\n");
-                    writer.write("# back with File > Import Annotations. The column headers become the\n");
-                    writer.write("# attribute names - rename or add columns freely. Lines starting with #\n");
-                    writer.write("# and empty cells are ignored.\n");
-                    writer.write("genus\tfamily\torder\n");
+                    writer.write("# " + what + ". Fill in the empty columns and load this file\n");
+                    writer.write("# back with File > Import Annotations (or paste the rows into your\n");
+                    writer.write("# dictionary). The column headers become the attribute names - rename\n");
+                    writer.write("# or add columns freely. Lines starting with # and empty cells are ignored.\n");
+                    writer.write("genus");
+                    for (String column : columns) {
+                        writer.write("\t" + column);
+                    }
+                    writer.write("\n");
                     for (String genus : genera) {
                         writer.write(genus);
-                        writer.write("\t\t\n");
+                        for (int i = 0; i < columns.size(); i++) {
+                            writer.write("\t");
+                        }
+                        writer.write("\n");
                     }
                 } finally {
                     writer.close();
@@ -1141,19 +1169,13 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
             }
         } catch (IOException ioe) {
             JOptionPane.showMessageDialog(this,
-                    "<html>The template could <b>not</b> be written:<br><tt>" + ioe + "</tt></html>",
-                    "Export Group Template",
+                    "<html>The table could <b>not</b> be written:<br><tt>" + ioe + "</tt></html>",
+                    title,
                     JOptionPane.ERROR_MESSAGE);
-            return;
+            return null;
         }
 
-        JOptionPane.showMessageDialog(this,
-                "Wrote " + genera.size() + (genera.size() == 1 ? " genus" : " genera") + " to:\n" +
-                        file.getPath() + "\n\n" +
-                        "Fill in the empty columns and load the file back with\n" +
-                        "File > Import Annotations...",
-                "Export Group Template",
-                JOptionPane.INFORMATION_MESSAGE);
+        return file;
     }
 
     /**
@@ -1330,14 +1352,40 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         }
         message.append(".\n");
 
-        if (tipsWithoutAnnotation > 0 && matchCount > 0) {
+        // MyFigTree (Etap 6.22): the tips without a value, grouped by genus - one dictionary row
+        // fixes a whole genus, so that is the useful unit even when hundreds of tips are missing
+        Map<String, List<String>> missingByGenus = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+        for (String tipName : tipsWithoutValue) {
+            String genus = genusOf(tipName);
+            List<String> genusTips = missingByGenus.get(genus);
+            if (genusTips == null) {
+                genusTips = new ArrayList<String>();
+                missingByGenus.put(genus, genusTips);
+            }
+            genusTips.add(tipName);
+        }
+        boolean offerSave = tipsWithoutAnnotation > 0 && matchCount > 0;
+
+        if (offerSave) {
             message.append("\n").append(tipsWithoutAnnotation)
                     .append(tipsWithoutAnnotation == 1 ? " tip of the tree got" : " tips of the tree got")
-                    .append(" no value - neither the name nor the genus is in the file\n")
-                    .append("(or its cells are empty), so the group bar has a gap there:\n");
-            appendList(message, tipsWithoutValue);
-            message.append("To fill the gap: add the genus to the file and import it again, or select\n")
-                    .append("these tips and use Group Bars > Assign to selection...\n");
+                    .append(" no value - the genus is not in the file (or its cells are\n")
+                    .append("empty), so the group bar has a gap there. By genus:\n");
+            for (Map.Entry<String, List<String>> entry : missingByGenus.entrySet()) {
+                List<String> genusTips = entry.getValue();
+                message.append("    ").append(entry.getKey()).append(": ");
+                if (genusTips.size() == 1) {
+                    message.append(genusTips.get(0));
+                } else {
+                    message.append(genusTips.size()).append(" tips");
+                }
+                message.append("\n");
+            }
+            message.append("To fill the gaps: Save missing genera... writes these ")
+                    .append(missingByGenus.size() == 1 ? "genus" : missingByGenus.size() + " genera")
+                    .append(" to a table -\n")
+                    .append("fill in the columns, paste the rows into your dictionary and import it again.\n")
+                    .append("Or select the tips and use Group Bars > Assign to selection...\n");
         }
 
         if (!unmatchedNames.isEmpty()) {
@@ -1358,10 +1406,46 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
                     .append("or bare genus names - the first word of a tip name.");
         }
 
-        JOptionPane.showMessageDialog(this, message.toString(),
-                "Import Annotations",
-                matchCount == 0 || tipsWithoutAnnotation > 0 || !unmatchedNames.isEmpty() ?
-                        JOptionPane.WARNING_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+        int messageType = matchCount == 0 || tipsWithoutAnnotation > 0 || !unmatchedNames.isEmpty() ?
+                JOptionPane.WARNING_MESSAGE : JOptionPane.INFORMATION_MESSAGE;
+
+        // a long report scrolls instead of growing past the screen
+        Object content = message.toString();
+        if (message.toString().split("\n").length > 25) {
+            JTextArea textArea = new JTextArea(message.toString(), 25, 70);
+            textArea.setEditable(false);
+            textArea.setFont(new JLabel().getFont());
+            textArea.setBackground(new JLabel().getBackground());
+            textArea.setCaretPosition(0);
+            content = new JScrollPane(textArea);
+        }
+
+        if (!offerSave) {
+            JOptionPane.showMessageDialog(this, content, "Import Annotations", messageType);
+            return;
+        }
+
+        String[] options = {"Save missing genera...", "OK"};
+        int choice = JOptionPane.showOptionDialog(this, content, "Import Annotations",
+                JOptionPane.DEFAULT_OPTION, messageType, null, options, options[1]);
+        if (choice == 0) {
+            List<String> columns = new ArrayList<String>();
+            for (AnnotationDefinition definition : table.columns.keySet()) {
+                columns.add(definition.getName());
+            }
+            File file = writeGenusTemplate(missingByGenus.keySet(), columns, "brakujace_rodzaje.tsv",
+                    "Genera of the tree that the imported file did not cover", "Save Missing Genera");
+            if (file != null) {
+                JOptionPane.showMessageDialog(this,
+                        "Wrote " + missingByGenus.size() +
+                                (missingByGenus.size() == 1 ? " genus" : " genera") + " to:\n" +
+                                file.getPath() + "\n\n" +
+                                "Fill in the empty columns (in Excel or Notepad), then either paste the\n" +
+                                "rows into your dictionary or load this file with File > Import Annotations...",
+                        "Save Missing Genera",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
     }
 
     private static void appendList(StringBuilder message, List<String> names) {

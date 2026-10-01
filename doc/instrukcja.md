@@ -404,15 +404,28 @@ opisało razem 208 okazów. **Wszystko w porządku** — słownik jest ogólny, 
 drzewo zawiera zwykle tylko część rodzajów.
 
 ```
-4 tips of the tree got no value ... so the group bar has a gap there:
-    Xxx_yyy_Ron123
+4 tips of the tree got no value ... so the group bar has a gap there. By genus:
+    MERspi: 3 tips
+    Xxx: Xxx_yyy_Ron123
 ```
 To jedyna część, która **wymaga działania**: tych okazów słownik nie objął
 (rodzaju nie ma w pliku, ma literówkę albo nazwa okazu zaczyna się od skrótu,
-np. `MERspi`). W tym miejscu pasek grupy będzie miał przerwę. Dwa wyjścia:
-- dopisz brakujący rodzaj do słownika (nowy wiersz: rodzaj, rodzina, rząd)
-  i zaimportuj plik jeszcze raz — przyda się też przy następnych drzewach;
-- albo zaznacz te okazy w drzewie i użyj *Group Bars → Assign to selection…*.
+np. `MERspi`). W tym miejscu pasek grupy będzie miał przerwę. Okazy są
+**pogrupowane po rodzaju** — jeden wiersz w słowniku naprawia cały rodzaj,
+więc nawet setka brakujących okazów to zwykle kilka rodzajów. Przy rodzaju
+z jednym okazem widać od razu jego pełną nazwę. Gdy lista jest długa, okno
+ją przewija zamiast ucinać.
+
+Jak uzupełnić braki:
+- **Save missing genera…** (przycisk w tym oknie) — zapisuje brakujące rodzaje
+  do tabelki z tymi samymi kolumnami, co importowany plik (np. `genus`,
+  `family`, `order`), z pustymi komórkami. Uzupełnij ją w Excelu albo
+  Notatniku i **wklej wiersze do słownika** (`sluzowce.tsv`) — przydadzą się
+  przy następnych drzewach. Potem zaimportuj słownik jeszcze raz. (Można też
+  wczytać samą uzupełnioną tabelkę przez *Import Annotations…* — dopisze
+  brakujące rodziny bez ruszania reszty.)
+- albo zaznacz okazy w drzewie i użyj *Group Bars → Assign to selection…* —
+  wygodne przy jednym, dwóch okazach.
 
 ```
 51 genera from the file do not occur in this tree - normal for a dictionary,
