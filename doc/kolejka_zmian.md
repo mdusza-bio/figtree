@@ -436,6 +436,55 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
 
 ---
 
+## Etap 7 — rycina „jak w artykule o Physarales" (wzór z 2026-10-01)
+
+Wzór: drzewo Myxomycetes z kolorowymi tłami kladów, napisami kladów przy
+prawej krawędzi tła, klamrami rzędów po prawej i kropkami pełnego poparcia.
+
+**Już to mamy:** kropki pełnego poparcia w połowie gałęzi i ukrywanie przy nich
+liczb (*Support Dots*, 6.20); PP < 1 pod gałęzią przy węźle (*Node Labels*:
+*Below branch*, *Offset*, *Sig. Digits*); nazwy kursywą z prostym `var.`/`aff.`
+i bez numerów okazów (*Tip Labels*: *Italic mode*, *Not italic words*,
+*Hide regex*); dwa poziomy grup naraz — tła według jednego atrybutu (klad /
+rodzina), paski według drugiego (rząd) — *Group Bars* + *Backgrounds*; skala;
+eksport PDF.
+
+**Brakuje (kolejność proponowana):**
+
+- [ ] 7.1 🟡 **Własne kolory teł i pasków** (= stare 6.8) — okienko z listą
+  grup i kolorem przy każdej (outgroupy szare, klady jak na wzorze). Kolory
+  zapisują się w `.tree`. Opcjonalnie kolumna `colour` w słowniku (`#E8A0C8`),
+  żeby kolory przechodziły z drzewa na drzewo.
+- [ ] 7.2 🟢 **Tło do prawej krawędzi ryciny**, pod napisami kladów, nie tylko
+  do końca najdłuższej nazwy okazu; **cienka biała przerwa** między sąsiednimi
+  tłami, żeby klady się nie zlewały.
+- [ ] 7.3 🟢 **Tło z przejściem** (gradient: jasne przy węźle → pełny kolor przy
+  prawej krawędzi), jak na wzorze. Do wyboru: płaskie / z przejściem.
+- [ ] 7.4 🟡 **Napisy kladów w tle** — poziomy napis przy prawej krawędzi tła,
+  wyrównany do prawej (`Clade 3 Argentodermataceae`). Tekst z osobnej kolumny
+  tabelki (np. `clade_label`), bo napis bywa inny niż wartość, po której
+  grupujemy; `|` w tekście = nowa linia (`Clade 11|Diacheaceae`). Pogrubienie
+  dla całego napisu albo dla wybranych grup, wielkość czcionki.
+- [ ] 7.5 🟡 **Styl pasków grup: cienka czarna klamra** zamiast grubego
+  kolorowego paska (opcja *Bar / Line*) i **rozstrzelone litery**
+  (`P H Y S A R A L E S`).
+- [ ] 7.6 🟡 **Krótkie grupy, w których nazwa się nie mieści** — łamanie na dwie
+  linie (`ECHINO-` / `STELIALES`) albo zamiana na symbol (`*`, `**`) z objaśnieniem
+  w legendzie (7.7). Symbol można podać w tabelce (kolumna np. `order_label`).
+- [ ] 7.7 🟢 **Legenda / dowolny tekst na rycinie** w wybranym rogu
+  (`* ARGENTODERMATALES`, `** MERIDERMATALES`).
+- [ ] 7.8 ⚪ **Dane — do zrobienia przez użytkowniczkę (z pomocą Claude'a):**
+  tabelka dla tego drzewa: `genus` albo pełna nazwa okazu → `clade`
+  (po czym grupować tła), `clade_label` (napis), `order`. Klady
+  parafiletycznych rodzin (*Lamprodermataceae 1–4*) muszą mieć osobne wartości,
+  inaczej tła się połączą lub rozerwą.
+
+Mniej ważne / do decyzji: kolejność kladów na rycinie (*Order nodes*) i to, czy
+jednogatunkowe klady (*Clade 13*, *Clade 16*) mają mieć wąski pasek tła jak na
+wzorze — dziś też to zrobi, jeśli okaz ma swoją wartość w tabelce.
+
+---
+
 ## Do zrobienia przez użytkowniczkę (stan na 2026-08-25, wieczór)
 
 Lista spisana na jej prośbę na koniec długiej sesji. Nic z tego nie wymaga
