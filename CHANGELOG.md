@@ -107,6 +107,21 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.4 — napisy kladów w tle (2026-10-01)
+Pierwszy punkt ryciny „jak w artykule o Physarales". *Group Bars*, pod
+*Backgrounds*:
+- **Clade names in backgrounds** — nazwa kladu w jego tle, przy prawej
+  krawędzi, do prawej, wyśrodkowana w pionie. Tekst = wartość atrybutu teł;
+  `|` w wartości łamie linię (`Clade 11|Diacheaceae`), `<b>…</b>` pogrubia
+  jeden napis;
+- **Name size** (domyślnie 11 — przy 10 pt i mniej Java na Windowsie nie
+  odróżnia pogrubienia) i **Bold names** (wszystkie naraz);
+- tła sięgają pod kolumnę napisów, paski rzędów przesuwają się za nią.
+
+Zapis w `.tree`: `groupBars.backgroundLabels`, `backgroundLabelSize`,
+`backgroundLabelBold`. Kolejka etapu 7 przejrzana ze wzorem: kropki *At node*,
+7.4 bez osobnej kolumny, 7.6 bez `order_label`, nowa kolejność.
+
 ### Etap 6.22 — okno po imporcie przy wielu brakach (2026-10-01)
 Gdy słownik nie obejmie wielu okazów, okno po *Import Annotations* nie ucina
 już listy po 10 nazwach:

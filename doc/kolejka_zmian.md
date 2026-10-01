@@ -466,11 +466,13 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   dopiero po 7.4: program musi najpierw znać szerokość napisów kladów, a
   przerwa i gradient to ten sam fragment kodu, który dziś maluje prostokąt
   (`GroupBarPainter.paintBackgrounds`).
+  Po 7.4 (2026-10-01) tło sięga już pod napisy kladów; **zostaje tylko biała
+  przerwa**.
 - [ ] 7.3 🟢 **Tło z przejściem** (gradient: biały przy węźle → pełny kolor przy
   prawej krawędzi), jak na wzorze. Obecne *Opacity* staje się mocą koloru przy
   prawym brzegu; na wzorze jest tam kolor pełny, nie pastelowe 25 %. Do wyboru:
   płaskie / z przejściem. Zaokrąglone rogi teł ze wzoru pomijamy — kosmetyka.
-- [ ] 7.4 🟡 **Napisy kladów w tle** — poziomy napis przy prawej krawędzi tła,
+- [x] 7.4 🟡 **Napisy kladów w tle** — poziomy napis przy prawej krawędzi tła,
   wyrównany do prawej, wyśrodkowany w pionie. **Bez osobnej kolumny:** napis
   to po prostu wartość atrybutu, po której grupujemy tła
   (`Clade 3 Argentodermataceae`, `[Clade 2] Echinosteliaceae`); klady
@@ -482,6 +484,12 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   outgroupy nie (znacznik do ustalenia, np. `<b>…</b>`). Wielkość czcionki,
   domyślnie jak nazwy okazów, żeby napis jednorzędowego kladu (*Clade 13*)
   zmieścił się w swoim rzędzie.
+  **Zrobione 2026-10-01**: w panelu *Group Bars* pod *Backgrounds* jest
+  **Clade names in backgrounds** + *Name size* + *Bold names*. Napis = wartość
+  atrybutu teł, `|` łamie linię, `<b>…</b>` pogrubia jeden napis. Tła sięgają
+  od razu pod kolumnę napisów (pierwsza połowa 7.2), paski rzędów przesuwają
+  się za nią. Uwaga: Java na Windowsie rysuje pogrubienie przy 10 pt i mniej
+  tak samo jak zwykły tekst, dlatego domyślny rozmiar to 11.
 - [ ] 7.5 🟡 **Styl pasków grup: cienka czarna klamra** zamiast grubego
   kolorowego paska (opcja *Bar / Line*) i **rozstrzelone litery**. Uwaga: na
   wzorze rozstrzelone jest tylko `P H Y S A R A L E S`, bo ta grupa jest

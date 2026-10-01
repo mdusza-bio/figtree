@@ -44,6 +44,9 @@ public class GroupBarController extends AbstractController {
     public static final String BACKGROUNDS_KEY = "backgrounds";
     public static final String BACKGROUND_ATTRIBUTE_KEY = "backgroundAttribute";
     public static final String BACKGROUND_ALPHA_KEY = "backgroundAlpha";
+    public static final String BACKGROUND_LABELS_KEY = "backgroundLabels";
+    public static final String BACKGROUND_LABEL_SIZE_KEY = "backgroundLabelSize";
+    public static final String BACKGROUND_LABEL_BOLD_KEY = "backgroundLabelBold";
 
     public GroupBarController(final GroupBarPainter painter,
                               final AttributeColourController colourController,
@@ -153,6 +156,34 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        // Etap 7.4: clade names written inside the backgrounds, at their right-hand edge
+        final double defaultLabelSize = PREFS.getDouble(CONTROLLER_KEY + "." + BACKGROUND_LABEL_SIZE_KEY, 11.0);
+        backgroundLabelsCheckBox = new JCheckBox("Clade names in backgrounds");
+        backgroundLabelsCheckBox.setToolTipText("<html>Writes the value of the attribute at the right-hand edge of its<br>" +
+                "background, e.g. <i>Clade 3 Argentodermataceae</i>. In the value, &quot;|&quot; starts<br>" +
+                "a new line and &lt;b&gt;...&lt;/b&gt; makes that one name bold.</html>");
+        backgroundLabelsCheckBox.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setBackgroundLabelsVisible(backgroundLabelsCheckBox.isSelected());
+                enableBackgroundComponents();
+            }
+        });
+
+        backgroundLabelSizeSpinner = new JSpinner(new SpinnerNumberModel(defaultLabelSize, 1.0, 72.0, 1.0));
+        backgroundLabelSizeSpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setBackgroundLabelFontSize(((Number) backgroundLabelSizeSpinner.getValue()).floatValue());
+            }
+        });
+        painter.setBackgroundLabelFontSize((float) defaultLabelSize);
+
+        backgroundLabelBoldCheckBox = new JCheckBox("Bold names");
+        backgroundLabelBoldCheckBox.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setBackgroundLabelBold(backgroundLabelBoldCheckBox.isSelected());
+            }
+        });
+
         // Etap 6.3: assigning a group to a whole clade at once, instead of Annotate tip by tip
         assignButton = new JButton("Assign to selection...");
         assignButton.putClientProperty("JComponent.sizeVariant", "small");
@@ -177,6 +208,9 @@ public class GroupBarController extends AbstractController {
         optionsPanel.addSpanningComponent(backgroundsCheckBox);
         backgroundLabel1 = optionsPanel.addComponentWithLabel("Attribute:", backgroundAttributeCombo);
         backgroundLabel2 = optionsPanel.addComponentWithLabel("Opacity (%):", backgroundAlphaSpinner);
+        optionsPanel.addSpanningComponent(backgroundLabelsCheckBox);
+        backgroundLabel3 = optionsPanel.addComponentWithLabel("Name size:", backgroundLabelSizeSpinner);
+        optionsPanel.addSpanningComponent(backgroundLabelBoldCheckBox);
 
         addComponent(label1);
         addComponent(attributeCombo);
@@ -289,6 +323,11 @@ public class GroupBarController extends AbstractController {
         backgroundAttributeCombo.setEnabled(on);
         backgroundLabel2.setEnabled(on);
         backgroundAlphaSpinner.setEnabled(on);
+        backgroundLabelsCheckBox.setEnabled(on);
+        boolean names = on && backgroundLabelsCheckBox.isSelected();
+        backgroundLabel3.setEnabled(names);
+        backgroundLabelSizeSpinner.setEnabled(names);
+        backgroundLabelBoldCheckBox.setEnabled(names);
     }
 
     private ColourDecorator decoratorFor(String attribute) {
@@ -354,6 +393,9 @@ public class GroupBarController extends AbstractController {
         String bgAttribute = getString(settings, BACKGROUND_ATTRIBUTE_KEY);
         if (bgAttribute != null) backgroundAttributeCombo.setSelectedItem(bgAttribute);
         backgroundAlphaSpinner.setValue((int) Math.round(getDouble(settings, BACKGROUND_ALPHA_KEY, 25.0)));
+        backgroundLabelsCheckBox.setSelected(getBool(settings, BACKGROUND_LABELS_KEY, false));
+        backgroundLabelSizeSpinner.setValue(getDouble(settings, BACKGROUND_LABEL_SIZE_KEY, 11.0));
+        backgroundLabelBoldCheckBox.setSelected(getBool(settings, BACKGROUND_LABEL_BOLD_KEY, false));
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -366,6 +408,9 @@ public class GroupBarController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + BACKGROUNDS_KEY, backgroundsCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_ATTRIBUTE_KEY, backgroundAttributeCombo.getSelectedItem());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_ALPHA_KEY, backgroundAlphaSpinner.getValue());
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABELS_KEY, backgroundLabelsCheckBox.isSelected());
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_SIZE_KEY, backgroundLabelSizeSpinner.getValue());
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_BOLD_KEY, backgroundLabelBoldCheckBox.isSelected());
     }
 
     public String getTitle() {
@@ -394,4 +439,8 @@ public class GroupBarController extends AbstractController {
     private final JSpinner backgroundAlphaSpinner;
     private final JLabel backgroundLabel1;
     private final JLabel backgroundLabel2;
+    private final JCheckBox backgroundLabelsCheckBox;
+    private final JSpinner backgroundLabelSizeSpinner;
+    private final JCheckBox backgroundLabelBoldCheckBox;
+    private final JLabel backgroundLabel3;
 }

@@ -106,6 +106,26 @@ public class GroupBarPainter {
         firePainterChanged();
     }
 
+    /**
+     * MyFigTree (Etap 7.4): horizontal clade names inside the backgrounds, right-aligned at the
+     * right-hand edge, like "Clade 3 Argentodermataceae" in the Physarales figure. The text is the
+     * attribute value itself; "|" starts a new line and "<b>...</b>" makes one name bold.
+     */
+    public void setBackgroundLabelsVisible(boolean backgroundLabelsVisible) {
+        this.backgroundLabelsVisible = backgroundLabelsVisible;
+        firePainterChanged();
+    }
+
+    public void setBackgroundLabelFontSize(float fontSize) {
+        this.backgroundLabelFont = backgroundLabelFont.deriveFont(fontSize);
+        firePainterChanged();
+    }
+
+    public void setBackgroundLabelBold(boolean backgroundLabelBold) {
+        this.backgroundLabelBold = backgroundLabelBold;
+        firePainterChanged();
+    }
+
     /** True if anything is going to be drawn for this layout. */
     public boolean isVisible(TreePane treePane) {
         if (!(treePane.getTreeLayout() instanceof RectilinearTreeLayout)) return false;
@@ -118,9 +138,60 @@ public class GroupBarPainter {
      */
     public double getRequiredRightWidth(Graphics2D g2, TreePane treePane) {
         if (!(treePane.getTreeLayout() instanceof RectilinearTreeLayout)) return 0.0;
-        if (!barsVisible || barAttribute == null) return 0.0;
-        FontMetrics fm = g2.getFontMetrics(font);
-        return gap + barWidth + TEXT_GAP + fm.getAscent() + fm.getDescent();
+        double width = getLabelColumnWidth(g2, treePane);
+        if (barsVisible && barAttribute != null) {
+            FontMetrics fm = g2.getFontMetrics(font);
+            width += gap + barWidth + TEXT_GAP + fm.getAscent() + fm.getDescent();
+        }
+        return width;
+    }
+
+    /**
+     * Width of the column of clade names to the right of the tip labels (0 when it is off):
+     * the widest name plus a gap from the tip labels and a margin inside the right edge.
+     */
+    private double getLabelColumnWidth(Graphics2D g2, TreePane treePane) {
+        if (!backgroundsVisible || backgroundAttribute == null || !backgroundLabelsVisible) return 0.0;
+        RootedTree tree = treePane.getTree();
+        if (tree == null) return 0.0;
+        double widest = 0.0;
+        Set<Object> seen = new HashSet<Object>();
+        for (Node tip : tree.getExternalNodes()) {
+            Object value = getTipValue(tree, tip, backgroundAttribute);
+            if (value == null || !seen.add(value)) continue;
+            CladeLabel label = new CladeLabel(value);
+            FontMetrics fm = g2.getFontMetrics(labelFont(label));
+            for (String line : label.lines) {
+                widest = Math.max(widest, fm.stringWidth(line));
+            }
+        }
+        if (widest == 0.0) return 0.0;
+        return LABEL_COLUMN_GAP + widest + LABEL_INSET;
+    }
+
+    private Font labelFont(CladeLabel label) {
+        int style = (backgroundLabelBold || label.bold) ? Font.BOLD : Font.PLAIN;
+        return backgroundLabelFont.deriveFont(style);
+    }
+
+    /** The clade name taken apart: "|" splits lines, "<b>...</b>" around the text means bold. */
+    private static class CladeLabel {
+        final List<String> lines = new ArrayList<String>();
+        boolean bold = false;
+
+        CladeLabel(Object value) {
+            String text = String.valueOf(value).trim();
+            if (text.toLowerCase().startsWith("<b>")) {
+                bold = true;
+                text = text.substring(3);
+                if (text.toLowerCase().endsWith("</b>")) {
+                    text = text.substring(0, text.length() - 4);
+                }
+            }
+            for (String line : text.split("\\|")) {
+                lines.add(line.trim());
+            }
+        }
     }
 
     // ---- painting -------------------------------------------------------------------------
@@ -137,11 +208,14 @@ public class GroupBarPainter {
         List<Run> runs = computeRuns(treePane, backgroundAttribute);
         if (runs.isEmpty()) return;
 
-        double rightX = getLabelRightX(treePane);
+        // Etap 7.4: the backgrounds reach under the column of clade names, when it is shown
+        double columnWidth = getLabelColumnWidth(g2, treePane);
+        double rightX = getLabelRightX(treePane) + columnWidth;
         // extend under the bars if they are shown, otherwise just a little past the labels
         double extra = (barsVisible && barAttribute != null) ? gap / 2.0 : 2.0;
 
         Paint oldPaint = g2.getPaint();
+        Font oldFont = g2.getFont();
         for (Run run : runs) {
             if (run.value == null) continue;
 
@@ -160,7 +234,25 @@ public class GroupBarPainter {
             g2.setPaint(new Color(c.getRed(), c.getGreen(), c.getBlue(),
                     (int) Math.round(255 * Math.max(0.0, Math.min(1.0, backgroundAlpha)))));
             g2.fill(new Rectangle2D.Double(x0, run.minY, Math.max(0.0, rightX + extra - x0), run.maxY - run.minY));
+
+            if (columnWidth > 0.0) {
+                // the clade name: right-aligned just inside the right edge, centred on the run
+                CladeLabel label = new CladeLabel(run.value);
+                Font labelFont = labelFont(label);
+                FontMetrics fm = g2.getFontMetrics(labelFont);
+                double lineHeight = fm.getAscent() + fm.getDescent();
+                double top = (run.minY + run.maxY) / 2.0 - lineHeight * label.lines.size() / 2.0;
+                g2.setFont(labelFont);
+                g2.setPaint(Color.BLACK);
+                for (int i = 0; i < label.lines.size(); i++) {
+                    String line = label.lines.get(i);
+                    float x = (float) (rightX - LABEL_INSET - fm.stringWidth(line));
+                    float y = (float) (top + i * lineHeight + fm.getAscent());
+                    g2.drawString(line, x, y);
+                }
+            }
         }
+        g2.setFont(oldFont);
         g2.setPaint(oldPaint);
     }
 
@@ -172,7 +264,8 @@ public class GroupBarPainter {
         List<Run> runs = computeRuns(treePane, barAttribute);
         if (runs.isEmpty()) return;
 
-        double barX = getLabelRightX(treePane) + gap;
+        // the bars sit after the clade-name column (7.4), when there is one
+        double barX = getLabelRightX(treePane) + getLabelColumnWidth(g2, treePane) + gap;
 
         Paint oldPaint = g2.getPaint();
         Font oldFont = g2.getFont();
@@ -339,6 +432,9 @@ public class GroupBarPainter {
     }
 
     private static final double TEXT_GAP = 3.0;
+    /** Etap 7.4: space between the longest tip label and the clade names, and inside the right edge. */
+    private static final double LABEL_COLUMN_GAP = 12.0;
+    private static final double LABEL_INSET = 4.0;
 
     private boolean barsVisible = false;
     private boolean backgroundsVisible = false;
@@ -351,6 +447,10 @@ public class GroupBarPainter {
     private double backgroundAlpha = 0.25;
     private boolean textDownwards = false;
     private Font font = new Font("sansserif", Font.PLAIN, 10);
+    private boolean backgroundLabelsVisible = false;
+    private boolean backgroundLabelBold = false;
+    // 11 and not 10: on Windows, Java draws bold text at 10 pt and below with the same strokes as plain
+    private Font backgroundLabelFont = new Font("sansserif", Font.PLAIN, 11);
 
     private final Map<String, Map<Object, Color>> paletteCache = new HashMap<String, Map<Object, Color>>();
     private final List<PainterListener> listeners = new ArrayList<PainterListener>();

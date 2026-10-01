@@ -357,6 +357,17 @@ Działa tylko w układzie prostokątnym.
   W artykułach spotyka się obie wersje — wybierz tę, której wymaga czasopismo.
 - **Backgrounds** — pastelowe tła za kladami, od wspólnego przodka do krawędzi
   etykiet; **Attribute** i **Opacity (%)** osobno dla tła.
+- **Clade names in backgrounds** (7.4) — nazwa kladu wpisana w jego tło, przy
+  prawej krawędzi, wyrównana do prawej i wyśrodkowana w pionie. Napis to po
+  prostu wartość atrybutu teł (np. `Clade 3 Argentodermataceae`), więc nie
+  trzeba osobnej kolumny. W wartości `|` zaczyna nową linię
+  (`Clade 11|Diacheaceae`), a `<b>…</b>` wokół całości pogrubia ten jeden
+  napis. Tła sięgają wtedy pod kolumnę napisów, a paski rzędów stoją za nią.
+  - **Name size** — wielkość napisu (domyślnie 11). Przy 10 i mniej Java na
+    Windowsie rysuje pogrubienie tak samo jak zwykły tekst — to nie błąd
+    programu, wystarczy dać 11.
+  - **Bold names** — pogrubia wszystkie napisy naraz; `<b>…</b>` działa
+    niezależnie, dla wybranych.
 - Kolory: na razie **nie da się ich wybrać** — paski i tła biorą wbudowaną paletę
   pastelową, w kolejności pojawiania się grup. Lista *Colour by* w *Appearance*
   nie pokazuje atrybutów liści, więc tamtą drogą się do nich nie dostaniesz.
