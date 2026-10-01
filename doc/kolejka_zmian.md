@@ -405,6 +405,29 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   odtwarza ten plik, a bez niego — wbudowany zestaw z 2026-08-25 (powrót:
   **Back to original preset** w okienku zapisu). Pomijane ukorzenienie,
   atrybut poparcia wykrywany na nowo per drzewo. Zapis przez plik tymczasowy.
+- [x] 6.19 🟡 **Import Annotations i Group Bars „nie działały" przy pokazie** —
+  zgłoszone 2026-09-25. Dopasowanie działało; winne były pułapki bez komunikatu:
+  lista *Attribute* w Group Bars zaczynała się od *Names* (paski nic nie
+  rysowały, dopóki ktoś nie wybrał `family`), plik Excela „Tekst Unicode" się
+  nie wczytywał, niewypełniony szablon dawał mylący komunikat. **Zrobione**
+  (commit `b053795`): w liście tylko prawdziwe atrybuty i pierwszy wybrany sam,
+  podpowiedź przy pustej liście, odczyt UTF-16, jasny komunikat przy `.xlsx`.
+- [x] 6.20 🟡 **Kropki pełnego poparcia (panel *Support Dots*)** — zgłoszone
+  2026-10-01: czarna kropka w połowie gałęzi, gdy poparcie osiągnęło maksimum
+  w jednej analizie albo w obu (BS 100 i PP 1). **Zrobione**: nowy panel pod
+  *Node Labels* — dwa atrybuty z progami, pozycja *Middle of branch / At node*,
+  wielkość, opcja **Hide values at dots** (liczby znikają tam, gdzie jest
+  kropka). Nowe pliki `SupportDotPainter.java`, `SupportDotController.java`.
+  Zapisuje się w `.tree` (`supportDots.*`). **Czeka na przeklikanie.**
+- [x] 6.21 🟢 **Drobne porządki z 2026-10-01** — **Zrobione**:
+  - Group Bars: **Text reads** — napis grupy od dołu do góry (litery w stronę
+    drzewa, jak dotąd) albo od góry do dołu (litery od drzewa);
+  - Node Labels / Branch Labels: *Replace '_' / Hide parts / Hide regex* widoczne
+    tylko przy *Display = Names* (przy liczbach nic nie robiły). W *Tip Labels*
+    *Format* i *Sig. Digits* zostają — decyzja użytkowniczki;
+  - okno po imporcie: wymienia z nazwy okazy, które nie dostały grupy (to jedyna
+    rzecz do poprawienia), a rodzaje ze słownika nieobecne w drzewie podaje tylko
+    liczbą, bez ostrzeżenia. Opis okna w `instrukcja.md` §9.
 
 ---
 
@@ -448,9 +471,12 @@ przemianowany na `HOLOTYPE`. Wystarczy dopisać spację albo kliknąć
   bez zaznaczenia czyści wszystkie podświetlenia, z zaznaczonym kladem — tylko jego.
 - [ ] **Style selected tips…** (6.11) — ręczna kursywa/pogrubienie na pojedynczym
   liściu. Zrobione, ale ani razu nieużyte (w praktyce wystarczyło *Not italic words*).
-- [ ] **Group Bars** (6.3) — paski grup i import rodzin z pliku. Zrobione
-  2026-08-23, nadal nieprzeklikane. Pliki testowe: `doc/przyklad.tree`,
-  `doc/przyklad_rodziny.tsv`.
+- [x] **Group Bars** (6.3) — paski grup i import rodzin z pliku. Przeklikane
+  2026-09-25 / 2026-10-01 na własnym drzewie ze słownikiem `sluzowce.tsv`;
+  poprawki z tego przeklikania to 6.19 i 6.21.
+- [ ] **Support Dots** (6.20) — kropki pełnego poparcia na prawdziwym drzewie
+  ML+Bayes: czy próg dla PP to `1` (czy wartości są zapisane jako 0–1, czy 0–100),
+  czy kropka w połowie gałęzi wygląda jak w artykułach.
 
 ### 4. Decyzje dla mnie (jedno zdanie wystarczy)
 

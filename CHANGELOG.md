@@ -107,6 +107,31 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 6.20 / 6.21 — kropki pełnego poparcia, kierunek napisów grup (2026-10-01)
+Nowy panel **Support Dots** (zaraz pod *Node Labels*):
+- czarna kropka na gałęzi, która osiągnęła **maksymalne poparcie** — w jednej
+  analizie (*Support* + *Dot if >=*, domyślnie 100) albo w obu (*and support*,
+  np. PP ≥ 1). Kropki nie trafiają na liście ani na korzeń;
+- **Position**: *Middle of branch* (jak w większości artykułów) albo *At node*;
+- **Dot size** — średnica w punktach;
+- **Hide values at dots** — liczby w *Node Labels* / *Branch Labels* znikają przy
+  gałęziach z kropką, zostają tylko przy słabszych kladach.
+
+*Group Bars*: nowe pole **Text reads** — napis z nazwą grupy od dołu do góry
+(litery zwrócone do drzewa, jak dotąd) albo od góry do dołu (litery od drzewa).
+
+*Node Labels* / *Branch Labels*: **Replace '_' with space**, **Hide parts**
+i **Hide regex** widać tylko przy *Display = Names* — przy liczbach poparcia
+te opcje nic nie robiły, a zajmowały miejsce. *Tip Labels* bez zmian.
+
+Okno po *Import Annotations* czytelniejsze: z nazwy wymienia **okazy, które nie
+dostały grupy** (to jedyna rzecz do poprawienia), a rodzaje ze słownika, których
+nie ma w drzewie, podaje tylko liczbą, z dopiskiem, że to normalne. Ostrzeżenie
+(żółty trójkąt) tylko wtedy, gdy rzeczywiście jest coś do zrobienia.
+
+Wszystkie nowe ustawienia zapisują się w `.tree` (`supportDots.*`,
+`groupBars.textDirection`); starsze pliki otwierają się jak dotąd.
+
 ### Etap 6.19 — Group Bars i Import Annotations „nie działały" (2026-09-25)
 **Skąd się wzięło.** Przy pokazywaniu programu współpracownikowi import i paski
 grup sprawiały wrażenie zepsutych. Test automatyczny (import → Group Bars →

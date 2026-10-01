@@ -92,6 +92,15 @@ public class GroupBarPainter {
         firePainterChanged();
     }
 
+    /**
+     * MyFigTree (Etap 6.20): which way the group names run. Upwards (the default) puts the tops of
+     * the letters towards the tree; downwards turns them to face away from it.
+     */
+    public void setTextDownwards(boolean textDownwards) {
+        this.textDownwards = textDownwards;
+        firePainterChanged();
+    }
+
     public void setBackgroundAlpha(double backgroundAlpha) {
         this.backgroundAlpha = backgroundAlpha;
         firePainterChanged();
@@ -182,13 +191,17 @@ public class GroupBarPainter {
             String text = String.valueOf(run.value);
             double textWidth = fm.stringWidth(text);
             double centreY = (run.minY + run.maxY) / 2.0;
-            // baseline of the rotated text sits to the right of the bar
-            double textX = barX + barWidth + TEXT_GAP + fm.getAscent();
-
             g2.setPaint(Color.BLACK);
             AffineTransform t = new AffineTransform(oldTransform);
-            t.translate(textX, centreY + textWidth / 2.0);
-            t.rotate(-Math.PI / 2.0);
+            if (textDownwards) {
+                // read top to bottom: the letters stand away from the bar, baseline next to it
+                t.translate(barX + barWidth + TEXT_GAP + fm.getDescent(), centreY - textWidth / 2.0);
+                t.rotate(Math.PI / 2.0);
+            } else {
+                // read bottom to top: the letters lean on the bar, baseline on the far side
+                t.translate(barX + barWidth + TEXT_GAP + fm.getAscent(), centreY + textWidth / 2.0);
+                t.rotate(-Math.PI / 2.0);
+            }
             g2.setTransform(t);
             g2.drawString(text, 0, 0);
             g2.setTransform(oldTransform);
@@ -336,6 +349,7 @@ public class GroupBarPainter {
     private double barWidth = 8.0;
     private double gap = 6.0;
     private double backgroundAlpha = 0.25;
+    private boolean textDownwards = false;
     private Font font = new Font("sansserif", Font.PLAIN, 10);
 
     private final Map<String, Map<Object, Color>> paletteCache = new HashMap<String, Map<Object, Color>>();

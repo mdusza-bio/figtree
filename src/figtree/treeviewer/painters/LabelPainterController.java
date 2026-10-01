@@ -160,6 +160,7 @@ public class LabelPainterController extends AbstractController {
             public void attributeComboChanged() {
                 String attribute = (String) displayAttributeCombo.getSelectedItem();
                 labelPainter.setDisplayAttribute(attribute);
+                updateNameOptions();
             }
         });
 
@@ -543,6 +544,9 @@ public class LabelPainterController extends AbstractController {
         optionsPanel.addComponent(replaceUnderscoresCheck, true);
         final JLabel label8 = optionsPanel.addComponentWithLabel("Hide parts:", hidePartsText);
         final JLabel label9 = optionsPanel.addComponentWithLabel("Hide regex:", hideRegexText);
+        hidePartsLabel = label8;
+        hideRegexLabel = label9;
+        updateNameOptions();
 
         if (italicPartsSpinner != null) {
             addComponent(optionsPanel.addComponentWithLabel("Italic mode:", italicModeCombo));
@@ -933,6 +937,24 @@ public class LabelPainterController extends AbstractController {
         private final java.util.List<ActionListener> listeners = new ArrayList<ActionListener>();
     }
 
+    /**
+     * MyFigTree (Etap 6.20): Replace '_', Hide parts and Hide regex only ever change names. In the
+     * node and branch label panels the values shown are almost always numbers (support), where
+     * these did nothing at all - so there they appear only while Display is set to Names.
+     */
+    private void updateNameOptions() {
+        if (intent == LabelPainter.PainterIntent.TIP || hidePartsLabel == null) {
+            return;
+        }
+        boolean names = LabelPainter.NAMES.equals(displayAttributeCombo.getSelectedItem());
+        replaceUnderscoresCheck.setVisible(names);
+        hidePartsLabel.setVisible(names);
+        hidePartsText.setVisible(names);
+        hideRegexLabel.setVisible(names);
+        hideRegexText.setVisible(names);
+        optionsPanel.revalidate();
+    }
+
     private void applyThreshold() {
         String text = thresholdText.getText().trim().replace(',', '.');
         Double threshold = null;
@@ -1189,6 +1211,8 @@ public class LabelPainterController extends AbstractController {
     private final JCheckBox tipPathCheck;
 
     private final JCheckBox replaceUnderscoresCheck;
+    private JLabel hidePartsLabel = null;
+    private JLabel hideRegexLabel = null;
     private final JTextField hidePartsText;
     private final JTextField hideRegexText;
 

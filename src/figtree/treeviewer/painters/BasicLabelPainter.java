@@ -197,6 +197,12 @@ public class BasicLabelPainter extends LabelPainter<Node> {
      * the first value is below the "show only if >=" threshold).
      */
     protected String getLabel(Tree tree, Node node) {
+        // MyFigTree (Etap 6.20): the dot already says "full support" - no number needed there
+        if (supportDotPainter != null && supportDotPainter.isHidingLabels() &&
+                supportDotPainter.hasDot(tree, node)) {
+            return null;
+        }
+
         Object value1 = getValue(tree, node, displayAttribute);
 
         if (showThreshold != null) {
@@ -572,6 +578,11 @@ public class BasicLabelPainter extends LabelPainter<Node> {
 
     public static final String NONE = "None";
 
+    /** MyFigTree (Etap 6.20): labels of branches with a support dot can be left out. */
+    public void setSupportDotPainter(SupportDotPainter supportDotPainter) {
+        this.supportDotPainter = supportDotPainter;
+    }
+
     public void setShowThreshold(Double showThreshold) {
         this.showThreshold = showThreshold;
         firePainterChanged();
@@ -588,6 +599,7 @@ public class BasicLabelPainter extends LabelPainter<Node> {
     }
 
     private Double showThreshold = null;
+    private SupportDotPainter supportDotPainter = null;
     private String secondAttribute = NONE;
     private SecondValueLayout secondValueLayout = SecondValueLayout.SAME_LINE;
 

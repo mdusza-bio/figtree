@@ -97,6 +97,13 @@ public class FigTreePanel extends JPanel {
         controlPalette.addController(new LabelPainterController("Node Labels", "nodeLabels", nodeLabelPainter, frame, attributeColourController, treeViewer));
         treeViewer.setNodeLabelPainter(nodeLabelPainter);
 
+        // MyFigTree (Etap 6.20): dots on fully supported branches, right below the node labels
+        // they replace; the label painters are told about it below
+        final SupportDotPainter supportDotPainter = new SupportDotPainter();
+        controlPalette.addController(new SupportDotController(supportDotPainter, treeViewer));
+        treeViewer.setSupportDotPainter(supportDotPainter);
+        nodeLabelPainter.setSupportDotPainter(supportDotPainter);
+
         // Create a node shape painter and its controller
         final NodeShapePainter nodeShapePainter = new NodeShapePainter();
         nodeShapePainter.setVisible(false);
@@ -120,6 +127,7 @@ public class FigTreePanel extends JPanel {
         branchLabelPainter.setVisible(false);
         controlPalette.addController(new LabelPainterController("Branch Labels", "branchLabels", branchLabelPainter, frame, attributeColourController, treeViewer));
         treeViewer.setBranchLabelPainter(branchLabelPainter);
+        branchLabelPainter.setSupportDotPainter(supportDotPainter);
 
         // Create a scale controller
         final ScaleBarPainter scaleBarPainter = new ScaleBarPainter();

@@ -36,6 +36,11 @@ public class GroupBarController extends AbstractController {
     public static final String BAR_WIDTH_KEY = "barWidth";
     public static final String GAP_KEY = "gap";
     public static final String FONT_SIZE_KEY = "fontSize";
+    public static final String TEXT_DIRECTION_KEY = "textDirection";
+    private static final String TEXT_UP_KEY = "UP";
+    private static final String TEXT_DOWN_KEY = "DOWN";
+    private static final String TEXT_UP = "Upwards, facing tree";
+    private static final String TEXT_DOWN = "Downwards, facing away";
     public static final String BACKGROUNDS_KEY = "backgrounds";
     public static final String BACKGROUND_ATTRIBUTE_KEY = "backgroundAttribute";
     public static final String BACKGROUND_ALPHA_KEY = "backgroundAlpha";
@@ -124,6 +129,14 @@ public class GroupBarController extends AbstractController {
         });
         painter.setFontSize((float) defaultFontSize);
 
+        // Etap 6.20: group names running up (facing the tree) or down (facing away)
+        textDirectionCombo = new JComboBox(new String[]{TEXT_UP, TEXT_DOWN});
+        textDirectionCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                painter.setTextDownwards(TEXT_DOWN.equals(textDirectionCombo.getSelectedItem()));
+            }
+        });
+
         backgroundsCheckBox = new JCheckBox("Backgrounds");
         backgroundsCheckBox.setSelected(painter.isBackgroundsVisible());
         backgroundsCheckBox.addChangeListener(new ChangeListener() {
@@ -159,6 +172,7 @@ public class GroupBarController extends AbstractController {
         final JLabel label2 = optionsPanel.addComponentWithLabel("Bar width:", barWidthSpinner);
         final JLabel label3 = optionsPanel.addComponentWithLabel("Gap from labels:", gapSpinner);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
+        final JLabel label5 = optionsPanel.addComponentWithLabel("Text reads:", textDirectionCombo);
         optionsPanel.addSeparator();
         optionsPanel.addSpanningComponent(backgroundsCheckBox);
         backgroundLabel1 = optionsPanel.addComponentWithLabel("Attribute:", backgroundAttributeCombo);
@@ -172,6 +186,8 @@ public class GroupBarController extends AbstractController {
         addComponent(gapSpinner);
         addComponent(label4);
         addComponent(fontSizeSpinner);
+        addComponent(label5);
+        addComponent(textDirectionCombo);
         enableComponents(titleCheckBox.isSelected());
         enableBackgroundComponents();
         updateHint();
@@ -333,6 +349,7 @@ public class GroupBarController extends AbstractController {
         barWidthSpinner.setValue(getDouble(settings, BAR_WIDTH_KEY, 8.0));
         gapSpinner.setValue(getDouble(settings, GAP_KEY, 6.0));
         fontSizeSpinner.setValue(getDouble(settings, FONT_SIZE_KEY, 10.0));
+        textDirectionCombo.setSelectedItem(TEXT_DOWN_KEY.equals(getString(settings, TEXT_DIRECTION_KEY)) ? TEXT_DOWN : TEXT_UP);
         backgroundsCheckBox.setSelected(getBool(settings, BACKGROUNDS_KEY, false));
         String bgAttribute = getString(settings, BACKGROUND_ATTRIBUTE_KEY);
         if (bgAttribute != null) backgroundAttributeCombo.setSelectedItem(bgAttribute);
@@ -345,6 +362,7 @@ public class GroupBarController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + BAR_WIDTH_KEY, barWidthSpinner.getValue());
         settings.put(CONTROLLER_KEY + "." + GAP_KEY, gapSpinner.getValue());
         settings.put(CONTROLLER_KEY + "." + FONT_SIZE_KEY, fontSizeSpinner.getValue());
+        settings.put(CONTROLLER_KEY + "." + TEXT_DIRECTION_KEY, TEXT_DOWN.equals(textDirectionCombo.getSelectedItem()) ? TEXT_DOWN_KEY : TEXT_UP_KEY);
         settings.put(CONTROLLER_KEY + "." + BACKGROUNDS_KEY, backgroundsCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_ATTRIBUTE_KEY, backgroundAttributeCombo.getSelectedItem());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_ALPHA_KEY, backgroundAlphaSpinner.getValue());
@@ -369,6 +387,7 @@ public class GroupBarController extends AbstractController {
     private final JSpinner barWidthSpinner;
     private final JSpinner gapSpinner;
     private final JSpinner fontSizeSpinner;
+    private final JComboBox textDirectionCombo;
 
     private final JCheckBox backgroundsCheckBox;
     private final JComboBox backgroundAttributeCombo;

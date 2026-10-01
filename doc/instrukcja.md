@@ -184,7 +184,27 @@ Wygląd:
 - **Highlight names containing** — lista fragmentów nazw po przecinku; pasujące
   liście dostają wyróżnienie (pogrubienie / kolor) ustawione w **Highlight style**.
 
+Opcje z oryginalnego FigTree (przy nazwach okazów zwykle niepotrzebne):
+- **Format** / **Sig. Digits** — jak wypisywać **liczby** (dziesiętnie, naukowo,
+  procent; ile cyfr po przecinku). Działają tylko wtedy, gdy w *Display* wybierzesz
+  coś liczbowego zamiast nazw (np. *Node ages* przy drzewie datowanym). Przy
+  nazwach okazów nic nie zmieniają.
+- **Box Size** — działa tylko przy *Display* = **Solid box**: zamiast nazwy przy
+  każdym liściu rysuje się kolorowy prostokąt (kolor wg *Colour by*), np. pasek
+  kolorów regionu albo żywiciela. *Box Size* to długość tego prostokąta w punktach.
+
 ## 6. Panele *Node Labels* i *Branch Labels* (poparcie)
+
+Oba panele umieją prawie to samo: wartość poparcia można pokazać przy węźle
+(*Node Labels*) albo na gałęzi (*Branch Labels*). Do rycin używaj **Node
+Labels** — tylko tam są *Position*, *Avoid overlap* i *White backing*.
+
+**Replace '_' with space, Hide parts, Hide regex** są tu widoczne tylko wtedy,
+gdy *Display* = **Names**. Te opcje czyszczą **nazwy**, a w tych panelach
+prawie zawsze wyświetla się liczba (bootstrap, PP), w której nie ma czego
+czyścić. *Names* pojawia się na liście tylko wtedy, gdy węzły wewnętrzne
+w pliku drzewa mają wpisane **słowne** nazwy, np. `(A,B)Physaraceae:0.1` —
+w drzewach z RAxML-a, IQ-TREE czy MrBayesa w tym miejscu stoją liczby.
 
 - **Position** (tylko *Node Labels*) — *At node / Above branch / Below branch*.
 - **Offset X / Offset Y** — odsunięcie etykiety od węzła i od linii gałęzi
@@ -280,10 +300,36 @@ overlap* jest od ostatnich, pojedynczych kolizji — nie odwrotnie.
   *Min tip spacing* rozsuwa **liście**, a wartości poparcia siedzą na węzłach
   wewnętrznych, które mogą leżeć znacznie bliżej siebie niż liście.
 
+### Kropki pełnego poparcia: panel *Support Dots*
+
+Panel leży zaraz pod *Node Labels*. Rysuje czarną kropkę na każdej gałęzi,
+która osiągnęła **maksymalne poparcie** — tak jak na wielu rycinach
+w publikacjach, gdzie kropka zastępuje „100" albo „100 / 1".
+
+- **Support** — atrybut z wartością poparcia (np. `bootstrap` albo `label` —
+  ta nazwa, którą podałaś przy otwieraniu pliku RAxML-a). **Dot if >=** —
+  od jakiej wartości jest kropka; domyślnie `100`.
+- **and support** — druga analiza (np. `posterior` / `pp` z MrBayesa).
+  Domyślnie *None* = kropka zależy tylko od pierwszej wartości. Gdy wybierzesz
+  drugą wartość, kropka pojawia się tylko tam, gdzie **obie** osiągnęły próg
+  (domyślnie `100` i `1`). Ułamki wpisuj z kropką (`0.95`), jak wszędzie.
+- **Position** — **Middle of branch** (w połowie gałęzi prowadzącej do kladu,
+  jak w większości artykułów) albo **At node** (na samym węźle).
+- **Dot size** — średnica kropki w punktach.
+- **Hide values at dots** — przy gałęziach z kropką liczby w *Node Labels* /
+  *Branch Labels* znikają, więc pełne poparcie oznacza sama kropka, a liczby
+  zostają tylko przy słabszych kladach. W podpisie ryciny warto napisać np.
+  „kropka = BS 100 i PP 1,0".
+
+Kropki nie trafiają na liście ani na korzeń. Wartość zapisana jako `0.99999`
+(MrBayes czasem tak zaokrągla) liczy się jak `1`.
+
 ## 7. Panele *Node Shapes* / *Tip Shapes* (kropki)
 
 - **Threshold attribute** + **Show only if >=** — kropka pojawia się tylko tam,
   gdzie wybrany atrybut osiąga próg, np. czarne kropki na węzłach z bootstrap ≥ 95.
+  To starsze, prostsze narzędzie: kropka zawsze na węźle i tylko według jednej
+  wartości. Do kropek pełnego poparcia lepszy jest panel *Support Dots* (wyżej).
 
 ## 8. Panel *Group Bars* (paski grup)
 
@@ -302,6 +348,13 @@ Działa tylko w układzie prostokątnym.
 - **Bar width** — grubość paska (pt).
 - **Gap from labels** — odstęp paska od najdłuższej nazwy (pt).
 - **Font size** — wielkość napisu na pasku.
+- **Text reads** — kierunek napisu z nazwą grupy:
+  - *Upwards, facing tree* (domyślnie) — czyta się od dołu do góry, góra liter
+    zwrócona w stronę drzewa;
+  - *Downwards, facing away* — czyta się od góry do dołu, góra liter zwrócona
+    na zewnątrz, w stronę brzegu strony.
+
+  W artykułach spotyka się obie wersje — wybierz tę, której wymaga czasopismo.
 - **Backgrounds** — pastelowe tła za kladami, od wspólnego przodka do krawędzi
   etykiet; **Attribute** i **Opacity (%)** osobno dla tła.
 - Kolory: na razie **nie da się ich wybrać** — paski i tła biorą wbudowaną paletę
@@ -336,10 +389,44 @@ Arcyria	Arcyriaceae	Trichiales
   najpierw zapisać jako tekst.
 - Puste wiersze, cudzysłowy i wiersze zaczynające się od `#` nie przeszkadzają.
 - Pusta komórka = brak atrybutu, czyli pasek grupy się w tym miejscu przerywa.
-- Po wczytaniu okno mówi, **ile nazw udało się dopasować** (osobno licząc
-  dopasowania po rodzaju i liczbę objętych nimi okazów) i wypisuje nazwy, których
-  w drzewie nie ma. Jeśli widzisz „Matched 0 of…", prawie zawsze znaczy to, że
-  w pierwszej kolumnie są nazwy w innej postaci niż w drzewie.
+- Po wczytaniu okno mówi, **ile nazw udało się dopasować**. Jeśli widzisz
+  „Matched 0 of…", prawie zawsze znaczy to, że w pierwszej kolumnie są nazwy
+  w innej postaci niż w drzewie.
+
+#### Jak czytać okno po imporcie (na przykładzie słownika `sluzowce.tsv`)
+
+```
+Matched 14 of 65 names in the file to tips of the tree
+(14 of them as genus names, covering 208 tips).
+```
+Słownik zna 65 rodzajów, a w tym drzewie występuje 14 z nich. Te 14 rodzajów
+opisało razem 208 okazów. **Wszystko w porządku** — słownik jest ogólny, a jedno
+drzewo zawiera zwykle tylko część rodzajów.
+
+```
+4 tips of the tree got no value ... so the group bar has a gap there:
+    Xxx_yyy_Ron123
+```
+To jedyna część, która **wymaga działania**: tych okazów słownik nie objął
+(rodzaju nie ma w pliku, ma literówkę albo nazwa okazu zaczyna się od skrótu,
+np. `MERspi`). W tym miejscu pasek grupy będzie miał przerwę. Dwa wyjścia:
+- dopisz brakujący rodzaj do słownika (nowy wiersz: rodzaj, rodzina, rząd)
+  i zaimportuj plik jeszcze raz — przyda się też przy następnych drzewach;
+- albo zaznacz te okazy w drzewie i użyj *Group Bars → Assign to selection…*.
+
+```
+51 genera from the file do not occur in this tree - normal for a dictionary,
+nothing to do about it.
+```
+Rodzaje ze słownika, których nie ma w tym drzewie. **Nic nie trzeba robić.**
+
+Nazwy wypisane pod nagłówkiem *Not found in the tree (check the spelling)*
+to pełne nazwy okazów z pliku, których nie ma w drzewie — tu zwykle chodzi
+o literówkę albo o inną wersję nazwy.
+
+> Wersje programu sprzed 2026-10-01 wypisywały te 51 rodzajów jako listę
+> „Not found in the tree" z żółtym trójkątem ostrzeżenia, a 4 okazów bez grupy
+> nie wymieniała z nazwy. Wyglądało to na błąd, choć import się udał.
 - Atrybuty zapisują się przy *Save* w pliku `.tree`, więc następnym razem są już
   na miejscu.
 

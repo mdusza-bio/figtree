@@ -107,6 +107,13 @@ public class AttributeComboHelper {
         return new AttributeComboHelper(attributeComboBox, treeViewer, null, intent, false, false, false);
     }
 
+    /** As above, with a first entry such as "None" that is always there. */
+    public static AttributeComboHelper attributesOnly(final JComboBox attributeComboBox, final TreeViewer treeViewer,
+                                                      final String defaultOption,
+                                                      final LabelPainter.PainterIntent intent) {
+        return new AttributeComboHelper(attributeComboBox, treeViewer, defaultOption, intent, false, false, false);
+    }
+
     private AttributeComboHelper(final JComboBox attributeComboBox, final TreeViewer treeViewer,
                                  final String defaultOption,
                                  final LabelPainter.PainterIntent intent,

@@ -755,6 +755,10 @@ public class DefaultTreeViewer extends TreeViewer {
         treePane.setGroupBarPainter(groupBarPainter);
     }
 
+    public void setSupportDotPainter(SupportDotPainter supportDotPainter) {
+        treePane.setSupportDotPainter(supportDotPainter);
+    }
+
     public void setLegendPainter(LegendPainter legendPainter) {
         treePane.setLegendPainter(legendPainter);
 //        legendPainter.setupAttributes(trees);

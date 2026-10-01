@@ -1416,6 +1416,14 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return groupBarPainter;
     }
 
+    // MyFigTree (Etap 6.20): dots on fully supported branches
+    public void setSupportDotPainter(SupportDotPainter supportDotPainter) {
+        supportDotPainter.addPainterListener(this);
+        this.supportDotPainter = supportDotPainter;
+        recalibrate();
+        repaint();
+    }
+
     /** The transform from tree-layout space to screen space (valid after calibration). */
     public AffineTransform getTreeTransform() {
         return transform;
@@ -2143,6 +2151,11 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         if (groupBarPainter != null && groupBarPainter.isVisible(this)) {
             groupBarPainter.paintBars(g2, this);
             g2.setTransform(oldTransform);
+        }
+
+        // MyFigTree (Etap 6.20): support dots on top of the branches, under the node labels
+        if (supportDotPainter != null && supportDotPainter.isVisible()) {
+            supportDotPainter.paint(g2, this);
         }
 
         // Paint node labels
@@ -3203,6 +3216,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
     private LegendPainter legendPainter = null;
     private GroupBarPainter groupBarPainter = null;
+    private SupportDotPainter supportDotPainter = null;
     private Rectangle2D legendBounds = new Rectangle2D.Double();
 
     private Rectangle2D topPanelBounds = new Rectangle2D.Double();

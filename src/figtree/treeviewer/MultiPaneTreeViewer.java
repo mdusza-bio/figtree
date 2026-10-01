@@ -415,6 +415,13 @@ public class MultiPaneTreeViewer extends TreeViewer {
         fireTreeSettingsChanged();
     }
 
+    public void setSupportDotPainter(SupportDotPainter supportDotPainter) {
+        for (TreePane treePane : treePanes) {
+            treePane.setSupportDotPainter(supportDotPainter);
+        }
+        fireTreeSettingsChanged();
+    }
+
     public void setLegendPainter(LegendPainter legendPainter) {
         for (TreePane treePane : treePanes) {
             treePane.setLegendPainter(legendPainter);

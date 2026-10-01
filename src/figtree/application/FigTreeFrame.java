@@ -1256,11 +1256,40 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         for (List<Taxon> rowTaxa : resolved.values()) {
             annotatedTaxa.addAll(rowTaxa);
         }
-        int tipsWithoutAnnotation = 0;
+        // MyFigTree (Etap 6.20): the tips left without any value are what the user has to act on,
+        // so name them - a dictionary row with empty cells does not count as a value either
+        List<String> tipsWithoutValue = new ArrayList<String>();
         for (Taxon taxon : taxonByName.values()) {
-            if (!annotatedTaxa.contains(taxon)) {
-                tipsWithoutAnnotation++;
+            boolean hasValue = false;
+            if (annotatedTaxa.contains(taxon)) {
+                for (Map<Taxon, Object> values : annotations.values()) {
+                    if (values.containsKey(taxon)) {
+                        hasValue = true;
+                        break;
+                    }
+                }
             }
+            if (!hasValue) {
+                tipsWithoutValue.add(taxon.getName());
+            }
+        }
+        int tipsWithoutAnnotation = tipsWithoutValue.size();
+
+        // a genus of a dictionary that is not in this tree is normal; a full specimen name that is
+        // not in the tree is probably a typo
+        List<String> unmatchedGenera = new ArrayList<String>();
+        List<String> unmatchedNames = new ArrayList<String>();
+        for (String rowName : unmatched) {
+            if (isSingleWord(rowName)) {
+                unmatchedGenera.add(rowName);
+            } else {
+                unmatchedNames.add(rowName);
+            }
+        }
+        if (matchCount == 0) {
+            // nothing matched at all - then every name is worth showing
+            unmatchedNames = unmatched;
+            unmatchedGenera = new ArrayList<String>();
         }
 
         StringBuilder message = new StringBuilder();
@@ -1301,21 +1330,26 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         }
         message.append(".\n");
 
-        if (tipsWithoutAnnotation > 0) {
-            message.append(tipsWithoutAnnotation)
-                    .append(tipsWithoutAnnotation == 1 ? " tip of the tree is" : " tips of the tree are")
-                    .append(" not listed in the file - group bars will be broken there.\n");
+        if (tipsWithoutAnnotation > 0 && matchCount > 0) {
+            message.append("\n").append(tipsWithoutAnnotation)
+                    .append(tipsWithoutAnnotation == 1 ? " tip of the tree got" : " tips of the tree got")
+                    .append(" no value - neither the name nor the genus is in the file\n")
+                    .append("(or its cells are empty), so the group bar has a gap there:\n");
+            appendList(message, tipsWithoutValue);
+            message.append("To fill the gap: add the genus to the file and import it again, or select\n")
+                    .append("these tips and use Group Bars > Assign to selection...\n");
         }
 
-        if (!unmatched.isEmpty()) {
-            message.append("\nNot found in the tree:\n");
-            int shown = Math.min(unmatched.size(), 10);
-            for (int i = 0; i < shown; i++) {
-                message.append("    ").append(unmatched.get(i)).append("\n");
-            }
-            if (unmatched.size() > shown) {
-                message.append("    ... and ").append(unmatched.size() - shown).append(" more\n");
-            }
+        if (!unmatchedNames.isEmpty()) {
+            message.append("\nNot found in the tree (check the spelling):\n");
+            appendList(message, unmatchedNames);
+        }
+
+        if (!unmatchedGenera.isEmpty()) {
+            message.append("\n").append(unmatchedGenera.size())
+                    .append(unmatchedGenera.size() == 1 ? " genus" : " genera")
+                    .append(" from the file do not occur in this tree - normal for a dictionary,\n")
+                    .append("nothing to do about it.\n");
         }
 
         if (matchCount == 0) {
@@ -1326,8 +1360,18 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
 
         JOptionPane.showMessageDialog(this, message.toString(),
                 "Import Annotations",
-                matchCount == 0 || !unmatched.isEmpty() ?
+                matchCount == 0 || tipsWithoutAnnotation > 0 || !unmatchedNames.isEmpty() ?
                         JOptionPane.WARNING_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private static void appendList(StringBuilder message, List<String> names) {
+        int shown = Math.min(names.size(), 10);
+        for (int i = 0; i < shown; i++) {
+            message.append("    ").append(names.get(i)).append("\n");
+        }
+        if (names.size() > shown) {
+            message.append("    ... and ").append(names.size() - shown).append(" more\n");
+        }
     }
 
     /** Name reduced to a form that survives tidying up in a spreadsheet: lower case, one space per gap. */
