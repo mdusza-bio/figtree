@@ -441,43 +441,70 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
 Wzór: drzewo Myxomycetes z kolorowymi tłami kladów, napisami kladów przy
 prawej krawędzi tła, klamrami rzędów po prawej i kropkami pełnego poparcia.
 
-**Już to mamy:** kropki pełnego poparcia w połowie gałęzi i ukrywanie przy nich
-liczb (*Support Dots*, 6.20); PP < 1 pod gałęzią przy węźle (*Node Labels*:
-*Below branch*, *Offset*, *Sig. Digits*); nazwy kursywą z prostym `var.`/`aff.`
-i bez numerów okazów (*Tip Labels*: *Italic mode*, *Not italic words*,
-*Hide regex*); dwa poziomy grup naraz — tła według jednego atrybutu (klad /
-rodzina), paski według drugiego (rząd) — *Group Bars* + *Backgrounds*; skala;
-eksport PDF.
+**Już to mamy:** kropki pełnego poparcia i ukrywanie przy nich liczb (*Support
+Dots*, 6.20) — uwaga: na wzorze kropki siedzą **na węzłach**, więc dla tej
+ryciny ustaw *Position: At node*, nie *Middle of branch*; PP < 1 pod gałęzią
+przy węźle (*Node Labels*: *Below branch*, *Offset*, *Sig. Digits*); nazwy
+kursywą z prostym `var.`/`aff.` i bez numerów okazów (*Tip Labels*: *Italic
+mode*, *Not italic words*, *Hide regex*); dwa poziomy grup naraz — tła według
+jednego atrybutu (klad / rodzina), paski według drugiego (rząd) — *Group Bars* +
+*Backgrounds*; tła zaczynają się przy wspólnym przodku kladu, jak na wzorze;
+skala; eksport PDF.
 
-**Brakuje (kolejność proponowana):**
+**Brakuje (kolejność proponowana: 7.8 → 7.4 → 7.2 + 7.3 → 7.5 + 7.6 → 7.1 → 7.7).**
+Dane najpierw, żeby każdy kolejny punkt oglądać od razu na prawdziwym drzewie;
+kolory na końcu, bo to największy kawałek, a rycina bez nich jest już czytelna.
+Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
 
 - [ ] 7.1 🟡 **Własne kolory teł i pasków** (= stare 6.8) — okienko z listą
   grup i kolorem przy każdej (outgroupy szare, klady jak na wzorze). Kolory
   zapisują się w `.tree`. Opcjonalnie kolumna `colour` w słowniku (`#E8A0C8`),
-  żeby kolory przechodziły z drzewa na drzewo.
-- [ ] 7.2 🟢 **Tło do prawej krawędzi ryciny**, pod napisami kladów, nie tylko
-  do końca najdłuższej nazwy okazu; **cienka biała przerwa** między sąsiednimi
-  tłami, żeby klady się nie zlewały.
-- [ ] 7.3 🟢 **Tło z przejściem** (gradient: jasne przy węźle → pełny kolor przy
-  prawej krawędzi), jak na wzorze. Do wyboru: płaskie / z przejściem.
+  żeby kolory przechodziły z drzewa na drzewo. Robić na końcu.
+- [ ] 7.2 🟢 **Tło do prawej krawędzi kolumny z napisami kladów** (z 7.4), nie
+  tylko do końca najdłuższej nazwy okazu; **cienka biała przerwa** (1–2 pkt)
+  między sąsiednimi tłami, żeby klady się nie zlewały. Robić razem z 7.3 i
+  dopiero po 7.4: program musi najpierw znać szerokość napisów kladów, a
+  przerwa i gradient to ten sam fragment kodu, który dziś maluje prostokąt
+  (`GroupBarPainter.paintBackgrounds`).
+- [ ] 7.3 🟢 **Tło z przejściem** (gradient: biały przy węźle → pełny kolor przy
+  prawej krawędzi), jak na wzorze. Obecne *Opacity* staje się mocą koloru przy
+  prawym brzegu; na wzorze jest tam kolor pełny, nie pastelowe 25 %. Do wyboru:
+  płaskie / z przejściem. Zaokrąglone rogi teł ze wzoru pomijamy — kosmetyka.
 - [ ] 7.4 🟡 **Napisy kladów w tle** — poziomy napis przy prawej krawędzi tła,
-  wyrównany do prawej (`Clade 3 Argentodermataceae`). Tekst z osobnej kolumny
-  tabelki (np. `clade_label`), bo napis bywa inny niż wartość, po której
-  grupujemy; `|` w tekście = nowa linia (`Clade 11|Diacheaceae`). Pogrubienie
-  dla całego napisu albo dla wybranych grup, wielkość czcionki.
+  wyrównany do prawej, wyśrodkowany w pionie. **Bez osobnej kolumny:** napis
+  to po prostu wartość atrybutu, po której grupujemy tła
+  (`Clade 3 Argentodermataceae`, `[Clade 2] Echinosteliaceae`); klady
+  parafiletyczne i tak muszą mieć różne wartości, więc kolumna `clade_label`
+  nic nie daje, a dokłada roboty przy imporcie. `|` w tekście = nowa linia
+  (`Clade 11|Diacheaceae`) — ta sama reguła co w paskach (7.6). Pogrubienie:
+  checkbox dla wszystkich napisów + znacznik w tekście dla wyjątków, bo na
+  wzorze pogrubione są tylko „pełne" rodziny, a `[Clade 2]`, `Clade 13` i
+  outgroupy nie (znacznik do ustalenia, np. `<b>…</b>`). Wielkość czcionki,
+  domyślnie jak nazwy okazów, żeby napis jednorzędowego kladu (*Clade 13*)
+  zmieścił się w swoim rzędzie.
 - [ ] 7.5 🟡 **Styl pasków grup: cienka czarna klamra** zamiast grubego
-  kolorowego paska (opcja *Bar / Line*) i **rozstrzelone litery**
-  (`P H Y S A R A L E S`).
-- [ ] 7.6 🟡 **Krótkie grupy, w których nazwa się nie mieści** — łamanie na dwie
-  linie (`ECHINO-` / `STELIALES`) albo zamiana na symbol (`*`, `**`) z objaśnieniem
-  w legendzie (7.7). Symbol można podać w tabelce (kolumna np. `order_label`).
+  kolorowego paska (opcja *Bar / Line*) i **rozstrzelone litery**. Uwaga: na
+  wzorze rozstrzelone jest tylko `P H Y S A R A L E S`, bo ta grupa jest
+  wysoka; `STEMONITIDALES` i `ECHINO-STELIALES` nie. Czyli nie „rozstrzel
+  wszystko", tylko opcja *rozciągnij do wysokości klamry* (automat) albo odstęp
+  liter w punktach. Do decyzji, które z dwojga.
+- [ ] 7.6 🟢 **Krótkie grupy, w których nazwa się nie mieści** — łamanie
+  `ECHINO-|STELIALES` tą samą regułą `|` co w 7.4. Symbole `*`, `**` nie
+  potrzebują kolumny `order_label`: wystarczy wpisać `*` jako wartość atrybutu
+  `order` dla Argentodermatales, bo paski już rysują wartość jako tekst;
+  objaśnienie w legendzie (7.7). Z całego punktu zostaje więc samo łamanie.
 - [ ] 7.7 🟢 **Legenda / dowolny tekst na rycinie** w wybranym rogu
   (`* ARGENTODERMATALES`, `** MERIDERMATALES`).
-- [ ] 7.8 ⚪ **Dane — do zrobienia przez użytkowniczkę (z pomocą Claude'a):**
-  tabelka dla tego drzewa: `genus` albo pełna nazwa okazu → `clade`
-  (po czym grupować tła), `clade_label` (napis), `order`. Klady
-  parafiletycznych rodzin (*Lamprodermataceae 1–4*) muszą mieć osobne wartości,
-  inaczej tła się połączą lub rozerwą.
+- [ ] 7.8 ⚪ **Dane — do zrobienia przez użytkowniczkę (z pomocą Claude'a),
+  jako pierwsze.** Słownik po rodzajach tu nie wystarczy: na wzorze
+  *Lamproderma* siedzi w czterech kladach, *Diderma* w trzech, *Physarum* w
+  dwóch. Import rozumie wiersze z pełną nazwą okazu i taki wiersz wygrywa z
+  wierszem rodzaju (6.7), więc tabelka to: rodzaje dla rodzajów
+  monofiletycznych, pełne nazwy okazów dla rozerwanych. Kolumny: `clade`
+  (wartość = napis w tle, patrz 7.4) i `order`. Prostsza droga dla jednego
+  drzewa: *Assign to selection…* w panelu *Group Bars* — kliknąć klad, wpisać
+  wartość, około 20 razy. Klady parafiletycznych rodzin (*Lamprodermataceae
+  1–4*) muszą mieć osobne wartości, inaczej tła się połączą lub rozerwą.
 
 Mniej ważne / do decyzji: kolejność kladów na rycinie (*Order nodes*) i to, czy
 jednogatunkowe klady (*Clade 13*, *Clade 16*) mają mieć wąski pasek tła jak na
