@@ -132,10 +132,89 @@ public class GroupBarPainter {
         firePainterChanged();
     }
 
-    /** Etap 7.3: backgrounds fade from white at the clade's node to the full colour at the right edge. */
-    public void setBackgroundGradient(boolean backgroundGradient) {
-        this.backgroundGradient = backgroundGradient;
+    /** Etap 7.3: how a background fades - not at all, white at the clade's node, or white at the names. */
+    public enum Gradient {
+        NONE("None"),
+        WHITE_AT_NODE("White at node, colour at names"),
+        WHITE_AT_EDGE("Colour at node, white at names");
+
+        Gradient(String name) {
+            this.name = name;
+        }
+
+        public String toString() {
+            return name;
+        }
+
+        private final String name;
+    }
+
+    public void setBackgroundGradient(Gradient backgroundGradient) {
+        this.backgroundGradient = backgroundGradient == null ? Gradient.NONE : backgroundGradient;
         firePainterChanged();
+    }
+
+    /**
+     * Words that stay upright when the names are italic, e.g. "Outgroup" in "Outgroup Trichiales".
+     * Comma- or space-separated, case does not matter; applies to the bars and the backgrounds alike.
+     */
+    public void setNotItalicWords(String words) {
+        notItalicWords.clear();
+        if (words != null) {
+            for (String word : words.split("[,;\\s]+")) {
+                if (word.length() > 0) notItalicWords.add(word.toLowerCase());
+            }
+        }
+        firePainterChanged();
+    }
+
+    private Font uprightVersion(Font styled) {
+        return styled.deriveFont(styled.getStyle() & ~Font.ITALIC);
+    }
+
+    /** True for a word that must not be italic (punctuation around it ignored). */
+    private boolean isUprightWord(String word) {
+        if (notItalicWords.isEmpty()) return false;
+        String bare = word.toLowerCase().replaceAll("^[^\\p{L}\\p{N}]+|[^\\p{L}\\p{N}]+$", "");
+        return notItalicWords.contains(bare);
+    }
+
+    /** Width of a line in which the "not italic" words are drawn upright. */
+    private double mixedWidth(Graphics2D g2, Font styled, String line) {
+        if (!styled.isItalic() || notItalicWords.isEmpty()) {
+            return g2.getFontMetrics(styled).stringWidth(line);
+        }
+        FontMetrics fmStyled = g2.getFontMetrics(styled);
+        FontMetrics fmUpright = g2.getFontMetrics(uprightVersion(styled));
+        double width = 0.0;
+        String[] words = line.split(" ", -1);
+        for (int i = 0; i < words.length; i++) {
+            if (i > 0) width += fmStyled.charWidth(' ');
+            width += (isUprightWord(words[i]) ? fmUpright : fmStyled).stringWidth(words[i]);
+        }
+        return width;
+    }
+
+    /** Draws a line at the baseline (x, y), switching to the upright font for the "not italic" words. */
+    private void drawMixed(Graphics2D g2, Font styled, String line, float x, float y) {
+        if (!styled.isItalic() || notItalicWords.isEmpty()) {
+            g2.setFont(styled);
+            g2.drawString(line, x, y);
+            return;
+        }
+        Font upright = uprightVersion(styled);
+        FontMetrics fmStyled = g2.getFontMetrics(styled);
+        FontMetrics fmUpright = g2.getFontMetrics(upright);
+        String[] words = line.split(" ", -1);
+        float cursor = x;
+        for (int i = 0; i < words.length; i++) {
+            if (i > 0) cursor += fmStyled.charWidth(' ');
+            boolean up = isUprightWord(words[i]);
+            g2.setFont(up ? upright : styled);
+            g2.drawString(words[i], cursor, y);
+            cursor += (up ? fmUpright : fmStyled).stringWidth(words[i]);
+        }
+        g2.setFont(styled);
     }
 
     /** Italic clade names in the backgrounds (some journals set family names in italics). */
@@ -208,9 +287,9 @@ public class GroupBarPainter {
             Object value = getTipValue(tree, tip, backgroundAttribute);
             if (value == null || !seen.add(value)) continue;
             CladeLabel label = new CladeLabel(value);
-            FontMetrics fm = g2.getFontMetrics(labelFont(label));
+            Font labelFont = labelFont(label);
             for (String line : label.lines) {
-                widest = Math.max(widest, fm.stringWidth(line));
+                widest = Math.max(widest, mixedWidth(g2, labelFont, line));
             }
         }
         if (widest == 0.0) return 0.0;
@@ -282,14 +361,16 @@ public class GroupBarPainter {
             Color c = getColourFor(run.value, backgroundDecorator, backgroundAttribute);
             double alpha = Math.max(0.0, Math.min(1.0, backgroundAlpha));
             double x1 = rightX + extra;
-            if (backgroundGradient) {
-                // opaque white -> colour blended with white by the opacity: no transparency in the
+            if (backgroundGradient != Gradient.NONE) {
+                // opaque white <-> colour blended with white by the opacity: no transparency in the
                 // gradient itself, which keeps the PDF export honest
                 Color full = new Color(
                         (int) Math.round(255 * (1 - alpha) + c.getRed() * alpha),
                         (int) Math.round(255 * (1 - alpha) + c.getGreen() * alpha),
                         (int) Math.round(255 * (1 - alpha) + c.getBlue() * alpha));
-                g2.setPaint(new GradientPaint((float) x0, 0f, Color.WHITE, (float) x1, 0f, full, false));
+                boolean whiteAtNode = backgroundGradient == Gradient.WHITE_AT_NODE;
+                g2.setPaint(new GradientPaint((float) x0, 0f, whiteAtNode ? Color.WHITE : full,
+                        (float) x1, 0f, whiteAtNode ? full : Color.WHITE, false));
             } else {
                 g2.setPaint(new Color(c.getRed(), c.getGreen(), c.getBlue(), (int) Math.round(255 * alpha)));
             }
@@ -308,9 +389,9 @@ public class GroupBarPainter {
                 g2.setPaint(Color.BLACK);
                 for (int i = 0; i < label.lines.size(); i++) {
                     String line = label.lines.get(i);
-                    float x = (float) (rightX - LABEL_INSET - fm.stringWidth(line));
+                    float x = (float) (rightX - LABEL_INSET - mixedWidth(g2, labelFont, line));
                     float y = (float) (top + i * lineHeight + fm.getAscent());
-                    g2.drawString(line, x, y);
+                    drawMixed(g2, labelFont, line, x, y);
                 }
             }
         }
@@ -366,7 +447,7 @@ public class GroupBarPainter {
             CladeLabel label = new CladeLabel(text);
             double longest = 0.0;
             for (String line : label.lines) {
-                longest = Math.max(longest, fm.stringWidth(line));
+                longest = Math.max(longest, mixedWidth(g2, barFont, line));
             }
             // a name longer than its group would run into the neighbours - leave it out on request
             if (hideUnfitting && longest > runHeight) continue;
@@ -375,7 +456,7 @@ public class GroupBarPainter {
             int n = label.lines.size();
             for (int i = 0; i < n; i++) {
                 String line = label.lines.get(i);
-                double textWidth = fm.stringWidth(line);
+                double textWidth = mixedWidth(g2, barFont, line);
                 AffineTransform t = new AffineTransform(oldTransform);
                 if (textDownwards) {
                     // read top to bottom: the letters stand away from the bar, baseline next to it;
@@ -391,7 +472,7 @@ public class GroupBarPainter {
                     t.rotate(-Math.PI / 2.0);
                 }
                 g2.setTransform(t);
-                g2.drawString(line, 0, 0);
+                drawMixed(g2, barFont, line, 0f, 0f);
                 g2.setTransform(oldTransform);
             }
         }
@@ -548,7 +629,8 @@ public class GroupBarPainter {
     private boolean barItalic = false;
     private boolean hideUnfitting = false;
     private double backgroundGap = 2.0;
-    private boolean backgroundGradient = false;
+    private Gradient backgroundGradient = Gradient.NONE;
+    private final Set<String> notItalicWords = new HashSet<String>(Collections.singleton("outgroup"));
     private boolean backgroundLabelsVisible = false;
     private boolean backgroundLabelBold = false;
     private boolean backgroundLabelItalic = false;

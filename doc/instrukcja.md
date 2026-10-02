@@ -382,9 +382,10 @@ Działa tylko w układzie prostokątnym.
   etykiet; **Attribute** i **Opacity (%)** osobno dla tła.
   - **Gap between (pt)** — biała przerwa między sąsiednimi tłami (domyślnie 2),
     żeby klady się nie zlewały; 0 = tła stykają się.
-  - **Gradient (white at the node)** — tło blednie do bieli przy węźle kladu, a
-    pełny kolor ma przy prawej krawędzi, jak w artykułach. *Opacity* działa
-    wtedy jako moc koloru przy prawym brzegu; 100 = pełny kolor.
+  - **Gradient** — *None* (płaskie tło), *White at node, colour at names*
+    (jak w artykułach: biel przy węźle kladu, pełny kolor przy napisach) albo
+    *Colour at node, white at names* (odwrotnie). *Opacity* działa wtedy jako
+    moc koloru; 100 = pełny kolor.
 - **Clade names in backgrounds** (7.4) — nazwa kladu wpisana w jego tło, przy
   prawej krawędzi, wyrównana do prawej i wyśrodkowana w pionie. Napis to po
   prostu wartość atrybutu teł (np. `Clade 3 Argentodermataceae`), więc nie
@@ -398,6 +399,10 @@ Działa tylko w układzie prostokątnym.
     niezależnie, dla wybranych.
   - **Italic names** — wszystkie napisy w tłach kursywą (patrz uwaga o
     kursywie przy paskach).
+  - **Not italic words** — słowa, które przy kursywie zostają proste, po
+    przecinku lub spacji, wielkość liter bez znaczenia; domyślnie `Outgroup`,
+    więc `Outgroup Trichiales` ma pochylone tylko *Trichiales*. Działa dla teł
+    i pasków naraz.
   - **Napis „Outgroup”.** Zaznacz klad z outgroupem (tryb *Clade*), *Assign to
     selection…*, atrybut teł (np. `family`), wartość `Outgroup` albo
     `Outgroup|Trichiales` na dwie linie. Okazy outgroupu dostają jedno wspólne
@@ -407,6 +412,19 @@ Działa tylko w układzie prostokątnym.
   pastelową, w kolejności pojawiania się grup. Lista *Colour by* w *Appearance*
   nie pokazuje atrybutów liści, więc tamtą drogą się do nich nie dostaniesz.
   Wybór kolorów grupy to zadanie 6.8.
+
+## 8a. Panel *Figure Text* (tekst w rogu ryciny)
+
+Kilka linii własnego tekstu nałożonych na gotową rycinę — np. objaśnienie
+gwiazdek z pasków grup (`* ARGENTODERMATALES`, w drugiej linii
+`** MERIDERMATALES`) albo podpis ryciny.
+
+- **Text** — jedna linia ryciny = jedna linia w polu (Enter łamie).
+- **Corner** — róg: *Top left*, *Top right*, *Bottom left*, *Bottom right*.
+- **Font size**, **Margin (pt)** (odstęp od brzegu), **Bold**, **Italic**.
+
+Tekst zapisuje się w `.tree` (`figureText.*`; łamania linii jako `|`). Trafia
+do PDF/SVG/PNG tak jak reszta ryciny.
 
 ## 9. Menu *File → Import Annotations…* (Ctrl+I)
 

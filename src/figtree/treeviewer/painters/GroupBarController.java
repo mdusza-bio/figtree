@@ -54,6 +54,7 @@ public class GroupBarController extends AbstractController {
     public static final String HIDE_UNFITTING_KEY = "hideUnfitting";
     public static final String BACKGROUND_GAP_KEY = "backgroundGap";
     public static final String BACKGROUND_GRADIENT_KEY = "backgroundGradient";
+    public static final String NOT_ITALIC_WORDS_KEY = "notItalicWords";
 
     public GroupBarController(final GroupBarPainter painter,
                               final AttributeColourController colourController,
@@ -191,14 +192,29 @@ public class GroupBarController extends AbstractController {
         });
         painter.setBackgroundGap(defaultBackgroundGap);
 
-        backgroundGradientCheckBox = new JCheckBox("Gradient (white at the node)");
-        backgroundGradientCheckBox.setToolTipText("<html>Fades each background from white at the clade's node<br>" +
-                "to the full colour at the right edge, as in many journals.</html>");
-        backgroundGradientCheckBox.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent changeEvent) {
-                painter.setBackgroundGradient(backgroundGradientCheckBox.isSelected());
+        backgroundGradientCombo = new JComboBox(GroupBarPainter.Gradient.values());
+        backgroundGradientCombo.setToolTipText("<html>Fades each background between white and its colour,<br>" +
+                "from the clade's node to the names - either way round.</html>");
+        backgroundGradientCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                painter.setBackgroundGradient((GroupBarPainter.Gradient) backgroundGradientCombo.getSelectedItem());
             }
         });
+
+        // words kept upright inside italic names - "Outgroup Trichiales" has one italic word only
+        final String defaultNotItalic = PREFS.get(CONTROLLER_KEY + "." + NOT_ITALIC_WORDS_KEY, "Outgroup");
+        notItalicWordsField = new JTextField(defaultNotItalic, 10);
+        notItalicWordsField.setToolTipText("<html>Words that stay upright when names are italic, separated by<br>" +
+                "commas or spaces (case does not matter). Applies to bars and backgrounds.</html>");
+        notItalicWordsField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { apply(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { apply(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { apply(); }
+            private void apply() {
+                painter.setNotItalicWords(notItalicWordsField.getText());
+            }
+        });
+        painter.setNotItalicWords(defaultNotItalic);
 
         // Etap 7.4: clade names written inside the backgrounds, at their right-hand edge
         final double defaultLabelSize = PREFS.getDouble(CONTROLLER_KEY + "." + BACKGROUND_LABEL_SIZE_KEY, 11.0);
@@ -262,11 +278,12 @@ public class GroupBarController extends AbstractController {
         backgroundLabel1 = optionsPanel.addComponentWithLabel("Attribute:", backgroundAttributeCombo);
         backgroundLabel2 = optionsPanel.addComponentWithLabel("Opacity (%):", backgroundAlphaSpinner);
         backgroundLabel4 = optionsPanel.addComponentWithLabel("Gap between (pt):", backgroundGapSpinner);
-        optionsPanel.addSpanningComponent(backgroundGradientCheckBox);
+        backgroundLabel5 = optionsPanel.addComponentWithLabel("Gradient:", backgroundGradientCombo);
         optionsPanel.addSpanningComponent(backgroundLabelsCheckBox);
         backgroundLabel3 = optionsPanel.addComponentWithLabel("Name size:", backgroundLabelSizeSpinner);
         optionsPanel.addSpanningComponent(backgroundLabelBoldCheckBox);
         optionsPanel.addSpanningComponent(backgroundLabelItalicCheckBox);
+        backgroundLabel6 = optionsPanel.addComponentWithLabel("Not italic words:", notItalicWordsField);
 
         addComponent(label1);
         addComponent(attributeCombo);
@@ -287,6 +304,7 @@ public class GroupBarController extends AbstractController {
         titleCheckBox.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
                 enableComponents(titleCheckBox.isSelected());
+                enableBackgroundComponents();
                 painter.setBarsVisible(titleCheckBox.isSelected());
             }
         });
@@ -456,10 +474,15 @@ public class GroupBarController extends AbstractController {
         backgroundAlphaSpinner.setEnabled(on);
         backgroundLabel4.setEnabled(on);
         backgroundGapSpinner.setEnabled(on);
-        backgroundGradientCheckBox.setEnabled(on);
+        backgroundLabel5.setEnabled(on);
+        backgroundGradientCombo.setEnabled(on);
         backgroundLabelsCheckBox.setEnabled(on);
         boolean names = on && backgroundLabelsCheckBox.isSelected();
         backgroundLabel3.setEnabled(names);
+        // the upright words serve the bars too, so the field stays usable whenever either is drawn
+        boolean italics = names || titleCheckBox.isSelected();
+        backgroundLabel6.setEnabled(italics);
+        notItalicWordsField.setEnabled(italics);
         backgroundLabelSizeSpinner.setEnabled(names);
         backgroundLabelBoldCheckBox.setEnabled(names);
         backgroundLabelItalicCheckBox.setEnabled(names);
@@ -535,7 +558,21 @@ public class GroupBarController extends AbstractController {
         barItalicCheckBox.setSelected(getBool(settings, ITALIC_KEY, false));
         hideUnfittingCheckBox.setSelected(getBool(settings, HIDE_UNFITTING_KEY, false));
         backgroundGapSpinner.setValue(getDouble(settings, BACKGROUND_GAP_KEY, 2.0));
-        backgroundGradientCheckBox.setSelected(getBool(settings, BACKGROUND_GRADIENT_KEY, false));
+        // 7.3 first saved a yes/no; since 7.3b it is the direction's name
+        Object gradient = settings.get(CONTROLLER_KEY + "." + BACKGROUND_GRADIENT_KEY);
+        GroupBarPainter.Gradient direction = GroupBarPainter.Gradient.NONE;
+        if (gradient instanceof Boolean) {
+            direction = (Boolean) gradient ? GroupBarPainter.Gradient.WHITE_AT_NODE : GroupBarPainter.Gradient.NONE;
+        } else if (gradient != null) {
+            try {
+                direction = GroupBarPainter.Gradient.valueOf(gradient.toString());
+            } catch (IllegalArgumentException e) {
+                // unknown word in the file - keep "None"
+            }
+        }
+        backgroundGradientCombo.setSelectedItem(direction);
+        String words = getString(settings, NOT_ITALIC_WORDS_KEY);
+        notItalicWordsField.setText(words == null ? "Outgroup" : words);
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -555,7 +592,9 @@ public class GroupBarController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + ITALIC_KEY, barItalicCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + HIDE_UNFITTING_KEY, hideUnfittingCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_GAP_KEY, backgroundGapSpinner.getValue());
-        settings.put(CONTROLLER_KEY + "." + BACKGROUND_GRADIENT_KEY, backgroundGradientCheckBox.isSelected());
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_GRADIENT_KEY,
+                ((GroupBarPainter.Gradient) backgroundGradientCombo.getSelectedItem()).name());
+        settings.put(CONTROLLER_KEY + "." + NOT_ITALIC_WORDS_KEY, notItalicWordsField.getText());
     }
 
     public String getTitle() {
@@ -591,7 +630,10 @@ public class GroupBarController extends AbstractController {
     private final JCheckBox barItalicCheckBox;
     private final JCheckBox hideUnfittingCheckBox;
     private final JSpinner backgroundGapSpinner;
-    private final JCheckBox backgroundGradientCheckBox;
+    private final JComboBox backgroundGradientCombo;
+    private final JTextField notItalicWordsField;
+    private final JLabel backgroundLabel5;
+    private final JLabel backgroundLabel6;
     private final JLabel backgroundLabel4;
     private final JLabel backgroundLabel3;
 }

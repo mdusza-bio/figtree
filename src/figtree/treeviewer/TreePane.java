@@ -1416,6 +1416,13 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         return groupBarPainter;
     }
 
+    // MyFigTree (Etap 7.7): free text in a corner of the figure
+    public void setFigureTextPainter(FigureTextPainter figureTextPainter) {
+        figureTextPainter.addPainterListener(this);
+        this.figureTextPainter = figureTextPainter;
+        repaint();
+    }
+
     // MyFigTree (Etap 6.20): dots on fully supported branches
     public void setSupportDotPainter(SupportDotPainter supportDotPainter) {
         supportDotPainter.addPainterListener(this);
@@ -2232,6 +2239,11 @@ public class TreePane extends JComponent implements PainterListener, Printable {
 
                 g2.setTransform(oldTransform);
             }
+        }
+
+        // MyFigTree (Etap 7.7): the figure text goes on top of everything
+        if (figureTextPainter != null && figureTextPainter.isVisible()) {
+            figureTextPainter.paint(g2, width, height);
         }
 
         g2.setStroke(oldStroke);
@@ -3217,6 +3229,7 @@ public class TreePane extends JComponent implements PainterListener, Printable {
     private LegendPainter legendPainter = null;
     private GroupBarPainter groupBarPainter = null;
     private SupportDotPainter supportDotPainter = null;
+    private FigureTextPainter figureTextPainter = null;
     private Rectangle2D legendBounds = new Rectangle2D.Double();
 
     private Rectangle2D topPanelBounds = new Rectangle2D.Double();

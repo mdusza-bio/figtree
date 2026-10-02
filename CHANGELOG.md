@@ -107,6 +107,16 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.7 — tekst w rogu ryciny, kierunek gradientu, słowa bez kursywy (2026-10-02)
+- Nowy panel **Figure Text**: kilka linii tekstu w wybranym rogu ryciny
+  (legenda gwiazdek, podpis), z wielkością, marginesem, pogrubieniem i
+  kursywą. Zapis `figureText.*`, łamania linii jako `|`.
+- *Group Bars → Gradient* ma teraz trzy ustawienia: *None*, *White at node,
+  colour at names*, *Colour at node, white at names*. Pliki zapisane z
+  wcześniejszym tak/nie otwierają się poprawnie.
+- *Group Bars → Not italic words* (domyślnie `Outgroup`): słowa, które przy
+  kursywie zostają proste, w tłach i na paskach.
+
 ### Etap 7.2 / 7.3 — przerwa i gradient teł, Restore original (2026-10-02)
 *Group Bars → Backgrounds*:
 - **Gap between (pt)** — biała przerwa między sąsiednimi tłami (domyślnie 2).

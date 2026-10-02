@@ -133,6 +133,8 @@ public abstract class TreeViewer extends JPanel implements Printable {
 
     public abstract void setSupportDotPainter(SupportDotPainter supportDotPainter);
 
+    public abstract void setFigureTextPainter(FigureTextPainter figureTextPainter);
+
     public abstract void setBranchDecorator(Decorator branchDecorator, boolean isGradient);
 
     public abstract void setBranchColouringDecorator(String branchColouringAttribute, Decorator branchColouringDecorator);

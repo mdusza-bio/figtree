@@ -759,6 +759,10 @@ public class DefaultTreeViewer extends TreeViewer {
         treePane.setSupportDotPainter(supportDotPainter);
     }
 
+    public void setFigureTextPainter(FigureTextPainter figureTextPainter) {
+        treePane.setFigureTextPainter(figureTextPainter);
+    }
+
     public void setLegendPainter(LegendPainter legendPainter) {
         treePane.setLegendPainter(legendPainter);
 //        legendPainter.setupAttributes(trees);

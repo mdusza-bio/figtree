@@ -422,6 +422,13 @@ public class MultiPaneTreeViewer extends TreeViewer {
         fireTreeSettingsChanged();
     }
 
+    public void setFigureTextPainter(FigureTextPainter figureTextPainter) {
+        for (TreePane treePane : treePanes) {
+            treePane.setFigureTextPainter(figureTextPainter);
+        }
+        fireTreeSettingsChanged();
+    }
+
     public void setLegendPainter(LegendPainter legendPainter) {
         for (TreePane treePane : treePanes) {
             treePane.setLegendPainter(legendPainter);

@@ -155,6 +155,11 @@ public class FigTreePanel extends JPanel {
         controlPalette.addController(new GroupBarController(groupBarPainter, attributeColourController, treeViewer));
         treeViewer.setGroupBarPainter(groupBarPainter);
 
+        // MyFigTree (Etap 7.7): free text in a corner of the figure
+        final FigureTextPainter figureTextPainter = new FigureTextPainter();
+        controlPalette.addController(new FigureTextController(figureTextPainter, treeViewer));
+        treeViewer.setFigureTextPainter(figureTextPainter);
+
         slideOpenPanel = new SlideOpenPanel(treeViewer);
 
         setLayout(new BorderLayout());

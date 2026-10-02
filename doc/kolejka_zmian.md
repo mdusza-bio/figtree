@@ -510,8 +510,10 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   paska na zewnątrz), checkbox **Hide names that do not fit** chowa napis
   dłuższy niż grupa, gwiazdki rysują się prosto i 1,8× większe. Kursywa
   (*Italic names*) osobno dla pasków i teł.
-- [ ] 7.7 🟢 **Legenda / dowolny tekst na rycinie** w wybranym rogu
-  (`* ARGENTODERMATALES`, `** MERIDERMATALES`).
+- [x] 7.7 🟢 **Legenda / dowolny tekst na rycinie** w wybranym rogu
+  (`* ARGENTODERMATALES`, `** MERIDERMATALES`). **Zrobione 2026-10-02**: nowy
+  panel *Figure Text* (tekst wielowierszowy, róg, wielkość, pogrubienie,
+  kursywa, margines), zapis w `.tree` jako `figureText.*`.
 - [ ] 7.8 ⚪ **Dane — do zrobienia przez użytkowniczkę (z pomocą Claude'a),
   jako pierwsze.** Słownik po rodzajach tu nie wystarczy: na wzorze
   *Lamproderma* siedzi w czterech kladach, *Diderma* w trzech, *Physarum* w
