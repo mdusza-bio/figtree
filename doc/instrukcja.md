@@ -355,6 +355,16 @@ Działa tylko w układzie prostokątnym.
     na zewnątrz, w stronę brzegu strony.
 
   W artykułach spotyka się obie wersje — wybierz tę, której wymaga czasopismo.
+- **Italic names** — napisy na paskach kursywą. Czy rodziny i rzędy pisze się
+  kursywą, zależy od czasopisma (kod botaniczny tak, tradycja zoologiczna i
+  spora część czasopism nie) — stąd przełącznik.
+- **Napis, który się nie mieści, gwiazdka zamiast nazwy.** Dla małej grupy
+  zaznacz jej okazy, *Assign to selection…*, atrybut pasków (np. `order`),
+  wartość `*` albo `**`. Gwiazdki rysują się prosto i większe niż napisy.
+  Objaśnienie gwiazdek to na razie legenda w programie graficznym (zadanie 7.7).
+  Zmiana siedzi tylko w pliku `.tree` — słownik zostaje nietknięty. Jeśli
+  gwiazdka trafiła przez pomyłkę też do rodziny, zaznacz te same okazy i
+  *Assign to selection…* z atrybutem `family` i właściwą nazwą rodziny.
 - **Backgrounds** — pastelowe tła za kladami, od wspólnego przodka do krawędzi
   etykiet; **Attribute** i **Opacity (%)** osobno dla tła.
 - **Clade names in backgrounds** (7.4) — nazwa kladu wpisana w jego tło, przy
@@ -368,6 +378,13 @@ Działa tylko w układzie prostokątnym.
     programu, wystarczy dać 11.
   - **Bold names** — pogrubia wszystkie napisy naraz; `<b>…</b>` działa
     niezależnie, dla wybranych.
+  - **Italic names** — wszystkie napisy w tłach kursywą (patrz uwaga o
+    kursywie przy paskach).
+  - **Napis „Outgroup”.** Zaznacz klad z outgroupem (tryb *Clade*), *Assign to
+    selection…*, atrybut teł (np. `family`), wartość `Outgroup` albo
+    `Outgroup|Trichiales` na dwie linie. Okazy outgroupu dostają jedno wspólne
+    tło i jeden napis, jak w artykułach; słownik zostaje nietknięty, zmiana jest
+    tylko w `.tree`.
 - Kolory: na razie **nie da się ich wybrać** — paski i tła biorą wbudowaną paletę
   pastelową, w kolejności pojawiania się grup. Lista *Colour by* w *Appearance*
   nie pokazuje atrybutów liści, więc tamtą drogą się do nich nie dostaniesz.

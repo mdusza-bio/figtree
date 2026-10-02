@@ -47,6 +47,8 @@ public class GroupBarController extends AbstractController {
     public static final String BACKGROUND_LABELS_KEY = "backgroundLabels";
     public static final String BACKGROUND_LABEL_SIZE_KEY = "backgroundLabelSize";
     public static final String BACKGROUND_LABEL_BOLD_KEY = "backgroundLabelBold";
+    public static final String BACKGROUND_LABEL_ITALIC_KEY = "backgroundLabelItalic";
+    public static final String ITALIC_KEY = "italic";
 
     public GroupBarController(final GroupBarPainter painter,
                               final AttributeColourController colourController,
@@ -140,6 +142,13 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        barItalicCheckBox = new JCheckBox("Italic names");
+        barItalicCheckBox.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setBarItalic(barItalicCheckBox.isSelected());
+            }
+        });
+
         backgroundsCheckBox = new JCheckBox("Backgrounds");
         backgroundsCheckBox.setSelected(painter.isBackgroundsVisible());
         backgroundsCheckBox.addChangeListener(new ChangeListener() {
@@ -184,6 +193,13 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        backgroundLabelItalicCheckBox = new JCheckBox("Italic names");
+        backgroundLabelItalicCheckBox.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setBackgroundLabelItalic(backgroundLabelItalicCheckBox.isSelected());
+            }
+        });
+
         // Etap 6.3: assigning a group to a whole clade at once, instead of Annotate tip by tip
         assignButton = new JButton("Assign to selection...");
         assignButton.putClientProperty("JComponent.sizeVariant", "small");
@@ -204,6 +220,7 @@ public class GroupBarController extends AbstractController {
         final JLabel label3 = optionsPanel.addComponentWithLabel("Gap from labels:", gapSpinner);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
         final JLabel label5 = optionsPanel.addComponentWithLabel("Text reads:", textDirectionCombo);
+        optionsPanel.addSpanningComponent(barItalicCheckBox);
         optionsPanel.addSeparator();
         optionsPanel.addSpanningComponent(backgroundsCheckBox);
         backgroundLabel1 = optionsPanel.addComponentWithLabel("Attribute:", backgroundAttributeCombo);
@@ -211,6 +228,7 @@ public class GroupBarController extends AbstractController {
         optionsPanel.addSpanningComponent(backgroundLabelsCheckBox);
         backgroundLabel3 = optionsPanel.addComponentWithLabel("Name size:", backgroundLabelSizeSpinner);
         optionsPanel.addSpanningComponent(backgroundLabelBoldCheckBox);
+        optionsPanel.addSpanningComponent(backgroundLabelItalicCheckBox);
 
         addComponent(label1);
         addComponent(attributeCombo);
@@ -222,6 +240,7 @@ public class GroupBarController extends AbstractController {
         addComponent(fontSizeSpinner);
         addComponent(label5);
         addComponent(textDirectionCombo);
+        addComponent(barItalicCheckBox);
         enableComponents(titleCheckBox.isSelected());
         enableBackgroundComponents();
         updateHint();
@@ -328,6 +347,7 @@ public class GroupBarController extends AbstractController {
         backgroundLabel3.setEnabled(names);
         backgroundLabelSizeSpinner.setEnabled(names);
         backgroundLabelBoldCheckBox.setEnabled(names);
+        backgroundLabelItalicCheckBox.setEnabled(names);
     }
 
     private ColourDecorator decoratorFor(String attribute) {
@@ -396,6 +416,8 @@ public class GroupBarController extends AbstractController {
         backgroundLabelsCheckBox.setSelected(getBool(settings, BACKGROUND_LABELS_KEY, false));
         backgroundLabelSizeSpinner.setValue(getDouble(settings, BACKGROUND_LABEL_SIZE_KEY, 11.0));
         backgroundLabelBoldCheckBox.setSelected(getBool(settings, BACKGROUND_LABEL_BOLD_KEY, false));
+        backgroundLabelItalicCheckBox.setSelected(getBool(settings, BACKGROUND_LABEL_ITALIC_KEY, false));
+        barItalicCheckBox.setSelected(getBool(settings, ITALIC_KEY, false));
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -411,6 +433,8 @@ public class GroupBarController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABELS_KEY, backgroundLabelsCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_SIZE_KEY, backgroundLabelSizeSpinner.getValue());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_BOLD_KEY, backgroundLabelBoldCheckBox.isSelected());
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_ITALIC_KEY, backgroundLabelItalicCheckBox.isSelected());
+        settings.put(CONTROLLER_KEY + "." + ITALIC_KEY, barItalicCheckBox.isSelected());
     }
 
     public String getTitle() {
@@ -442,5 +466,7 @@ public class GroupBarController extends AbstractController {
     private final JCheckBox backgroundLabelsCheckBox;
     private final JSpinner backgroundLabelSizeSpinner;
     private final JCheckBox backgroundLabelBoldCheckBox;
+    private final JCheckBox backgroundLabelItalicCheckBox;
+    private final JCheckBox barItalicCheckBox;
     private final JLabel backgroundLabel3;
 }

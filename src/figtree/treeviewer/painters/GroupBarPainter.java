@@ -126,6 +126,22 @@ public class GroupBarPainter {
         firePainterChanged();
     }
 
+    /** Italic clade names in the backgrounds (some journals set family names in italics). */
+    public void setBackgroundLabelItalic(boolean backgroundLabelItalic) {
+        this.backgroundLabelItalic = backgroundLabelItalic;
+        firePainterChanged();
+    }
+
+    /** Italic group names on the bars. */
+    public void setBarItalic(boolean barItalic) {
+        this.barItalic = barItalic;
+        firePainterChanged();
+    }
+
+    private Font barFont() {
+        return font.deriveFont(barItalic ? Font.ITALIC : Font.PLAIN);
+    }
+
     /** True if anything is going to be drawn for this layout. */
     public boolean isVisible(TreePane treePane) {
         if (!(treePane.getTreeLayout() instanceof RectilinearTreeLayout)) return false;
@@ -140,7 +156,7 @@ public class GroupBarPainter {
         if (!(treePane.getTreeLayout() instanceof RectilinearTreeLayout)) return 0.0;
         double width = getLabelColumnWidth(g2, treePane);
         if (barsVisible && barAttribute != null) {
-            FontMetrics fm = g2.getFontMetrics(font);
+            FontMetrics fm = g2.getFontMetrics(barFont());
             width += gap + barWidth + TEXT_GAP + fm.getAscent() + fm.getDescent();
         }
         return width;
@@ -171,6 +187,7 @@ public class GroupBarPainter {
 
     private Font labelFont(CladeLabel label) {
         int style = (backgroundLabelBold || label.bold) ? Font.BOLD : Font.PLAIN;
+        if (backgroundLabelItalic) style |= Font.ITALIC;
         return backgroundLabelFont.deriveFont(style);
     }
 
@@ -271,8 +288,9 @@ public class GroupBarPainter {
         Font oldFont = g2.getFont();
         AffineTransform oldTransform = g2.getTransform();
 
-        g2.setFont(font);
-        FontMetrics fm = g2.getFontMetrics(font);
+        Font barFont = barFont();
+        g2.setFont(barFont);
+        FontMetrics fm = g2.getFontMetrics(barFont);
 
         for (Run run : runs) {
             if (run.value == null) continue;
@@ -282,9 +300,22 @@ public class GroupBarPainter {
             g2.fill(new Rectangle2D.Double(barX, run.minY, barWidth, run.maxY - run.minY));
 
             String text = String.valueOf(run.value);
-            double textWidth = fm.stringWidth(text);
             double centreY = (run.minY + run.maxY) / 2.0;
             g2.setPaint(Color.BLACK);
+
+            if (text.matches("\\*+")) {
+                // a group marked only with asterisks ("*", "**", explained in a legend): drawn
+                // upright and larger, because a 10 pt asterisk is a speck, and centred on the bar
+                Font starFont = barFont.deriveFont(Font.PLAIN, (float) (barFont.getSize2D() * STAR_SCALE));
+                Rectangle2D box = starFont.createGlyphVector(g2.getFontRenderContext(), text).getVisualBounds();
+                g2.setFont(starFont);
+                g2.drawString(text, (float) (barX + barWidth + TEXT_GAP - box.getX()),
+                        (float) (centreY - box.getCenterY()));
+                g2.setFont(barFont);
+                continue;
+            }
+
+            double textWidth = fm.stringWidth(text);
             AffineTransform t = new AffineTransform(oldTransform);
             if (textDownwards) {
                 // read top to bottom: the letters stand away from the bar, baseline next to it
@@ -435,6 +466,8 @@ public class GroupBarPainter {
     /** Etap 7.4: space between the longest tip label and the clade names, and inside the right edge. */
     private static final double LABEL_COLUMN_GAP = 12.0;
     private static final double LABEL_INSET = 4.0;
+    /** Asterisk-only group names are drawn this many times larger than the bar font. */
+    private static final double STAR_SCALE = 1.8;
 
     private boolean barsVisible = false;
     private boolean backgroundsVisible = false;
@@ -447,8 +480,10 @@ public class GroupBarPainter {
     private double backgroundAlpha = 0.25;
     private boolean textDownwards = false;
     private Font font = new Font("sansserif", Font.PLAIN, 10);
+    private boolean barItalic = false;
     private boolean backgroundLabelsVisible = false;
     private boolean backgroundLabelBold = false;
+    private boolean backgroundLabelItalic = false;
     // 11 and not 10: on Windows, Java draws bold text at 10 pt and below with the same strokes as plain
     private Font backgroundLabelFont = new Font("sansserif", Font.PLAIN, 11);
 

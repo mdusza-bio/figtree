@@ -107,6 +107,15 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.4b — kursywa napisów, większe gwiazdki (2026-10-02)
+- *Group Bars*: **Italic names** osobno dla pasków i dla teł (`groupBars.italic`,
+  `groupBars.backgroundLabelItalic`).
+- Grupa oznaczona samą gwiazdką (`*`, `**` przez *Assign to selection…*) rysuje
+  się na pasku prosto i 1,8× większą czcionką, wyśrodkowana — 10-punktowa
+  gwiazdka była plamką.
+- Instrukcja §8: jak zrobić napis „Outgroup” i gwiazdki bez ruszania słownika.
+- Okno po imporcie bez dopisku „normal for a dictionary, nothing to do about it”.
+
 ### Etap 7.4 — napisy kladów w tle (2026-10-01)
 Pierwszy punkt ryciny „jak w artykule o Physarales". *Group Bars*, pod
 *Backgrounds*:
