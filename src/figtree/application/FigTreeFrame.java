@@ -1396,8 +1396,7 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         if (!unmatchedGenera.isEmpty()) {
             message.append("\n").append(unmatchedGenera.size())
                     .append(unmatchedGenera.size() == 1 ? " genus" : " genera")
-                    .append(" from the file do not occur in this tree - normal for a dictionary,\n")
-                    .append("nothing to do about it.\n");
+                    .append(" from the file do not occur in this tree.\n");
         }
 
         if (matchCount == 0) {

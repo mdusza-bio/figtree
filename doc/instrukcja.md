@@ -439,8 +439,7 @@ Jak uzupełnić braki:
   wygodne przy jednym, dwóch okazach.
 
 ```
-51 genera from the file do not occur in this tree - normal for a dictionary,
-nothing to do about it.
+51 genera from the file do not occur in this tree.
 ```
 Rodzaje ze słownika, których nie ma w tym drzewie. **Nic nie trzeba robić.**
 
