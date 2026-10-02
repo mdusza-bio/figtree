@@ -49,6 +49,7 @@ public class GroupBarController extends AbstractController {
     public static final String BACKGROUND_LABEL_BOLD_KEY = "backgroundLabelBold";
     public static final String BACKGROUND_LABEL_ITALIC_KEY = "backgroundLabelItalic";
     public static final String ITALIC_KEY = "italic";
+    public static final String HIDE_UNFITTING_KEY = "hideUnfitting";
 
     public GroupBarController(final GroupBarPainter painter,
                               final AttributeColourController colourController,
@@ -149,6 +150,17 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        // Etap 7.6: a name longer than its group is left out instead of running into the neighbours
+        hideUnfittingCheckBox = new JCheckBox("Hide names that do not fit");
+        hideUnfittingCheckBox.setToolTipText("<html>Leaves out the name of a group that is shorter than its name.<br>" +
+                "Break long names with \"|\" (ECHINO-|STELIALES) or mark small groups<br>" +
+                "with \"*\" via Assign to selection... to keep them labelled.</html>");
+        hideUnfittingCheckBox.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setHideUnfitting(hideUnfittingCheckBox.isSelected());
+            }
+        });
+
         backgroundsCheckBox = new JCheckBox("Backgrounds");
         backgroundsCheckBox.setSelected(painter.isBackgroundsVisible());
         backgroundsCheckBox.addChangeListener(new ChangeListener() {
@@ -221,6 +233,7 @@ public class GroupBarController extends AbstractController {
         final JLabel label4 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
         final JLabel label5 = optionsPanel.addComponentWithLabel("Text reads:", textDirectionCombo);
         optionsPanel.addSpanningComponent(barItalicCheckBox);
+        optionsPanel.addSpanningComponent(hideUnfittingCheckBox);
         optionsPanel.addSeparator();
         optionsPanel.addSpanningComponent(backgroundsCheckBox);
         backgroundLabel1 = optionsPanel.addComponentWithLabel("Attribute:", backgroundAttributeCombo);
@@ -241,6 +254,7 @@ public class GroupBarController extends AbstractController {
         addComponent(label5);
         addComponent(textDirectionCombo);
         addComponent(barItalicCheckBox);
+        addComponent(hideUnfittingCheckBox);
         enableComponents(titleCheckBox.isSelected());
         enableBackgroundComponents();
         updateHint();
@@ -418,6 +432,7 @@ public class GroupBarController extends AbstractController {
         backgroundLabelBoldCheckBox.setSelected(getBool(settings, BACKGROUND_LABEL_BOLD_KEY, false));
         backgroundLabelItalicCheckBox.setSelected(getBool(settings, BACKGROUND_LABEL_ITALIC_KEY, false));
         barItalicCheckBox.setSelected(getBool(settings, ITALIC_KEY, false));
+        hideUnfittingCheckBox.setSelected(getBool(settings, HIDE_UNFITTING_KEY, false));
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -435,6 +450,7 @@ public class GroupBarController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_BOLD_KEY, backgroundLabelBoldCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_ITALIC_KEY, backgroundLabelItalicCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + ITALIC_KEY, barItalicCheckBox.isSelected());
+        settings.put(CONTROLLER_KEY + "." + HIDE_UNFITTING_KEY, hideUnfittingCheckBox.isSelected());
     }
 
     public String getTitle() {
@@ -468,5 +484,6 @@ public class GroupBarController extends AbstractController {
     private final JCheckBox backgroundLabelBoldCheckBox;
     private final JCheckBox backgroundLabelItalicCheckBox;
     private final JCheckBox barItalicCheckBox;
+    private final JCheckBox hideUnfittingCheckBox;
     private final JLabel backgroundLabel3;
 }

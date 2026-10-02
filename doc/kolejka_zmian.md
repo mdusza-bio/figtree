@@ -496,11 +496,15 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   wysoka; `STEMONITIDALES` i `ECHINO-STELIALES` nie. Czyli nie „rozstrzel
   wszystko", tylko opcja *rozciągnij do wysokości klamry* (automat) albo odstęp
   liter w punktach. Do decyzji, które z dwojga.
-- [ ] 7.6 🟢 **Krótkie grupy, w których nazwa się nie mieści** — łamanie
+- [x] 7.6 🟢 **Krótkie grupy, w których nazwa się nie mieści** — łamanie
   `ECHINO-|STELIALES` tą samą regułą `|` co w 7.4. Symbole `*`, `**` nie
   potrzebują kolumny `order_label`: wystarczy wpisać `*` jako wartość atrybutu
   `order` dla Argentodermatales, bo paski już rysują wartość jako tekst;
   objaśnienie w legendzie (7.7). Z całego punktu zostaje więc samo łamanie.
+  **Zrobione 2026-10-02**: `|` łamie napis na pasku (linie układają się od
+  paska na zewnątrz), checkbox **Hide names that do not fit** chowa napis
+  dłuższy niż grupa, gwiazdki rysują się prosto i 1,8× większe. Kursywa
+  (*Italic names*) osobno dla pasków i teł.
 - [ ] 7.7 🟢 **Legenda / dowolny tekst na rycinie** w wybranym rogu
   (`* ARGENTODERMATALES`, `** MERIDERMATALES`).
 - [ ] 7.8 ⚪ **Dane — do zrobienia przez użytkowniczkę (z pomocą Claude'a),

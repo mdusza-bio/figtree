@@ -107,6 +107,12 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.6 — łamanie i chowanie napisów na paskach (2026-10-02)
+- `|` w wartości łamie napis na pasku na kilka linii (`ECHINO-|STELIALES`),
+  linie od paska na zewnątrz; rycina rezerwuje miejsce na najszerszy napis.
+- **Hide names that do not fit** (*Group Bars*, `groupBars.hideUnfitting`) —
+  napis dłuższy niż grupa jest pomijany, pasek zostaje.
+
 ### Etap 7.4b — kursywa napisów, większe gwiazdki (2026-10-02)
 - *Group Bars*: **Italic names** osobno dla pasków i dla teł (`groupBars.italic`,
   `groupBars.backgroundLabelItalic`).

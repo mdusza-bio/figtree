@@ -355,6 +355,12 @@ Działa tylko w układzie prostokątnym.
     na zewnątrz, w stronę brzegu strony.
 
   W artykułach spotyka się obie wersje — wybierz tę, której wymaga czasopismo.
+- **Łamanie napisu na pasku**: `|` w wartości zaczyna nową linię
+  (`ECHINO-|STELIALES`); linie układają się od paska na zewnątrz. Ta sama
+  reguła co w napisach w tłach.
+- **Hide names that do not fit** — napis dłuższy niż wysokość grupy jest
+  pomijany zamiast wchodzić na sąsiadów (pasek zostaje). Dla takich grup:
+  złamać nazwę przez `|` albo dać gwiazdkę (niżej).
 - **Italic names** — napisy na paskach kursywą. Czy rodziny i rzędy pisze się
   kursywą, zależy od czasopisma (kod botaniczny tak, tradycja zoologiczna i
   spora część czasopism nie) — stąd przełącznik.

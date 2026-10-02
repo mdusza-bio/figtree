@@ -157,9 +157,29 @@ public class GroupBarPainter {
         double width = getLabelColumnWidth(g2, treePane);
         if (barsVisible && barAttribute != null) {
             FontMetrics fm = g2.getFontMetrics(barFont());
-            width += gap + barWidth + TEXT_GAP + fm.getAscent() + fm.getDescent();
+            width += gap + barWidth + TEXT_GAP + (fm.getAscent() + fm.getDescent()) * maxBarLines(treePane);
         }
         return width;
+    }
+
+    /** The most lines ("|"-separated) any group name on the bars has, at least 1. */
+    private int maxBarLines(TreePane treePane) {
+        int most = 1;
+        RootedTree tree = treePane.getTree();
+        if (tree == null) return most;
+        for (Node tip : tree.getExternalNodes()) {
+            Object value = getTipValue(tree, tip, barAttribute);
+            if (value != null) {
+                most = Math.max(most, new CladeLabel(value).lines.size());
+            }
+        }
+        return most;
+    }
+
+    /** Leaves out bar names (and asterisks) that are longer than their group is tall. */
+    public void setHideUnfitting(boolean hideUnfitting) {
+        this.hideUnfitting = hideUnfitting;
+        firePainterChanged();
     }
 
     /**
@@ -299,8 +319,9 @@ public class GroupBarPainter {
             g2.setPaint(c);
             g2.fill(new Rectangle2D.Double(barX, run.minY, barWidth, run.maxY - run.minY));
 
-            String text = String.valueOf(run.value);
+            String text = String.valueOf(run.value).trim();
             double centreY = (run.minY + run.maxY) / 2.0;
+            double runHeight = run.maxY - run.minY;
             g2.setPaint(Color.BLACK);
 
             if (text.matches("\\*+")) {
@@ -308,6 +329,7 @@ public class GroupBarPainter {
                 // upright and larger, because a 10 pt asterisk is a speck, and centred on the bar
                 Font starFont = barFont.deriveFont(Font.PLAIN, (float) (barFont.getSize2D() * STAR_SCALE));
                 Rectangle2D box = starFont.createGlyphVector(g2.getFontRenderContext(), text).getVisualBounds();
+                if (hideUnfitting && box.getHeight() > runHeight) continue;
                 g2.setFont(starFont);
                 g2.drawString(text, (float) (barX + barWidth + TEXT_GAP - box.getX()),
                         (float) (centreY - box.getCenterY()));
@@ -315,20 +337,38 @@ public class GroupBarPainter {
                 continue;
             }
 
-            double textWidth = fm.stringWidth(text);
-            AffineTransform t = new AffineTransform(oldTransform);
-            if (textDownwards) {
-                // read top to bottom: the letters stand away from the bar, baseline next to it
-                t.translate(barX + barWidth + TEXT_GAP + fm.getDescent(), centreY - textWidth / 2.0);
-                t.rotate(Math.PI / 2.0);
-            } else {
-                // read bottom to top: the letters lean on the bar, baseline on the far side
-                t.translate(barX + barWidth + TEXT_GAP + fm.getAscent(), centreY + textWidth / 2.0);
-                t.rotate(-Math.PI / 2.0);
+            // Etap 7.6: "|" splits the name into lines stacked outwards from the bar
+            CladeLabel label = new CladeLabel(text);
+            double longest = 0.0;
+            for (String line : label.lines) {
+                longest = Math.max(longest, fm.stringWidth(line));
             }
-            g2.setTransform(t);
-            g2.drawString(text, 0, 0);
-            g2.setTransform(oldTransform);
+            // a name longer than its group would run into the neighbours - leave it out on request
+            if (hideUnfitting && longest > runHeight) continue;
+
+            double lineHeight = fm.getAscent() + fm.getDescent();
+            int n = label.lines.size();
+            for (int i = 0; i < n; i++) {
+                String line = label.lines.get(i);
+                double textWidth = fm.stringWidth(line);
+                AffineTransform t = new AffineTransform(oldTransform);
+                if (textDownwards) {
+                    // read top to bottom: the letters stand away from the bar, baseline next to it;
+                    // the first line is the outermost one, so it is on top when the page is turned
+                    t.translate(barX + barWidth + TEXT_GAP + fm.getDescent() + (n - 1 - i) * lineHeight,
+                            centreY - textWidth / 2.0);
+                    t.rotate(Math.PI / 2.0);
+                } else {
+                    // read bottom to top: the letters lean on the bar, baseline on the far side;
+                    // the first line is the one next to the bar
+                    t.translate(barX + barWidth + TEXT_GAP + fm.getAscent() + i * lineHeight,
+                            centreY + textWidth / 2.0);
+                    t.rotate(-Math.PI / 2.0);
+                }
+                g2.setTransform(t);
+                g2.drawString(line, 0, 0);
+                g2.setTransform(oldTransform);
+            }
         }
 
         g2.setFont(oldFont);
@@ -481,6 +521,7 @@ public class GroupBarPainter {
     private boolean textDownwards = false;
     private Font font = new Font("sansserif", Font.PLAIN, 10);
     private boolean barItalic = false;
+    private boolean hideUnfitting = false;
     private boolean backgroundLabelsVisible = false;
     private boolean backgroundLabelBold = false;
     private boolean backgroundLabelItalic = false;
