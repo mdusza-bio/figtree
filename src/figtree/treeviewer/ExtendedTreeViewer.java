@@ -166,6 +166,12 @@ public class ExtendedTreeViewer extends DefaultTreeViewer implements StatusProvi
         Set<Taxon> taxa = getSelectedTipTaxa();
 
         for (Taxon taxon : taxa) {
+            // Etap 7.6b: remember the value from before the first manual change, so that
+            // "Restore original" can bring it back (an asterisk, "Outgroup", a broken name...)
+            Object current = taxon.getAttribute(name);
+            if (current != null && !current.equals(value) && taxon.getAttribute(ORIGINAL_PREFIX + name) == null) {
+                taxon.setAttribute(ORIGINAL_PREFIX + name, current);
+            }
             taxon.setAttribute(name, value);
         }
 
@@ -177,6 +183,32 @@ public class ExtendedTreeViewer extends DefaultTreeViewer implements StatusProvi
         fireAnnotationsChanged();
 
         return taxa.size();
+    }
+
+    /** Hidden attribute ("!" keeps it out of the lists) holding a tip's value from before Assign to selection. */
+    public static final String ORIGINAL_PREFIX = "!orig.";
+
+    /**
+     * MyFigTree (Etap 7.6b): puts back the value the selected tips had before Assign to selection
+     * changed it. Returns how many tips had something to restore.
+     */
+    public int restoreSelectedTaxa(String name) {
+
+        int count = 0;
+        for (Taxon taxon : getSelectedTipTaxa()) {
+            Object original = taxon.getAttribute(ORIGINAL_PREFIX + name);
+            if (original != null) {
+                taxon.setAttribute(name, original);
+                taxon.removeAttribute(ORIGINAL_PREFIX + name);
+                count++;
+            }
+        }
+
+        if (count > 0) {
+            fireAnnotationsChanged();
+        }
+
+        return count;
     }
 
     /**

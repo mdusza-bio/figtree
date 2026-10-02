@@ -21,9 +21,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import jebl.evolution.taxa.Taxon;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.prefs.Preferences;
 
 public class GroupBarController extends AbstractController {
@@ -50,6 +52,8 @@ public class GroupBarController extends AbstractController {
     public static final String BACKGROUND_LABEL_ITALIC_KEY = "backgroundLabelItalic";
     public static final String ITALIC_KEY = "italic";
     public static final String HIDE_UNFITTING_KEY = "hideUnfitting";
+    public static final String BACKGROUND_GAP_KEY = "backgroundGap";
+    public static final String BACKGROUND_GRADIENT_KEY = "backgroundGradient";
 
     public GroupBarController(final GroupBarPainter painter,
                               final AttributeColourController colourController,
@@ -177,6 +181,25 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        // Etap 7.2 / 7.3: white gap between neighbouring backgrounds, white-to-colour gradient
+        final double defaultBackgroundGap = PREFS.getDouble(CONTROLLER_KEY + "." + BACKGROUND_GAP_KEY, 2.0);
+        backgroundGapSpinner = new JSpinner(new SpinnerNumberModel(defaultBackgroundGap, 0.0, 20.0, 0.5));
+        backgroundGapSpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setBackgroundGap(((Number) backgroundGapSpinner.getValue()).doubleValue());
+            }
+        });
+        painter.setBackgroundGap(defaultBackgroundGap);
+
+        backgroundGradientCheckBox = new JCheckBox("Gradient (white at the node)");
+        backgroundGradientCheckBox.setToolTipText("<html>Fades each background from white at the clade's node<br>" +
+                "to the full colour at the right edge, as in many journals.</html>");
+        backgroundGradientCheckBox.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                painter.setBackgroundGradient(backgroundGradientCheckBox.isSelected());
+            }
+        });
+
         // Etap 7.4: clade names written inside the backgrounds, at their right-hand edge
         final double defaultLabelSize = PREFS.getDouble(CONTROLLER_KEY + "." + BACKGROUND_LABEL_SIZE_KEY, 11.0);
         backgroundLabelsCheckBox = new JCheckBox("Clade names in backgrounds");
@@ -238,6 +261,8 @@ public class GroupBarController extends AbstractController {
         optionsPanel.addSpanningComponent(backgroundsCheckBox);
         backgroundLabel1 = optionsPanel.addComponentWithLabel("Attribute:", backgroundAttributeCombo);
         backgroundLabel2 = optionsPanel.addComponentWithLabel("Opacity (%):", backgroundAlphaSpinner);
+        backgroundLabel4 = optionsPanel.addComponentWithLabel("Gap between (pt):", backgroundGapSpinner);
+        optionsPanel.addSpanningComponent(backgroundGradientCheckBox);
         optionsPanel.addSpanningComponent(backgroundLabelsCheckBox);
         backgroundLabel3 = optionsPanel.addComponentWithLabel("Name size:", backgroundLabelSizeSpinner);
         optionsPanel.addSpanningComponent(backgroundLabelBoldCheckBox);
@@ -278,7 +303,7 @@ public class GroupBarController extends AbstractController {
             return;
         }
 
-        JComboBox nameCombo = new JComboBox();
+        final JComboBox nameCombo = new JComboBox();
         nameCombo.setEditable(true);
         Set<String> names = new LinkedHashSet<String>();
         for (int i = 0; i < attributeCombo.getItemCount(); i++) {
@@ -295,21 +320,104 @@ public class GroupBarController extends AbstractController {
         nameCombo.setSelectedItem(selected != null && selected.toString().length() > 0 ?
                 selected.toString() : lastAssignedName);
 
-        JTextField valueField = new JTextField(lastAssignedValue, 16);
-
-        OptionsPanel dialogPanel = new OptionsPanel(6, 6);
-        dialogPanel.addComponentWithLabel("Attribute:", nameCombo);
-        dialogPanel.addComponentWithLabel("Value:", valueField);
-
-        int result = JOptionPane.showConfirmDialog(optionsPanel, dialogPanel,
-                "Assign to Selection", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result != JOptionPane.OK_OPTION) {
+        final ExtendedTreeViewer viewer = (ExtendedTreeViewer) treeViewer;
+        final Set<Taxon> selectedTaxa = viewer.getSelectedTipTaxa();
+        if (selectedTaxa.isEmpty()) {
+            JOptionPane.showMessageDialog(optionsPanel,
+                    "Nothing is selected in the tree.\n\n" +
+                            "Select a clade (or some tip labels) first - every tip of the\n" +
+                            "selection then gets the value.",
+                    "Assign to Selection",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        final JTextField valueField = new JTextField(lastAssignedValue, 16);
+
+        // Etap 7.6b: say which attribute drives what, and what the selection holds right now -
+        // so an asterisk lands in "order" and not in "family", and the old value is in sight
+        Object barItem = attributeCombo.getSelectedItem();
+        Object bgItem = backgroundAttributeCombo.getSelectedItem();
+        JLabel rolesLabel = new JLabel("<html><i>Bars: " + (barItem == null ? "-" : barItem) +
+                " &nbsp;&middot;&nbsp; Backgrounds: " + (bgItem == null ? "-" : bgItem) +
+                " &nbsp;&middot;&nbsp; " + selectedTaxa.size() + (selectedTaxa.size() == 1 ? " tip" : " tips") +
+                " selected</i></html>");
+        rolesLabel.putClientProperty("JComponent.sizeVariant", "small");
+        final JLabel currentLabel = new JLabel();
+        currentLabel.putClientProperty("JComponent.sizeVariant", "small");
+
+        final Runnable showCurrent = new Runnable() {
+            public void run() {
+                Object item = nameCombo.getSelectedItem();
+                String attribute = item == null ? "" : item.toString().trim();
+                Set<String> values = new TreeSet<String>();
+                boolean restorable = false;
+                for (Taxon taxon : selectedTaxa) {
+                    Object v = taxon.getAttribute(attribute);
+                    values.add(v == null ? "(none)" : v.toString());
+                    if (taxon.getAttribute(ExtendedTreeViewer.ORIGINAL_PREFIX + attribute) != null) {
+                        restorable = true;
+                    }
+                }
+                StringBuilder text = new StringBuilder("<html>Now: ");
+                int shown = 0;
+                for (String v : values) {
+                    if (shown++ == 4) {
+                        text.append(", ... (").append(values.size()).append(" different)");
+                        break;
+                    }
+                    if (shown > 1) text.append(", ");
+                    text.append(v.replace("<", "&lt;"));
+                }
+                if (restorable) {
+                    text.append("<br>Changed here before - <b>Restore original</b> brings the old value back.");
+                }
+                text.append("</html>");
+                currentLabel.setText(text.toString());
+                // one shared value: start from it, so a small edit (or a "|") is enough
+                if (values.size() == 1 && !values.contains("(none)")) {
+                    valueField.setText(values.iterator().next());
+                    valueField.selectAll();
+                }
+            }
+        };
+        nameCombo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                showCurrent.run();
+            }
+        });
+        showCurrent.run();
+
+        OptionsPanel dialogPanel = new OptionsPanel(6, 6);
+        dialogPanel.addSpanningComponent(rolesLabel);
+        dialogPanel.addComponentWithLabel("Attribute:", nameCombo);
+        dialogPanel.addSpanningComponent(currentLabel);
+        dialogPanel.addComponentWithLabel("Value:", valueField);
+
+        String[] options = {"Assign", "Restore original", "Cancel"};
+        int result = JOptionPane.showOptionDialog(optionsPanel, dialogPanel, "Assign to Selection",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 
         Object nameItem = nameCombo.getSelectedItem();
         String name = nameItem == null ? "" : nameItem.toString().trim();
         String value = valueField.getText().trim();
+
+        if (result == 1) {
+            int restored = name.length() == 0 ? 0 : viewer.restoreSelectedTaxa(name);
+            if (restored == 0) {
+                JOptionPane.showMessageDialog(optionsPanel,
+                        "Nothing to restore for " + (name.length() == 0 ? "this attribute" : name) + ":\n" +
+                                "these tips were not changed with Assign to selection (or were restored already).\n\n" +
+                                "To get dictionary values back, import the dictionary again\n" +
+                                "(File > Import Annotations...).",
+                        "Assign to Selection",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+            return;
+        }
+        if (result != 0) {
+            return;
+        }
 
         if (name.length() == 0 || value.length() == 0) {
             JOptionPane.showMessageDialog(optionsPanel,
@@ -320,17 +428,7 @@ public class GroupBarController extends AbstractController {
             return;
         }
 
-        int count = ((ExtendedTreeViewer) treeViewer).annotateSelectedTaxa(name, value);
-
-        if (count == 0) {
-            JOptionPane.showMessageDialog(optionsPanel,
-                    "Nothing is selected in the tree.\n\n" +
-                            "Select a clade (or some tip labels) first - every tip of the\n" +
-                            "selection then gets " + name + " = " + value + ".",
-                    "Assign to Selection",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        viewer.annotateSelectedTaxa(name, value);
 
         lastAssignedName = name;
         lastAssignedValue = value;
@@ -356,6 +454,9 @@ public class GroupBarController extends AbstractController {
         backgroundAttributeCombo.setEnabled(on);
         backgroundLabel2.setEnabled(on);
         backgroundAlphaSpinner.setEnabled(on);
+        backgroundLabel4.setEnabled(on);
+        backgroundGapSpinner.setEnabled(on);
+        backgroundGradientCheckBox.setEnabled(on);
         backgroundLabelsCheckBox.setEnabled(on);
         boolean names = on && backgroundLabelsCheckBox.isSelected();
         backgroundLabel3.setEnabled(names);
@@ -433,6 +534,8 @@ public class GroupBarController extends AbstractController {
         backgroundLabelItalicCheckBox.setSelected(getBool(settings, BACKGROUND_LABEL_ITALIC_KEY, false));
         barItalicCheckBox.setSelected(getBool(settings, ITALIC_KEY, false));
         hideUnfittingCheckBox.setSelected(getBool(settings, HIDE_UNFITTING_KEY, false));
+        backgroundGapSpinner.setValue(getDouble(settings, BACKGROUND_GAP_KEY, 2.0));
+        backgroundGradientCheckBox.setSelected(getBool(settings, BACKGROUND_GRADIENT_KEY, false));
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -451,6 +554,8 @@ public class GroupBarController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_LABEL_ITALIC_KEY, backgroundLabelItalicCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + ITALIC_KEY, barItalicCheckBox.isSelected());
         settings.put(CONTROLLER_KEY + "." + HIDE_UNFITTING_KEY, hideUnfittingCheckBox.isSelected());
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_GAP_KEY, backgroundGapSpinner.getValue());
+        settings.put(CONTROLLER_KEY + "." + BACKGROUND_GRADIENT_KEY, backgroundGradientCheckBox.isSelected());
     }
 
     public String getTitle() {
@@ -485,5 +590,8 @@ public class GroupBarController extends AbstractController {
     private final JCheckBox backgroundLabelItalicCheckBox;
     private final JCheckBox barItalicCheckBox;
     private final JCheckBox hideUnfittingCheckBox;
+    private final JSpinner backgroundGapSpinner;
+    private final JCheckBox backgroundGradientCheckBox;
+    private final JLabel backgroundLabel4;
     private final JLabel backgroundLabel3;
 }

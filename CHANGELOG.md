@@ -107,6 +107,19 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.2 / 7.3 — przerwa i gradient teł, Restore original (2026-10-02)
+*Group Bars → Backgrounds*:
+- **Gap between (pt)** — biała przerwa między sąsiednimi tłami (domyślnie 2).
+- **Gradient (white at the node)** — tło od bieli przy węźle do pełnego koloru
+  przy prawej krawędzi; bez przezroczystości, więc PDF wychodzi tak samo.
+
+*Assign to selection…* pokazuje role atrybutów (paski / tła), obecne wartości
+zaznaczenia i zaczyna pole *Value* od wspólnej wartości. Nowy przycisk
+**Restore original** przywraca wartość sprzed zmiany (pamiętana w ukrytym
+atrybucie `!orig.<nazwa>`, zapisuje się w `.tree`).
+
+Zapis: `groupBars.backgroundGap`, `groupBars.backgroundGradient`.
+
 ### Etap 7.6 — łamanie i chowanie napisów na paskach (2026-10-02)
 - `|` w wartości łamie napis na pasku na kilka linii (`ECHINO-|STELIALES`),
   linie od paska na zewnątrz; rycina rezerwuje miejsce na najszerszy napis.

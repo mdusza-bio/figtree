@@ -460,7 +460,7 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   grup i kolorem przy każdej (outgroupy szare, klady jak na wzorze). Kolory
   zapisują się w `.tree`. Opcjonalnie kolumna `colour` w słowniku (`#E8A0C8`),
   żeby kolory przechodziły z drzewa na drzewo. Robić na końcu.
-- [ ] 7.2 🟢 **Tło do prawej krawędzi kolumny z napisami kladów** (z 7.4), nie
+- [x] 7.2 🟢 **Tło do prawej krawędzi kolumny z napisami kladów** (z 7.4), nie
   tylko do końca najdłuższej nazwy okazu; **cienka biała przerwa** (1–2 pkt)
   między sąsiednimi tłami, żeby klady się nie zlewały. Robić razem z 7.3 i
   dopiero po 7.4: program musi najpierw znać szerokość napisów kladów, a
@@ -468,10 +468,15 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   (`GroupBarPainter.paintBackgrounds`).
   Po 7.4 (2026-10-01) tło sięga już pod napisy kladów; **zostaje tylko biała
   przerwa**.
-- [ ] 7.3 🟢 **Tło z przejściem** (gradient: biały przy węźle → pełny kolor przy
+  **Zrobione 2026-10-02**: *Gap between (pt)* w panelu, domyślnie 2.
+- [x] 7.3 🟢 **Tło z przejściem** (gradient: biały przy węźle → pełny kolor przy
   prawej krawędzi), jak na wzorze. Obecne *Opacity* staje się mocą koloru przy
   prawym brzegu; na wzorze jest tam kolor pełny, nie pastelowe 25 %. Do wyboru:
   płaskie / z przejściem. Zaokrąglone rogi teł ze wzoru pomijamy — kosmetyka.
+  **Zrobione 2026-10-02**: checkbox *Gradient (white at the node)*; gradient jest
+  nieprzezroczysty (biel → kolor zmieszany z bielą wg *Opacity*), żeby PDF nie
+  zgadywał przezroczystości. Przy gradiencie *Opacity* 100 daje pełny kolor jak
+  na wzorze.
 - [x] 7.4 🟡 **Napisy kladów w tle** — poziomy napis przy prawej krawędzi tła,
   wyrównany do prawej, wyśrodkowany w pionie. **Bez osobnej kolumny:** napis
   to po prostu wartość atrybutu, po której grupujemy tła

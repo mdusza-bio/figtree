@@ -126,6 +126,18 @@ public class GroupBarPainter {
         firePainterChanged();
     }
 
+    /** Etap 7.2: white space (points) between neighbouring backgrounds, so clades do not merge. */
+    public void setBackgroundGap(double backgroundGap) {
+        this.backgroundGap = backgroundGap;
+        firePainterChanged();
+    }
+
+    /** Etap 7.3: backgrounds fade from white at the clade's node to the full colour at the right edge. */
+    public void setBackgroundGradient(boolean backgroundGradient) {
+        this.backgroundGradient = backgroundGradient;
+        firePainterChanged();
+    }
+
     /** Italic clade names in the backgrounds (some journals set family names in italics). */
     public void setBackgroundLabelItalic(boolean backgroundLabelItalic) {
         this.backgroundLabelItalic = backgroundLabelItalic;
@@ -268,9 +280,22 @@ public class GroupBarPainter {
             double x0 = p.getX() - 2.0;
 
             Color c = getColourFor(run.value, backgroundDecorator, backgroundAttribute);
-            g2.setPaint(new Color(c.getRed(), c.getGreen(), c.getBlue(),
-                    (int) Math.round(255 * Math.max(0.0, Math.min(1.0, backgroundAlpha)))));
-            g2.fill(new Rectangle2D.Double(x0, run.minY, Math.max(0.0, rightX + extra - x0), run.maxY - run.minY));
+            double alpha = Math.max(0.0, Math.min(1.0, backgroundAlpha));
+            double x1 = rightX + extra;
+            if (backgroundGradient) {
+                // opaque white -> colour blended with white by the opacity: no transparency in the
+                // gradient itself, which keeps the PDF export honest
+                Color full = new Color(
+                        (int) Math.round(255 * (1 - alpha) + c.getRed() * alpha),
+                        (int) Math.round(255 * (1 - alpha) + c.getGreen() * alpha),
+                        (int) Math.round(255 * (1 - alpha) + c.getBlue() * alpha));
+                g2.setPaint(new GradientPaint((float) x0, 0f, Color.WHITE, (float) x1, 0f, full, false));
+            } else {
+                g2.setPaint(new Color(c.getRed(), c.getGreen(), c.getBlue(), (int) Math.round(255 * alpha)));
+            }
+            // Etap 7.2: a little white between neighbouring backgrounds
+            double half = Math.min(backgroundGap / 2.0, (run.maxY - run.minY) / 4.0);
+            g2.fill(new Rectangle2D.Double(x0, run.minY + half, Math.max(0.0, x1 - x0), run.maxY - run.minY - 2 * half));
 
             if (columnWidth > 0.0) {
                 // the clade name: right-aligned just inside the right edge, centred on the run
@@ -522,6 +547,8 @@ public class GroupBarPainter {
     private Font font = new Font("sansserif", Font.PLAIN, 10);
     private boolean barItalic = false;
     private boolean hideUnfitting = false;
+    private double backgroundGap = 2.0;
+    private boolean backgroundGradient = false;
     private boolean backgroundLabelsVisible = false;
     private boolean backgroundLabelBold = false;
     private boolean backgroundLabelItalic = false;

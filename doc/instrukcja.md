@@ -345,6 +345,13 @@ Działa tylko w układzie prostokątnym.
   kliknij, podaj nazwę atrybutu i wartość. Wszystkie liście z zaznaczenia dostają
   ją naraz, a panel od razu przełącza się na ten atrybut. Wygodne dla kilku grup;
   przy większej liczbie lepszy jest import z pliku.
+  Okno pokazuje, który atrybut rysuje paski, a który tła (*Bars: order ·
+  Backgrounds: family*), oraz co zaznaczone okazy mają teraz (*Now: …*). Gdy
+  wszystkie mają jedną wartość, pole *Value* zaczyna od niej — wystarczy ją
+  poprawić (np. wstawić `|`). **Restore original** cofa zmianę zrobioną tym
+  oknem i przywraca poprzednią wartość (gwiazdka → nazwa rzędu, „Outgroup” →
+  rodzina), nawet po zapisaniu i ponownym otwarciu pliku. Gdy nie ma czego
+  cofnąć, wystarczy ponownie zaimportować słownik.
 - **Bar width** — grubość paska (pt).
 - **Gap from labels** — odstęp paska od najdłuższej nazwy (pt).
 - **Font size** — wielkość napisu na pasku.
@@ -373,6 +380,11 @@ Działa tylko w układzie prostokątnym.
   *Assign to selection…* z atrybutem `family` i właściwą nazwą rodziny.
 - **Backgrounds** — pastelowe tła za kladami, od wspólnego przodka do krawędzi
   etykiet; **Attribute** i **Opacity (%)** osobno dla tła.
+  - **Gap between (pt)** — biała przerwa między sąsiednimi tłami (domyślnie 2),
+    żeby klady się nie zlewały; 0 = tła stykają się.
+  - **Gradient (white at the node)** — tło blednie do bieli przy węźle kladu, a
+    pełny kolor ma przy prawej krawędzi, jak w artykułach. *Opacity* działa
+    wtedy jako moc koloru przy prawym brzegu; 100 = pełny kolor.
 - **Clade names in backgrounds** (7.4) — nazwa kladu wpisana w jego tło, przy
   prawej krawędzi, wyrównana do prawej i wyśrodkowana w pionie. Napis to po
   prostu wartość atrybutu teł (np. `Clade 3 Argentodermataceae`), więc nie
