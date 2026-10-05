@@ -107,6 +107,17 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.12 — małe „T” przy sekwencji typu (2026-10-05)
+*Tip Labels*: nowy sposób oznaczania typów obok pogrubienia —
+- **Type mark: superscript T** — okazy złapane przez *Highlight names
+  containing* (np. `HOLOTYPE`) dostają małe, podniesione „T” za nazwą, jak w
+  artykułach mykologicznych; słowo `HOLOTYPE` można schować przez *Hide parts*;
+- **type specimen (superscript T)** w okienku *Style selected tips...* — to samo
+  ręcznie dla wybranego liścia.
+
+Zapis: `tipLabels.highlightSuperscript`, atrybut liścia `!labelType`. Do
+kolejki dopisany etap 8 (przycisk „More…” w długich panelach) — na później.
+
 ### Poprawka — kreski `//` bliżej siebie (2026-10-05)
 Znak przerwania na skróconej gałęzi ma kreski o połowę bliżej siebie niż
 dotąd — wyglądają jak jeden znak `//`, tak jak w artykułach, a nie jak dwie

@@ -135,8 +135,10 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         // MyFigTree (Etap 6.11): what the user set by hand on this one tip wins
         boolean[] italicOverride = parseItalicOverride(node.getAttribute(ITALIC_OVERRIDE_ATTRIBUTE));
         boolean boldOverride = isTrue(node.getAttribute(BOLD_OVERRIDE_ATTRIBUTE));
+        // MyFigTree (Etap 7.12): a tip marked by hand as a type gets the raised "T"
+        boolean typeOverride = isTrue(node.getAttribute(TYPE_OVERRIDE_ATTRIBUTE));
 
-        if (labelStyle.isPlain() && italicOverride == null && !boldOverride) {
+        if (labelStyle.isPlain() && italicOverride == null && !boldOverride && !typeOverride) {
             return null;
         }
 
@@ -148,7 +150,7 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         if (parts.length == 0) {
             return null;
         }
-        return labelStyle.getRuns(parts, rawName, italicOverride, boldOverride);
+        return labelStyle.getRuns(parts, rawName, italicOverride, boldOverride, typeOverride);
     }
 
     /**
@@ -184,7 +186,14 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         return value != null && value.toString().trim().equalsIgnoreCase("true");
     }
 
+    /** How much smaller the raised "T" is than the name, and how far up it sits (share of the ascent). */
+    private static final float SUPERSCRIPT_SCALE = 0.7f;
+    private static final double SUPERSCRIPT_RISE = 0.38;
+
     private static Font runFont(Font base, LabelStyle.Run run) {
+        if (run.superscript) {
+            return base.deriveFont(Font.PLAIN, base.getSize2D() * SUPERSCRIPT_SCALE);
+        }
         int style = base.getStyle();
         if (run.italic) style |= Font.ITALIC;
         if (run.bold) style |= Font.BOLD;
@@ -492,7 +501,9 @@ public class BasicLabelPainter extends LabelPainter<Node> {
                 Font f = runFont(baseFont, run);
                 g2.setFont(f);
                 g2.setPaint(run.colour != null ? run.colour : basePaint);
-                g2.drawString(run.text, x, y);
+                float rise = run.superscript ?
+                        (float) (g2.getFontMetrics(baseFont).getAscent() * SUPERSCRIPT_RISE) : 0f;
+                g2.drawString(run.text, x, y - rise);
                 x += g2.getFontMetrics(f).getStringBounds(run.text, g2).getWidth();
             }
             g2.setPaint(basePaint);
@@ -583,6 +594,7 @@ public class BasicLabelPainter extends LabelPainter<Node> {
     /** MyFigTree (Etap 6.11): per-tip settings, saved with the tree */
     public static final String ITALIC_OVERRIDE_ATTRIBUTE = "!labelItalic";
     public static final String BOLD_OVERRIDE_ATTRIBUTE = "!labelBold";
+    public static final String TYPE_OVERRIDE_ATTRIBUTE = "!labelType";
 
     public LabelStyle getLabelStyle() {
         return labelStyle;

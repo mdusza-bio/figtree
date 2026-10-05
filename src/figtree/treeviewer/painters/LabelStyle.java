@@ -109,15 +109,22 @@ public class LabelStyle {
      */
     public static class Run {
         public Run(String text, boolean italic, boolean bold, Color colour) {
+            this(text, italic, bold, colour, false);
+        }
+
+        public Run(String text, boolean italic, boolean bold, Color colour, boolean superscript) {
             this.text = text;
             this.italic = italic;
             this.bold = bold;
             this.colour = colour;
+            this.superscript = superscript;
         }
 
         public final String text;
         public final boolean italic;
         public final boolean bold;
+        /** MyFigTree (Etap 7.12): drawn small and raised - the "T" that marks a type specimen */
+        public final boolean superscript;
         /** null = use the painter's normal label colour */
         public final Color colour;
     }
@@ -502,6 +509,21 @@ public class LabelStyle {
         this.highlightBold = highlightBold;
     }
 
+    /**
+     * MyFigTree (Etap 7.12): highlighted tips get a small raised "T" after the name - the way
+     * mycologists and lichenologists mark sequences of type specimens.
+     */
+    public boolean isHighlightSuperscript() {
+        return highlightSuperscript;
+    }
+
+    public void setHighlightSuperscript(boolean highlightSuperscript) {
+        this.highlightSuperscript = highlightSuperscript;
+    }
+
+    /** The letter written as the type mark. */
+    public static final String TYPE_MARK = "T";
+
     public Color getHighlightColour() {
         return highlightColour;
     }
@@ -582,6 +604,15 @@ public class LabelStyle {
      * @param boldOverride   draw the whole label bold (set by hand for this tip)
      */
     public List<Run> getRuns(String[] parts, String rawName, boolean[] italicOverride, boolean boldOverride) {
+        return getRuns(parts, rawName, italicOverride, boldOverride, false);
+    }
+
+    /**
+     * @param typeOverride this tip was marked by hand as a type: add the raised "T" whatever the
+     *                     highlight settings say
+     */
+    public List<Run> getRuns(String[] parts, String rawName, boolean[] italicOverride, boolean boldOverride,
+                             boolean typeOverride) {
         List<Run> runs = new ArrayList<Run>();
 
         {
@@ -623,6 +654,13 @@ public class LabelStyle {
                         highlightColour != null ? highlightColour : run.colour));
             }
             runs = highlighted;
+        }
+
+        if (typeOverride || (highlightSuperscript && isHighlighted(rawName))) {
+            // the mark takes the colour of the text it follows
+            Color colour = runs.isEmpty() ? null : runs.get(runs.size() - 1).colour;
+            runs = new ArrayList<Run>(runs);
+            runs.add(new Run(TYPE_MARK, false, false, colour, true));
         }
 
         return runs;
@@ -691,5 +729,6 @@ public class LabelStyle {
     private String highlight = "";
     private final List<String> highlightList = new ArrayList<String>();
     private boolean highlightBold = false;
+    private boolean highlightSuperscript = false;
     private Color highlightColour = null;
 }

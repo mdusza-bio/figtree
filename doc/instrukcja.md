@@ -187,6 +187,24 @@ Ręczna poprawka pojedynczego liścia (gdy reguły się mylą):
   bo w nazwie nie ma numeru, a `holotypus` powinien zostać prosto.
 - **bold whole label** w tym samym okienku pogrubia całą nazwę tego liścia —
   wygodne do zaznaczenia typu na rycinie.
+- **type specimen (superscript T)** w tym samym okienku dopisuje za nazwą małe,
+  podniesione „T” — tak mykolodzy i lichenolodzy oznaczają sekwencję typu
+  (`Cladosporium colombiae CBS 274.80Bᵀ`).
+
+**Oznaczanie typów — dwa zwyczaje, jedno miejsce.** W śluzowcach typ zwykle
+pogrubia się, w mykologii i lichenologii dostaje małe „T” za numerem okazu.
+Oba robi się tak samo:
+- *hurtem, po nazwie*: w **Highlight names containing** wpisz to, co w nazwach
+  z FASTA oznacza typ (np. `HOLOTYPE`), a potem zaznacz **Bold** przy
+  *Highlight style* (pogrubienie) albo **superscript T** przy *Type mark*
+  (małe „T”) — albo oba naraz. Samo słowo `HOLOTYPE` można schować polem
+  **Hide parts**, wtedy na rycinie zostaje tylko „T”;
+- *ręcznie, okaz po okazie*: zaznacz liść, **Style selected tips...**, i zaznacz
+  *bold whole label* albo *type specimen (superscript T)*.
+
+„T” ma kolor nazwy, za którą stoi, i zapisuje się z drzewem (ustawienie
+`tipLabels.highlightSuperscript`, ręczne oznaczenie jako `!labelType` przy
+liściu). W podpisie ryciny warto dodać „T = sekwencja z typu”.
 - Człony w okienku są pokazane tak, jak się rysują, więc sklejony numer
   (`KRAM M-2749`) jest jednym polem, nie dwoma.
 - **Back to rules** kasuje ręczne ustawienie i liść wraca do ogólnych reguł.

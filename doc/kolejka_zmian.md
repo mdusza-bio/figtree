@@ -533,6 +533,13 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   wartość, około 20 razy. Klady parafiletycznych rodzin (*Lamprodermataceae
   1–4*) muszą mieć osobne wartości, inaczej tła się połączą lub rozerwą.
 
+- [x] 7.12 🟢 **Małe „T” przy sekwencji typu** — zgłoszone 2026-10-05 ze wzorem
+  z artykułu mykologicznego (`CBS 110777ᵀ`). **Zrobione** bez nowego panelu:
+  *Tip Labels → Type mark: superscript T* (dla okazów złapanych przez
+  *Highlight names containing*) oraz checkbox *type specimen (superscript T)*
+  w *Style selected tips...*. Pogrubienie typów (zwyczaj śluzowcowy) działa
+  jak dotąd tym samym polem. Klucz `tipLabels.highlightSuperscript`, atrybut
+  liścia `!labelType`.
 - [x] 7.11 🟢 **Zapis `-/1` dla dwóch analiz** — zgłoszone 2026-10-05: przy
   dwóch wartościach poparcia (ML / Bayes) wartość poniżej progu ma być
   zastąpiona kreską, jak w artykułach, a nie zabierać ze sobą całej etykiety.
@@ -566,6 +573,43 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
 Mniej ważne / do decyzji: kolejność kladów na rycinie (*Order nodes*) i to, czy
 jednogatunkowe klady (*Clade 13*, *Clade 16*) mają mieć wąski pasek tła jak na
 wzorze — dziś też to zrobi, jeśli okaz ma swoją wartość w tabelce.
+
+---
+
+## Etap 8 — porządki w panelach (na później)
+
+Po etapie 7 funkcji jest dużo i panele *Group Bars*, *Node Labels* i
+*Tip Labels* zrobiły się długie. Użytkowniczka zgłosiła obawę 2026-10-05
+(„zaczynam przekraczać granicę liczby funkcjonalności”) i zaakceptowała
+kierunek: nie usuwać funkcji, tylko schować rzadko używane.
+
+- [ ] 8.1 🟡 **Przycisk „More…” w długich panelach** — w każdym panelu zostają
+  na wierzchu pola używane przy każdej rycinie, a reszta chowa się pod jednym
+  przyciskiem *More…* (rozwija / zwija, stan pamiętany). Do zrobienia, „gdy
+  przyjdzie na to czas” — nie zaczynać bez jej sygnału. Do ustalenia z nią
+  przed kodowaniem, panel po panelu, co jest „na co dzień”, a co „rzadko”.
+  Propozycja na start:
+  - *Group Bars* — na wierzchu: *Attribute*, *Assign to selection…*,
+    *Colours…*, *Backgrounds* + jego *Attribute*, *Clade names in
+    backgrounds*; pod *More…*: szerokości, odstępy, rozmiary czcionek,
+    kierunek tekstu, kursywa, *Not italic words*, *Hide names that do not
+    fit*, gradient, przerwa, *Opacity*.
+  - *Node Labels* / *Branch Labels* — na wierzchu: *Display*, *Show only
+    if >=*, *Second value*, *Position*, *Font size*; pod *More…*: *Layout*,
+    *Second only if >=*, *Too low shows as*, *Offset X / Y*, *Crowded
+    values*, *Move selected label…*, formaty liczb.
+  - *Tip Labels* — na wierzchu: *Italic mode*, *Not italic words*, *Hide
+    parts*, *Font size*; pod *More…*: *Hide regex*, style grup, *Highlight…*,
+    *Type mark*, *Dot after codes*, *Style selected tips…*.
+  - *Layout* — na wierzchu: *Min tip spacing*, *Shorten selected branch*;
+    pod *More…*: *Shorten branches longer than*, *Write 2x / 3x above //*,
+    *2x / 3x size*.
+  Uwaga techniczna: pola są dodawane przez `OptionsPanel.addComponentWithLabel`
+  w konstruktorach kontrolerów (`GroupBarController`, `LabelPainterController`,
+  `RectilinearTreeLayoutController`); najprościej drugi `OptionsPanel` na pola
+  „rzadkie”, pokazywany i chowany przyciskiem, z kluczem stanu w `.tree`
+  albo w preferencjach. *Publication preset* nie powinien zależeć od tego,
+  czy sekcja jest rozwinięta.
 
 ---
 

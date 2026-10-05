@@ -103,6 +103,7 @@ public class LabelPainterController extends AbstractController {
     public static final String OTHER_COLOUR_KEY = "otherColour";
     public static final String HIGHLIGHT_KEY = "highlight";
     public static final String HIGHLIGHT_BOLD_KEY = "highlightBold";
+    public static final String HIGHLIGHT_SUPERSCRIPT_KEY = "highlightSuperscript";
     public static final String HIGHLIGHT_COLOUR_KEY = "highlightColour";
 
     // MyFigTree: smarter italics (Etap 6.1)
@@ -527,6 +528,12 @@ public class LabelPainterController extends AbstractController {
             };
             highlightBoldCheck.addActionListener(highlightListener);
             highlightColourButton.addActionListener(highlightListener);
+            // MyFigTree (Etap 7.12): the mycologists' way of marking a type - a small raised T
+            highlightSuperCheck = new JCheckBox("superscript T");
+            highlightSuperCheck.setOpaque(false);
+            highlightSuperCheck.setToolTipText("<html>Tips whose name contains one of the highlight texts get a small<br>" +
+                    "raised T after the name - the usual mark of a type specimen.</html>");
+            highlightSuperCheck.addActionListener(highlightListener);
 
         } else {
             italicPartsSpinner = null;
@@ -546,6 +553,7 @@ public class LabelPainterController extends AbstractController {
             highlightText = null;
             highlightBoldCheck = null;
             highlightColourButton = null;
+            highlightSuperCheck = null;
         }
 
         final JLabel label1 = optionsPanel.addComponentWithLabel("Display:", displayAttributeCombo);
@@ -598,6 +606,8 @@ public class LabelPainterController extends AbstractController {
             addComponent(optionsPanel.addComponentWithLabel("Highlight style:", stylePanel(highlightBoldCheck, highlightColourButton)));
             addComponent(highlightBoldCheck);
             addComponent(highlightColourButton);
+            addComponent(optionsPanel.addComponentWithLabel("Type mark:", highlightSuperCheck));
+            addComponent(highlightSuperCheck);
         }
 
         if (xPaddingSpinner != null) {
@@ -776,6 +786,10 @@ public class LabelPainterController extends AbstractController {
                 BasicLabelPainter.isTrue(first.getAttribute(BasicLabelPainter.BOLD_OVERRIDE_ATTRIBUTE)));
         boldCheck.setOpaque(false);
         dialogPanel.addSpanningComponent(boldCheck);
+        JCheckBox typeCheck = new JCheckBox("type specimen (superscript T)",
+                BasicLabelPainter.isTrue(first.getAttribute(BasicLabelPainter.TYPE_OVERRIDE_ATTRIBUTE)));
+        typeCheck.setOpaque(false);
+        dialogPanel.addSpanningComponent(typeCheck);
 
         Object[] buttons = {"Apply", "Back to rules", "Cancel"};
         int result = JOptionPane.showOptionDialog(optionsPanel, dialogPanel,
@@ -796,12 +810,18 @@ public class LabelPainterController extends AbstractController {
                 } else {
                     tip.removeAttribute(BasicLabelPainter.BOLD_OVERRIDE_ATTRIBUTE);
                 }
+                if (typeCheck.isSelected()) {
+                    tip.setAttribute(BasicLabelPainter.TYPE_OVERRIDE_ATTRIBUTE, "true");
+                } else {
+                    tip.removeAttribute(BasicLabelPainter.TYPE_OVERRIDE_ATTRIBUTE);
+                }
             }
         } else if (result == 1) {
             // "Back to rules" - forget the hand-made setting on these tips
             for (Node tip : tips) {
                 tip.removeAttribute(BasicLabelPainter.ITALIC_OVERRIDE_ATTRIBUTE);
                 tip.removeAttribute(BasicLabelPainter.BOLD_OVERRIDE_ATTRIBUTE);
+                tip.removeAttribute(BasicLabelPainter.TYPE_OVERRIDE_ATTRIBUTE);
             }
         } else {
             return;
@@ -896,6 +916,7 @@ public class LabelPainterController extends AbstractController {
         LabelStyle style = labelPainter.getLabelStyle();
         style.setHighlight(highlightText.getText());
         style.setHighlightBold(highlightBoldCheck.isSelected());
+        style.setHighlightSuperscript(highlightSuperCheck.isSelected());
         style.setHighlightColour(highlightColourButton.getColour());
         labelPainter.labelStyleChanged();
     }
@@ -1172,6 +1193,8 @@ public class LabelPainterController extends AbstractController {
         if (v instanceof Boolean) {
             highlightBoldCheck.setSelected((Boolean) v);
         }
+        v = settings.get(key + "." + HIGHLIGHT_SUPERSCRIPT_KEY);
+        highlightSuperCheck.setSelected(v instanceof Boolean && (Boolean) v);
         if (settings.containsKey(key + "." + HIGHLIGHT_COLOUR_KEY)) {
             highlightColourButton.setColour(colourFromSetting(settings.get(key + "." + HIGHLIGHT_COLOUR_KEY)));
         }
@@ -1194,6 +1217,7 @@ public class LabelPainterController extends AbstractController {
         settings.put(key + "." + OTHER_COLOUR_KEY, colourSetting(otherColourButton.getColour()));
         settings.put(key + "." + HIGHLIGHT_KEY, highlightText.getText());
         settings.put(key + "." + HIGHLIGHT_BOLD_KEY, highlightBoldCheck.isSelected());
+        settings.put(key + "." + HIGHLIGHT_SUPERSCRIPT_KEY, highlightSuperCheck.isSelected());
         settings.put(key + "." + HIGHLIGHT_COLOUR_KEY, colourSetting(highlightColourButton.getColour()));
     }
 
@@ -1293,6 +1317,7 @@ public class LabelPainterController extends AbstractController {
     private final OptionalColourButton otherColourButton;
     private final JTextField highlightText;
     private final JCheckBox highlightBoldCheck;
+    private final JCheckBox highlightSuperCheck;
     private final OptionalColourButton highlightColourButton;
 
     private final String title;
