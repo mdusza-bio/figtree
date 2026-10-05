@@ -536,9 +536,9 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
 - [x] 7.9 🟢 **Okno koloru zna kolory z drzewa** — zgłoszone 2026-10-05: przy
   dokładaniu okazu do pokolorowanej grupy trzeba było szukać tego samego
   odcienia w palecie. **Zrobione**: przyciski *Colour* i *Hilight* otwierają
-  okno z paskiem **Already on this tree** nad paletą (kolor + ile nazw, gałęzi,
-  podświetleń; w dymku przykładowe okazy), kliknięcie wybiera dokładnie ten
-  kolor. Okno startuje od koloru zaznaczonego okazu i obwodzi go ramką. Nowy
+  okno z paskiem **Already on this tree** nad paletą (same próbki kolorów; w
+  dymku kod koloru i przykładowe okazy), kliknięcie wybiera dokładnie ten
+  kolor. Liczniki nazw i gałęzi usunięte na prośbę użytkowniczki tego samego dnia. Okno startuje od koloru zaznaczonego okazu i obwodzi go ramką. Nowy
   plik `UsedColourChooser.java`.
 
 Mniej ważne / do decyzji: kolejność kladów na rycinie (*Order nodes*) i to, czy

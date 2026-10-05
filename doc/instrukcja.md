@@ -566,9 +566,9 @@ Jeśli menu *Annotate…* jest wyszarzone — nic nie jest zaznaczone w drzewie.
 
 Przyciski **Colour** i **Hilight** na pasku narzędzi otwierają okno koloru,
 które nad zwykłą paletą ma pasek **Already on this tree**: wszystkie kolory
-nadane już ręcznie na tym drzewie, od najczęściej użytego. Przy każdym widać,
-ile nazw, gałęzi i podświetleń go nosi; po najechaniu myszą dymek pokazuje
-kod koloru i przykładowe okazy.
+nadane już ręcznie na tym drzewie, od najczęściej użytego. Po najechaniu myszą
+na próbkę dymek pokazuje kod koloru i przykładowe okazy — to pomaga odróżnić
+dwa podobne odcienie.
 
 - **Dokładanie okazu do grupy:** zaznacz nowy okaz, *Colour*, kliknij kolor
   grupy na pasku, *OK*. Odcień jest dokładnie ten sam — nie trzeba szukać go

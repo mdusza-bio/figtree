@@ -26,19 +26,6 @@ public class UsedColourChooser {
         public int branches = 0;
         public int highlights = 0;
         public final List<String> examples = new ArrayList<String>();
-
-        String caption() {
-            List<String> parts = new ArrayList<String>();
-            if (names > 0) parts.add(names + (names == 1 ? " name" : " names"));
-            if (branches > 0) parts.add(branches + (branches == 1 ? " branch" : " branches"));
-            if (highlights > 0) parts.add(highlights + (highlights == 1 ? " highlight" : " highlights"));
-            StringBuilder sb = new StringBuilder();
-            for (String part : parts) {
-                if (sb.length() > 0) sb.append(", ");
-                sb.append(part);
-            }
-            return sb.toString();
-        }
     }
 
     private static class Swatch implements Icon {
@@ -49,11 +36,11 @@ public class UsedColourChooser {
         }
 
         public int getIconWidth() {
-            return 34;
+            return 38;
         }
 
         public int getIconHeight() {
-            return 16;
+            return 22;
         }
 
         public void paintIcon(Component c, Graphics g, int x, int y) {
@@ -94,22 +81,23 @@ public class UsedColourChooser {
             final List<JButton> buttons = new ArrayList<JButton>();
             final List<Color> colours = new ArrayList<Color>();
 
-            JPanel grid = new JPanel(new GridLayout(0, 3, 10, 4));
+            JPanel grid = new JPanel(new GridLayout(0, 12, 4, 4));
             for (Map.Entry<Color, Usage> entry : used.entrySet()) {
                 final Color colour = entry.getKey();
                 Usage usage = entry.getValue();
 
-                JButton button = new JButton(usage.caption(), new Swatch(colour));
-                button.setHorizontalAlignment(SwingConstants.LEFT);
-                button.setMargin(new Insets(2, 4, 2, 4));
-                button.putClientProperty("JComponent.sizeVariant", "small");
+                // just the colour; the names that carry it are in the tooltip, to tell two
+                // close shades apart
+                JButton button = new JButton(new Swatch(colour));
+                button.setMargin(new Insets(0, 0, 0, 0));
+                button.setContentAreaFilled(false);
+                button.setFocusPainted(false);
 
-                StringBuilder tip = new StringBuilder("<html><b>" + hex(colour) + "</b> - " + usage.caption());
+                StringBuilder tip = new StringBuilder("<html><b>" + hex(colour) + "</b>");
                 for (String example : usage.examples) {
                     tip.append("<br>").append(example.replace('_', ' '));
                 }
-                int more = usage.names - usage.examples.size();
-                if (more > 0) tip.append("<br>... and ").append(more).append(" more");
+                if (usage.names > usage.examples.size()) tip.append("<br>...");
                 tip.append("</html>");
                 button.setToolTipText(tip.toString());
 
@@ -133,10 +121,8 @@ public class UsedColourChooser {
                         buttons.get(i).setBorder(on ?
                                 BorderFactory.createCompoundBorder(
                                         BorderFactory.createLineBorder(Color.BLACK, 2),
-                                        BorderFactory.createEmptyBorder(2, 4, 2, 4)) :
-                                BorderFactory.createCompoundBorder(
-                                        BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-                                        BorderFactory.createEmptyBorder(3, 5, 3, 5)));
+                                        BorderFactory.createEmptyBorder(1, 1, 1, 1)) :
+                                BorderFactory.createEmptyBorder(3, 3, 3, 3));
                     }
                 }
             };
@@ -147,14 +133,16 @@ public class UsedColourChooser {
             });
             mark.run();
 
-            JScrollPane scroll = new JScrollPane(grid);
+            // kept to the left at its natural size, so a few colours are not stretched across the window
+            JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            left.add(grid);
+            JScrollPane scroll = new JScrollPane(left);
             scroll.setBorder(BorderFactory.createEmptyBorder());
-            Dimension size = grid.getPreferredSize();
+            Dimension size = left.getPreferredSize();
             scroll.setPreferredSize(new Dimension(size.width + 20, Math.min(size.height + 6, 130)));
 
             JPanel top = new JPanel(new BorderLayout(0, 4));
-            top.add(new JLabel("<html><b>Already on this tree</b> - click one to use exactly the same colour " +
-                    "(the framed one is chosen now):</html>"), BorderLayout.NORTH);
+            top.add(new JLabel("<html><b>Already on this tree:</b></html>"), BorderLayout.NORTH);
             top.add(scroll, BorderLayout.CENTER);
             content.add(top, BorderLayout.NORTH);
         }

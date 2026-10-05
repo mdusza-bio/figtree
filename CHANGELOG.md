@@ -109,7 +109,7 @@ Panel *Tip Labels*:
 
 ### Etap 7.9 — okno koloru zna kolory z drzewa (2026-10-05)
 Przyciski *Colour* i *Hilight*: nad paletą pasek **Already on this tree** z
-kolorami nadanymi już na drzewie (ile nazw / gałęzi / podświetleń, w dymku
+kolorami nadanymi już na drzewie (same próbki; w dymku kod koloru i
 przykładowe okazy). Kliknięcie wybiera dokładnie ten odcień. Okno startuje od
 koloru zaznaczonego okazu i obwodzi go ramką — widać, jaki kolor ma
 zaznaczenie, i łatwo dołożyć okaz do istniejącej grupy.
