@@ -552,7 +552,9 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   zaznaczonej gałęzi albo nazwy okazu; gałąź rysuje się tyle razy krócej, ma
   `//` i napis „2x” / „3x” (*Write 2x / 3x above //*, *2x / 3x size*). Krotność
   siedzi przy gałęzi jako ukryty atrybut `!shorten`, zapisuje się w `.tree`.
-  Stara opcja *Shorten branches longer than* bez zmian.
+  Stara opcja *Shorten branches longer than* bez zmian. Tego samego dnia, na
+  prośbę użytkowniczki: kreski `//` o połowę bliżej siebie (stała w
+  `RectilinearTreeLayout.appendBreakMark`, bez suwaka).
 - [x] 7.9 🟢 **Okno koloru zna kolory z drzewa** — zgłoszone 2026-10-05: przy
   dokładaniu okazu do pokolorowanej grupy trzeba było szukać tego samego
   odcienia w palecie. **Zrobione**: przyciski *Colour* i *Hilight* otwierają

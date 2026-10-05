@@ -107,6 +107,12 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Poprawka — kreski `//` bliżej siebie (2026-10-05)
+Znak przerwania na skróconej gałęzi ma kreski o połowę bliżej siebie niż
+dotąd — wyglądają jak jeden znak `//`, tak jak w artykułach, a nie jak dwie
+osobne kreski. Bez nowego ustawienia w panelu; dotyczy też *Shorten branches
+longer than*.
+
 ### Etap 7.11 — zapis `-/1` dla dwóch analiz (2026-10-05)
 *Node Labels* / *Branch Labels*, przy wybranej *Second value*:
 - **Second only if >=** — osobny próg dla drugiej wartości (np. PP ≥ 0.95);
