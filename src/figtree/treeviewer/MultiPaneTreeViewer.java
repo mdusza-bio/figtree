@@ -298,6 +298,10 @@ public class MultiPaneTreeViewer extends TreeViewer {
 		fireTreeSettingsChanged();
 	}
 
+	public int shortenSelectedBranches(int factor) {
+		return 0;
+	}
+
 	public void annotateSelectedTips(String name, Object value) {
 		//       treePane.annotateSelectedTips(name, value);
 		fireTreeSettingsChanged();

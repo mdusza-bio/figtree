@@ -107,6 +107,19 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.10 — skracanie wybranej gałęzi 2x / 3x (2026-10-05)
+*Layout → Shorten selected branch*: przyciski **2x**, **3x**, **Full** dla
+zaznaczonej gałęzi (albo nazwy okazu — wtedy gałąź do niego). Gałąź rysuje się
+dwa / trzy razy krócej, ze znakiem `//` i napisem „2x” / „3x” nad nim, jak w
+artykułach. **Write 2x / 3x above //** i **2x / 3x size** sterują napisem.
+Krotność zapisuje się przy gałęzi w `.tree` (ukryty atrybut `!shorten`);
+ustawienia napisu jako `rectilinearLayout.showBreakFactor` / `breakFactorSize`.
+*Shorten branches longer than* działa jak dotąd.
+
+Instrukcja: nowy podrozdział w 12a — trzy sposoby na kolor dla kladu (*Colour*,
+*Hilight*, *Group Bars* z *Assign to selection…*), z tabelką co, jak i gdzie
+cofnąć.
+
 ### Etap 7.9 — okno koloru zna kolory z drzewa (2026-10-05)
 Przyciski *Colour* i *Hilight*: nad paletą pasek **Already on this tree** z
 kolorami nadanymi już na drzewie (same próbki; w dymku kod koloru i

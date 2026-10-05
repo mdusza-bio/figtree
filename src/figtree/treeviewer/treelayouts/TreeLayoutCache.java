@@ -123,6 +123,10 @@ public class TreeLayoutCache {
         return calloutPaths;
     }
 
+    public Map<Node, Line2D> getBreakMarkMap() {
+        return breakMarks;
+    }
+
 	public void clear() {
 		nodePoints.clear();
         branchPaths.clear();
@@ -135,6 +139,7 @@ public class TreeLayoutCache {
         nodeLabelPaths.clear();
         nodeShapePaths.clear();
         calloutPaths.clear();
+        breakMarks.clear();
 }
 
     protected Map<Node, Point2D> nodePoints = new HashMap<Node, Point2D>();
@@ -148,4 +153,7 @@ public class TreeLayoutCache {
     protected Map<Node, Line2D> nodeLabelPaths = new HashMap<Node, Line2D>();
     protected Map<Node, Line2D> nodeShapePaths = new HashMap<Node, Line2D>();
     protected Map<Node, Shape> calloutPaths = new HashMap<Node, Shape>();
+    // MyFigTree (Etap 7.10): the "//" marks of branches shortened 2x / 3x - a short vertical line
+    // through the mark, top to bottom, so the factor can be written above it
+    protected Map<Node, Line2D> breakMarks = new HashMap<Node, Line2D>();
 }

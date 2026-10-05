@@ -52,6 +52,8 @@ public class RectilinearTreeLayoutController extends AbstractController {
     private static final String ALIGN_TIP_LABELS_KEY = "alignTipLabels";
     private static final String MIN_TIP_SPACING_KEY = "minTipSpacing";
     private static final String MAX_BRANCH_LENGTH_KEY = "maxBranchLength";
+    private static final String SHOW_BREAK_FACTOR_KEY = "showBreakFactor";
+    private static final String BREAK_FACTOR_SIZE_KEY = "breakFactorSize";
 
     public RectilinearTreeLayoutController(final RectilinearTreeLayout treeLayout, final TreeViewer treeViewer) {
         this.treeLayout = treeLayout;
@@ -122,6 +124,55 @@ public class RectilinearTreeLayoutController extends AbstractController {
             }
         });
         optionsPanel.addComponentWithLabel("Shorten branches longer than:", maxBranchLengthSpinner);
+
+        // MyFigTree (Etap 7.10): one chosen branch drawn 2 or 3 times shorter, with the factor above its //
+        JPanel shortenButtons = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 2, 0));
+        shortenButtons.setOpaque(false);
+        String[] names = {"2x", "3x", "Full"};
+        final int[] factors = {2, 3, 1};
+        for (int i = 0; i < names.length; i++) {
+            final int factor = factors[i];
+            JButton button = new JButton(names[i]);
+            button.putClientProperty("JComponent.sizeVariant", "small");
+            button.setToolTipText(factor > 1 ?
+                    "<html>Draws the selected branch " + factor + " times shorter than it is,<br>with a // mark and " + factor + "x above it.</html>" :
+                    "Draws the selected branch at its full length again.");
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    int count = treeViewer.shortenSelectedBranches(factor);
+                    if (count == 0) {
+                        JOptionPane.showMessageDialog(optionsPanel,
+                                "No branch is selected.\n\n" +
+                                        "Click a branch in the tree first (Selection Mode: Node),\n" +
+                                        "or the name of a tip to take the branch leading to it.",
+                                "Shorten Selected Branch",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        fireControllerChanged();
+                    }
+                }
+            });
+            shortenButtons.add(button);
+        }
+        optionsPanel.addComponentWithLabel("Shorten selected branch:", shortenButtons);
+
+        breakLabelsCheck = new JCheckBox("Write 2x / 3x above //");
+        breakLabelsCheck.setOpaque(false);
+        breakLabelsCheck.setSelected(treeLayout.isBreakLabelsVisible());
+        breakLabelsCheck.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                treeLayout.setBreakLabelsVisible(breakLabelsCheck.isSelected());
+            }
+        });
+        optionsPanel.addSpanningComponent(breakLabelsCheck);
+
+        breakLabelSizeSpinner = new JSpinner(new SpinnerNumberModel(treeLayout.getBreakLabelFontSize(), 1.0, 72.0, 1.0));
+        breakLabelSizeSpinner.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent changeEvent) {
+                treeLayout.setBreakLabelFontSize(((Number) breakLabelSizeSpinner.getValue()).doubleValue());
+            }
+        });
+        optionsPanel.addComponentWithLabel("2x / 3x size:", breakLabelSizeSpinner);
     }
 
     public JComponent getTitleComponent() {
@@ -153,6 +204,12 @@ public class RectilinearTreeLayoutController extends AbstractController {
         if (maxLength instanceof Number) {
             maxBranchLengthSpinner.setValue(((Number) maxLength).doubleValue());
         }
+        Object showFactor = settings.get(RECTILINEAR_LAYOUT_KEY + "." + SHOW_BREAK_FACTOR_KEY);
+        breakLabelsCheck.setSelected(!(showFactor instanceof Boolean) || (Boolean) showFactor);
+        Object factorSize = settings.get(RECTILINEAR_LAYOUT_KEY + "." + BREAK_FACTOR_SIZE_KEY);
+        if (factorSize instanceof Number) {
+            breakLabelSizeSpinner.setValue(((Number) factorSize).doubleValue());
+        }
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -161,6 +218,8 @@ public class RectilinearTreeLayoutController extends AbstractController {
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + ALIGN_TIP_LABELS_KEY, alignTipLabelsCheck.isSelected());
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + MIN_TIP_SPACING_KEY, ((Number) minTipSpacingSpinner.getValue()).doubleValue());
         settings.put(RECTILINEAR_LAYOUT_KEY + "." + MAX_BRANCH_LENGTH_KEY, ((Number) maxBranchLengthSpinner.getValue()).doubleValue());
+        settings.put(RECTILINEAR_LAYOUT_KEY + "." + SHOW_BREAK_FACTOR_KEY, breakLabelsCheck.isSelected());
+        settings.put(RECTILINEAR_LAYOUT_KEY + "." + BREAK_FACTOR_SIZE_KEY, ((Number) breakLabelSizeSpinner.getValue()).doubleValue());
     }
 
     private final JLabel titleLabel;
@@ -171,6 +230,8 @@ public class RectilinearTreeLayoutController extends AbstractController {
     private final JCheckBox alignTipLabelsCheck;
     private final JSpinner minTipSpacingSpinner;
     private final JSpinner maxBranchLengthSpinner;
+    private final JCheckBox breakLabelsCheck;
+    private final JSpinner breakLabelSizeSpinner;
 
     private final RectilinearTreeLayout treeLayout;
 

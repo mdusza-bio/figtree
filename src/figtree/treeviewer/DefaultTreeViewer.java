@@ -620,6 +620,14 @@ public class DefaultTreeViewer extends TreeViewer {
         fireTreeSettingsChanged();
     }
 
+    public int shortenSelectedBranches(int factor) {
+        int count = treePane.shortenSelectedBranches(factor);
+        if (count > 0) {
+            fireTreeSettingsChanged();
+        }
+        return count;
+    }
+
     public void annotateSelectedTips(String name, Object value) {
         treePane.annotateSelectedTips(name, value);
         fireTreeSettingsChanged();

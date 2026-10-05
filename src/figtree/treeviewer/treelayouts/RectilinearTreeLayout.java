@@ -66,13 +66,61 @@ public class RectilinearTreeLayout extends AbstractTreeLayout {
         fireTreeLayoutChanged();
     }
 
-    private boolean isShortened(RootedTree tree, Node node) {
-        return maxBranchLength > 0.0 && tree.getLength(node) > maxBranchLength;
+    /**
+     * MyFigTree (Etap 7.10): a single branch drawn 2 or 3 times shorter than it is. The factor sits
+     * on the node as a hidden attribute, so it is saved with the tree and follows rerooting.
+     */
+    public static final String SHORTEN_ATTRIBUTE = "!shorten";
+
+    /** 2 or 3 (or more) when this node's branch is to be drawn that many times shorter, otherwise 1. */
+    public static int shortenFactor(Node node) {
+        Object value = node.getAttribute(SHORTEN_ATTRIBUTE);
+        if (value == null) return 1;
+        try {
+            int factor = value instanceof Number ? ((Number) value).intValue() :
+                    (int) Math.round(Double.parseDouble(value.toString().trim()));
+            return factor >= 2 ? factor : 1;
+        } catch (NumberFormatException e) {
+            return 1;
+        }
     }
 
-    /** The length used for drawing: the real branch length, capped at maxBranchLength. */
+    private boolean breakLabelsVisible = true;
+    private double breakLabelFontSize = 8.0;
+
+    public boolean isBreakLabelsVisible() {
+        return breakLabelsVisible;
+    }
+
+    /** Whether "2x" / "3x" is written above the // of a branch shortened by that factor. */
+    public void setBreakLabelsVisible(boolean breakLabelsVisible) {
+        this.breakLabelsVisible = breakLabelsVisible;
+        fireTreeLayoutChanged();
+    }
+
+    public double getBreakLabelFontSize() {
+        return breakLabelFontSize;
+    }
+
+    public void setBreakLabelFontSize(double breakLabelFontSize) {
+        this.breakLabelFontSize = breakLabelFontSize;
+        fireTreeLayoutChanged();
+    }
+
+    private boolean isShortened(RootedTree tree, Node node) {
+        return shortenFactor(node) > 1 || (maxBranchLength > 0.0 && tree.getLength(node) > maxBranchLength);
+    }
+
+    /**
+     * The length used for drawing: the real branch length divided by the branch's own factor,
+     * or else capped at maxBranchLength.
+     */
     private double drawnLength(RootedTree tree, Node node) {
         double length = tree.getLength(node);
+        int factor = shortenFactor(node);
+        if (factor > 1) {
+            return length / factor;
+        }
         if (maxBranchLength > 0.0 && length > maxBranchLength) {
             return maxBranchLength;
         }
@@ -304,6 +352,12 @@ public class RectilinearTreeLayout extends AbstractTreeLayout {
                             branchPath.moveTo(x1, y1);
                             if (isShortened(tree, child)) {
                                 appendBreakMark(branchPath, x1, x0, y1);
+                                if (shortenFactor(child) > 1) {
+                                    // where the "2x" / "3x" goes: through the middle of the mark
+                                    double xm = (x1 + x0) / 2.0;
+                                    double h = yIncrement * 0.3;
+                                    cache.breakMarks.put(child, new Line2D.Double(xm, y1 - h, xm, y1 + h));
+                                }
                             }
                             branchPath.lineTo(x0, y1);
                             branchPath.lineTo(x0, y0);

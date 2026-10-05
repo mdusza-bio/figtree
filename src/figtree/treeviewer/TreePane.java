@@ -1216,6 +1216,37 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         repaint();
     }
 
+    /**
+     * MyFigTree (Etap 7.10): draws the selected branches 2 or 3 times shorter (factor 1 puts the full
+     * length back). Of a selected clade only the branch leading to it is taken - not every branch
+     * inside. Returns how many branches were changed.
+     */
+    public int shortenSelectedBranches(int factor) {
+        if (tree == null) {
+            return 0;
+        }
+        Set<Node> chosen = new LinkedHashSet<Node>(selectedNodes);
+        chosen.addAll(selectedTipLabels);
+        int count = 0;
+        for (Node node : chosen) {
+            Node parent = tree.getParent(node);
+            if (parent == null || chosen.contains(parent)) {
+                continue;
+            }
+            if (factor > 1) {
+                node.setAttribute(RectilinearTreeLayout.SHORTEN_ATTRIBUTE, factor);
+            } else {
+                node.removeAttribute(RectilinearTreeLayout.SHORTEN_ATTRIBUTE);
+            }
+            count++;
+        }
+        if (count > 0) {
+            recalibrate();
+            repaint();
+        }
+        return count;
+    }
+
     public void annotateSelectedTips(String name, Object value) {
         for (Node selectedTipLabel : selectedTipLabels) {
             Taxon selectedTaxon = tree.getTaxon(selectedTipLabel);
@@ -2163,6 +2194,34 @@ public class TreePane extends JComponent implements PainterListener, Printable {
         // MyFigTree (Etap 6.20): support dots on top of the branches, under the node labels
         if (supportDotPainter != null && supportDotPainter.isVisible()) {
             supportDotPainter.paint(g2, this);
+        }
+
+        // MyFigTree (Etap 7.10): "2x" / "3x" above the // of a branch drawn that many times shorter
+        if (treeLayout instanceof RectilinearTreeLayout && ((RectilinearTreeLayout) treeLayout).isBreakLabelsVisible()
+                && !treeLayoutCache.getBreakMarkMap().isEmpty() && getTreeTransform() != null) {
+            Font factorFont = new Font("sansserif", Font.PLAIN, 8).deriveFont(
+                    (float) ((RectilinearTreeLayout) treeLayout).getBreakLabelFontSize());
+            Font fontBefore = g2.getFont();
+            Paint paintBefore = g2.getPaint();
+            g2.setFont(factorFont);
+            g2.setPaint(Color.BLACK);
+            FontMetrics factorMetrics = g2.getFontMetrics(factorFont);
+            AffineTransform treeTransform = getTreeTransform();
+            for (Map.Entry<Node, Line2D> entry : treeLayoutCache.getBreakMarkMap().entrySet()) {
+                int factor = RectilinearTreeLayout.shortenFactor(entry.getKey());
+                if (factor < 2) {
+                    continue;
+                }
+                Point2D end1 = treeTransform.transform(entry.getValue().getP1(), null);
+                Point2D end2 = treeTransform.transform(entry.getValue().getP2(), null);
+                String text = factor + "x";
+                double centreX = (end1.getX() + end2.getX()) / 2.0;
+                double top = Math.min(end1.getY(), end2.getY());
+                g2.drawString(text, (float) (centreX - factorMetrics.stringWidth(text) / 2.0),
+                        (float) (top - 2.0 - factorMetrics.getDescent()));
+            }
+            g2.setFont(fontBefore);
+            g2.setPaint(paintBefore);
         }
 
         // Paint node labels

@@ -533,6 +533,13 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   wartość, około 20 razy. Klady parafiletycznych rodzin (*Lamprodermataceae
   1–4*) muszą mieć osobne wartości, inaczej tła się połączą lub rozerwą.
 
+- [x] 7.10 🟢 **Skracanie wybranej gałęzi 2x / 3x z podpisem nad `//`** —
+  zgłoszone 2026-10-05 ze wzorem z artykułu („3x” nad znakiem przerwania).
+  **Zrobione**: *Layout → Shorten selected branch: 2x / 3x / Full* dla
+  zaznaczonej gałęzi albo nazwy okazu; gałąź rysuje się tyle razy krócej, ma
+  `//` i napis „2x” / „3x” (*Write 2x / 3x above //*, *2x / 3x size*). Krotność
+  siedzi przy gałęzi jako ukryty atrybut `!shorten`, zapisuje się w `.tree`.
+  Stara opcja *Shorten branches longer than* bez zmian.
 - [x] 7.9 🟢 **Okno koloru zna kolory z drzewa** — zgłoszone 2026-10-05: przy
   dokładaniu okazu do pokolorowanej grupy trzeba było szukać tego samego
   odcienia w palecie. **Zrobione**: przyciski *Colour* i *Hilight* otwierają

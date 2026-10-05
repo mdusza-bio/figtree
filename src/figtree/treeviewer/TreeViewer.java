@@ -96,6 +96,8 @@ public abstract class TreeViewer extends JPanel implements Printable {
 
     public abstract void annotateSelectedNodes(String name, Object value);
 
+    public abstract int shortenSelectedBranches(int factor);
+
     public abstract void annotateSelectedTips(String name, Object value);
 
     public abstract void selectAll();

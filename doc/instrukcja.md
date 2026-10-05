@@ -58,6 +58,25 @@ Po otwarciu `.raxml.support` trzeba jeszcze w panelu *Node Labels* ustawić
   w panelu *Node Labels* (rozdział 6).
 - **Shorten branches longer than** — bardzo długie gałęzie (np. do outgrupy) są
   skracane i oznaczane `//`. Uwaga: skrócona gałąź nie odpowiada już skali. Wartość wpisać z kropka, przecinek nie działa, np. 0.2
+- **Shorten selected branch: 2x / 3x / Full** — skraca **jedną wybraną gałąź**
+  dokładnie dwa albo trzy razy i pisze nad znakiem `//` „2x” albo „3x”, tak jak
+  robią to autorzy w artykułach. Dzięki temu czytelnik wie, ile razy gałąź jest
+  naprawdę dłuższa, niż wygląda.
+  - Jak: kliknij gałąź w drzewie (*Selection Mode: Node*) albo nazwę okazu
+    (wtedy chodzi o gałąź prowadzącą do tego okazu) i kliknij **2x** lub **3x**.
+    **Full** przywraca pełną długość.
+  - Gdy zaznaczony jest cały klad, skracana jest tylko gałąź prowadząca do
+    kladu, nie wszystkie gałęzie w środku.
+  - **Write 2x / 3x above //** — włącza i wyłącza napis nad znakiem;
+    **2x / 3x size** — wielkość tego napisu.
+  - Skrócenie jest zapisane przy samej gałęzi w pliku `.tree`, więc zostaje po
+    ponownym otwarciu i po zmianie korzenia.
+  - Różnica wobec *Shorten branches longer than*: tamta opcja przycina
+    **wszystkie** długie gałęzie do jednej długości i nie podaje, ile razy;
+    ta skraca wybraną gałąź o znaną, okrągłą krotność. Można używać obu naraz —
+    gałąź z własnym 2x / 3x nie jest już dodatkowo przycinana.
+  - Skala pod drzewem nie dotyczy skróconych gałęzi — warto to napisać w
+    podpisie ryciny.
 
 ## 4. Panel *Appearance*
 
@@ -562,7 +581,26 @@ potem na **nowym** tekście, więc `Trichia sordida HOLOTYPE` wyjdzie jako
 
 Jeśli menu *Annotate…* jest wyszarzone — nic nie jest zaznaczone w drzewie.
 
-## 12a. Kolorowanie okazów i gałęzi — ten sam odcień co wcześniej
+## 12a. Kolorowanie kladów, okazów i gałęzi
+
+### Trzy sposoby na kolor dla kladu
+
+Żaden z nich nie wymaga słownika. Różnią się tym, co dostaje kolor.
+
+| Co chcesz uzyskać | Jak | Gdzie cofnąć |
+|---|---|---|
+| **Kolorowe gałęzie i nazwy** okazów w kladzie | *Selection Mode: Clade*, kliknij gałąź kladu, przycisk **Colour** na pasku narzędzi, wybierz kolor | zaznacz klad i *Tree → Clear Colouring…* |
+| **Jednolity prostokąt za kladem**, bez napisu | zaznacz klad, przycisk **Hilight**, wybierz kolor | *Tree → Clear Hilighting…* |
+| **Tło z nazwą kladu**, gradientem i paskiem po prawej (jak w artykułach) | zaznacz klad, *Group Bars → Assign to selection…*, wpisz atrybut (np. `family`) i nazwę grupy (np. `Clade A`), włącz *Backgrounds*; kolor w *Colours…* | *Assign to selection… → Restore original* albo wyłącz *Backgrounds* |
+
+- Pierwsze dwa sposoby to szybkie pokolorowanie bez żadnych nazw — dobre do
+  zaznaczenia kilku okazów albo jednego kladu.
+- Trzeci daje rycinę „jak w artykule” (rozdział 8) i można go mieszać ze
+  słownikiem: część okazów ma rodzinę z importu, część nazwę wpisaną ręcznie
+  przez *Assign to selection…* (np. `Outgroup`).
+- Wszystkie trzy zapisują się w pliku `.tree`.
+
+### Ten sam odcień co wcześniej
 
 Przyciski **Colour** i **Hilight** na pasku narzędzi otwierają okno koloru,
 które nad zwykłą paletą ma pasek **Already on this tree**: wszystkie kolory
