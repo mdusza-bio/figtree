@@ -86,6 +86,8 @@ public class LabelPainterController extends AbstractController {
     public static final String SHOW_THRESHOLD_KEY = "showThreshold";
     public static final String SECOND_ATTRIBUTE_KEY = "secondAttribute";
     public static final String SECOND_LAYOUT_KEY = "secondLayout";
+    public static final String SECOND_THRESHOLD_KEY = "secondThreshold";
+    public static final String BELOW_PLACEHOLDER_KEY = "belowPlaceholder";
 
     // MyFigTree: pulling crowded support values apart (Etap 6.6)
     public static final String AVOID_OVERLAP_KEY = "avoidOverlap";
@@ -380,6 +382,21 @@ public class LabelPainterController extends AbstractController {
                 }
             });
 
+            // MyFigTree (Etap 7.11): the second value's own threshold, and the dash of "-/1"
+            secondThresholdText = new JTextField("", 6);
+            secondThresholdText.setToolTipText("Show the second value only if >= this number; empty = always");
+            placeholderText = new JTextField("", 6);
+            placeholderText.setToolTipText("<html>With a second value: what to write in place of a value that is<br>" +
+                    "below its threshold or missing, e.g. - gives -/1 and 76/-.<br>" +
+                    "Empty = a first value below its threshold hides the whole label.</html>");
+            DocumentListener secondListener = new DocumentListener() {
+                public void insertUpdate(DocumentEvent e) { applySecondThreshold(); }
+                public void removeUpdate(DocumentEvent e) { applySecondThreshold(); }
+                public void changedUpdate(DocumentEvent e) { applySecondThreshold(); }
+            };
+            secondThresholdText.getDocument().addDocumentListener(secondListener);
+            placeholderText.getDocument().addDocumentListener(secondListener);
+
             secondLayoutCombo = new JComboBox(LabelPainter.SecondValueLayout.values());
             secondLayoutCombo.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent event) {
@@ -396,6 +413,8 @@ public class LabelPainterController extends AbstractController {
             thresholdText = null;
             secondAttributeCombo = null;
             secondLayoutCombo = null;
+            secondThresholdText = null;
+            placeholderText = null;
         }
 
         // MyFigTree: per-part styling of tip names (Etap 3)
@@ -598,6 +617,10 @@ public class LabelPainterController extends AbstractController {
             addComponent(secondAttributeCombo);
             addComponent(optionsPanel.addComponentWithLabel("Layout:", secondLayoutCombo));
             addComponent(secondLayoutCombo);
+            addComponent(optionsPanel.addComponentWithLabel("Second only if >=:", secondThresholdText));
+            addComponent(secondThresholdText);
+            addComponent(optionsPanel.addComponentWithLabel("Too low shows as:", placeholderText));
+            addComponent(placeholderText);
             if (avoidOverlapCheck != null) {
                 addComponent(optionsPanel.addComponentWithLabel("Crowded values:",
                         checkPanel(avoidOverlapCheck, labelBackingCheck)));
@@ -955,6 +978,20 @@ public class LabelPainterController extends AbstractController {
         optionsPanel.revalidate();
     }
 
+    private void applySecondThreshold() {
+        String text = secondThresholdText.getText().trim().replace(',', '.');
+        Double threshold = null;
+        if (text.length() > 0) {
+            try {
+                threshold = Double.valueOf(text);
+            } catch (NumberFormatException e) {
+                threshold = null;
+            }
+        }
+        labelPainter.setSecondThreshold(threshold);
+        labelPainter.setBelowPlaceholder(placeholderText.getText());
+    }
+
     private void applyThreshold() {
         String text = thresholdText.getText().trim().replace(',', '.');
         Double threshold = null;
@@ -1049,6 +1086,11 @@ public class LabelPainterController extends AbstractController {
             if (layout != null) {
                 secondLayoutCombo.setSelectedItem(LabelPainter.SecondValueLayout.fromString(layout.toString()));
             }
+            // absent in files saved before 7.11: no second threshold, no placeholder - they look as they did
+            Object secondThreshold = settings.get(key + "." + SECOND_THRESHOLD_KEY);
+            secondThresholdText.setText(secondThreshold == null ? "" : secondThreshold.toString());
+            Object placeholder = settings.get(key + "." + BELOW_PLACEHOLDER_KEY);
+            placeholderText.setText(placeholder == null ? "" : placeholder.toString());
             Object avoid = settings.get(key + "." + AVOID_OVERLAP_KEY);
             if (avoidOverlapCheck != null && avoid instanceof Boolean) {
                 avoidOverlapCheck.setSelected((Boolean) avoid);
@@ -1181,6 +1223,13 @@ public class LabelPainterController extends AbstractController {
             Object second = secondAttributeCombo.getSelectedItem();
             settings.put(key + "." + SECOND_ATTRIBUTE_KEY, second == null ? BasicLabelPainter.NONE : second.toString());
             settings.put(key + "." + SECOND_LAYOUT_KEY, ((LabelPainter.SecondValueLayout) secondLayoutCombo.getSelectedItem()).name());
+            // written only when set: an empty quoted value is not worth the risk in the settings block
+            if (secondThresholdText.getText().trim().length() > 0) {
+                settings.put(key + "." + SECOND_THRESHOLD_KEY, secondThresholdText.getText().trim());
+            }
+            if (placeholderText.getText().trim().length() > 0) {
+                settings.put(key + "." + BELOW_PLACEHOLDER_KEY, placeholderText.getText().trim());
+            }
             if (avoidOverlapCheck != null) {
                 settings.put(key + "." + AVOID_OVERLAP_KEY, avoidOverlapCheck.isSelected());
                 settings.put(key + "." + LABEL_BACKING_KEY, labelBackingCheck.isSelected());
@@ -1224,6 +1273,8 @@ public class LabelPainterController extends AbstractController {
     private final JTextField thresholdText;
     private final JComboBox secondAttributeCombo;
     private final JComboBox secondLayoutCombo;
+    private final JTextField secondThresholdText;
+    private final JTextField placeholderText;
 
     private final JButton moveLabelButton;
     private final JSpinner italicPartsSpinner;

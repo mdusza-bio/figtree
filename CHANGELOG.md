@@ -107,6 +107,18 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.11 — zapis `-/1` dla dwóch analiz (2026-10-05)
+*Node Labels* / *Branch Labels*, przy wybranej *Second value*:
+- **Second only if >=** — osobny próg dla drugiej wartości (np. PP ≥ 0.95);
+- **Too low shows as** — znak wstawiany za wartość poniżej progu albo
+  brakującą, np. `-`: `-/1`, `76/-`, `90/-`. Etykieta znika dopiero, gdy obie
+  wartości są za niskie.
+
+Puste *Too low shows as* zachowuje dotychczasowe działanie (pierwsza wartość
+poniżej progu chowa całą etykietę), więc starsze pliki wyglądają tak samo.
+Zapis: `nodeLabels.secondThreshold`, `nodeLabels.belowPlaceholder` (i to samo
+dla `branchLabels`).
+
 ### Etap 7.10 — skracanie wybranej gałęzi 2x / 3x (2026-10-05)
 *Layout → Shorten selected branch*: przyciski **2x**, **3x**, **Full** dla
 zaznaczonej gałęzi (albo nazwy okazu — wtedy gałąź do niego). Gałąź rysuje się

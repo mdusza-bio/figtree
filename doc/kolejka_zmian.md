@@ -533,6 +533,19 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   wartość, około 20 razy. Klady parafiletycznych rodzin (*Lamprodermataceae
   1–4*) muszą mieć osobne wartości, inaczej tła się połączą lub rozerwą.
 
+- [x] 7.11 🟢 **Zapis `-/1` dla dwóch analiz** — zgłoszone 2026-10-05: przy
+  dwóch wartościach poparcia (ML / Bayes) wartość poniżej progu ma być
+  zastąpiona kreską, jak w artykułach, a nie zabierać ze sobą całej etykiety.
+  **Zrobione**: *Node Labels* / *Branch Labels* → **Second only if >=** (próg
+  drugiej wartości) i **Too low shows as** (np. `-`). Etykieta znika dopiero,
+  gdy obie wartości są za niskie. Puste *Too low shows as* = jak dotąd, więc
+  starsze pliki wyglądają bez zmian. Klucze `secondThreshold`,
+  `belowPlaceholder`.
+- [x] 7.10a ⚪ **„Ucięta” nazwa okazu przy prawej krawędzi PNG — fałszywy
+  alarm** (2026-10-05). Sprawdzone na pikselach: nazwa kończy się kilka
+  pikseli przed krawędzią, a cyfra 4 w 6-punktowej czcionce bez wygładzania
+  po prostu wygląda jak ucięta. Nic nie zmieniono. Nie badać ponownie bez
+  nowego przykładu.
 - [x] 7.10 🟢 **Skracanie wybranej gałęzi 2x / 3x z podpisem nad `//`** —
   zgłoszone 2026-10-05 ze wzorem z artykułu („3x” nad znakiem przerwania).
   **Zrobione**: *Layout → Shorten selected branch: 2x / 3x / Full* dla

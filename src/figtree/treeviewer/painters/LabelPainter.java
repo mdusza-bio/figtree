@@ -251,6 +251,16 @@ public abstract class LabelPainter<T> extends AbstractPainter<T> {
 		// Do nothing
 	}
 
+	/** MyFigTree (Etap 7.11): the second value's own "show only if >=". */
+	public void setSecondThreshold(Double secondThreshold) {
+		// Do nothing
+	}
+
+	/** MyFigTree (Etap 7.11): what stands in for a value that is too low or missing, e.g. "-" in "-/1". */
+	public void setBelowPlaceholder(String placeholder) {
+		// Do nothing
+	}
+
 	// MyFigTree: per-part label styling (Etap 3); overridden by BasicLabelPainter
 
 	public LabelStyle getLabelStyle() {

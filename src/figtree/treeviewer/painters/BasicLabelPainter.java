@@ -205,25 +205,48 @@ public class BasicLabelPainter extends LabelPainter<Node> {
 
         Object value1 = getValue(tree, node, displayAttribute);
 
+        boolean below1 = false;
         if (showThreshold != null) {
             Double number = asNumber(value1);
-            if (number != null && number < showThreshold) {
-                return null;
-            }
+            below1 = number != null && number < showThreshold;
         }
 
         String label1 = formatValue(value1);
 
         if (secondAttribute == null || secondAttribute.length() == 0 || secondAttribute.equals(NONE)) {
-            return label1;
+            return below1 ? null : label1;
         }
 
-        String label2 = formatValue(getValue(tree, node, secondAttribute));
-        if (label2 == null) {
-            return label1;
+        Object value2 = getValue(tree, node, secondAttribute);
+        String label2 = formatValue(value2);
+        boolean below2 = false;
+        if (secondThreshold != null) {
+            Double number = asNumber(value2);
+            below2 = number != null && number < secondThreshold;
         }
-        if (label1 == null || label1.startsWith(SOLID_BOX_ENCODED)) {
-            return label2;
+
+        if (belowPlaceholder.length() > 0 && (label1 == null || !label1.startsWith(SOLID_BOX_ENCODED))) {
+            // MyFigTree (Etap 7.11): two analyses on one node, journal style - a value that is too
+            // low (or not there at all) is replaced by a dash, "-/1" or "76/-"; the label goes
+            // only when neither value is worth showing
+            boolean show1 = label1 != null && !below1;
+            boolean show2 = label2 != null && !below2;
+            if (!show1 && !show2) {
+                return null;
+            }
+            label1 = show1 ? label1 : belowPlaceholder;
+            label2 = show2 ? label2 : belowPlaceholder;
+        } else {
+            // without a placeholder: as before, a first value below its threshold hides the label
+            if (below1) {
+                return null;
+            }
+            if (label2 == null || below2) {
+                return label1;
+            }
+            if (label1 == null || label1.startsWith(SOLID_BOX_ENCODED)) {
+                return label2;
+            }
         }
 
         if (secondValueLayout == SecondValueLayout.STACKED) {
@@ -598,6 +621,18 @@ public class BasicLabelPainter extends LabelPainter<Node> {
         firePainterChanged();
     }
 
+    public void setSecondThreshold(Double secondThreshold) {
+        this.secondThreshold = secondThreshold;
+        firePainterChanged();
+    }
+
+    public void setBelowPlaceholder(String placeholder) {
+        this.belowPlaceholder = placeholder == null ? "" : placeholder.trim();
+        firePainterChanged();
+    }
+
+    private Double secondThreshold = null;
+    private String belowPlaceholder = "";
     private Double showThreshold = null;
     private SupportDotPainter supportDotPainter = null;
     private String secondAttribute = NONE;

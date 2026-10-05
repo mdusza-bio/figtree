@@ -231,6 +231,19 @@ w drzewach z RAxML-a, IQ-TREE czy MrBayesa w tym miejscu stoją liczby.
 - **Show only if >=** — próg; wartości poniżej nie są rysowane (np. bootstrap < 50).
 - **Second value** + **Layout** — druga wartość obok pierwszej (np. PP obok
   bootstrapu), w formie `a / b` albo jedna nad drugą (*stacked*).
+- **Second only if >=** — osobny próg dla drugiej wartości (np. `0.95` dla PP).
+  Puste pole = druga wartość pokazywana zawsze.
+- **Too low shows as** — co wpisać w miejsce wartości, która jest poniżej
+  swojego progu albo której w ogóle nie ma. Wpisz `-`, a dostaniesz zapis jak w
+  artykułach: `-/1` (słaby bootstrap, mocne PP), `76/-` (odwrotnie), `90/-`
+  (klad nieobecny w drugiej analizie). Etykieta znika dopiero wtedy, gdy
+  **obie** wartości są poniżej progów.
+  - Puste pole (tak jest w starszych plikach) = zachowanie jak dotąd: gdy
+    pierwsza wartość jest poniżej progu, znika cała etykieta razem z drugą.
+  - Przykład dla ML + Bayes: *Display* = bootstrap, *Show only if >=* `75`,
+    *Second value* = PP, *Second only if >=* `0.95`, *Too low shows as* `-`.
+  - W podpisie ryciny warto napisać, co znaczy kreska, np. „– = poparcie
+    poniżej 75 % / 0,95”.
 - **Crowded values → Avoid overlap** (tylko *Node Labels*) — gdy wartość
   poparcia wypadłaby na innej wartości, **na nazwie okazu**, na etykiecie
   gałęzi albo **na pionowej linii kladu** (czarna kreska przez cyfry robiła
