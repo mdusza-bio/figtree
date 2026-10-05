@@ -563,10 +563,80 @@ public class GroupBarPainter {
             current.tips.add(tip);
             current.maxY = y + halfSpacing;
         }
+        // remembered for the Colours dialog (7.1): the groups top to bottom, each once
+        List<Object> order = new ArrayList<Object>();
+        for (Run run : runs) {
+            if (run.value != null && !order.contains(run.value)) order.add(run.value);
+        }
+        valueOrder.put(attribute, order);
         return runs;
     }
 
+    // ---- Etap 7.1: colours chosen by the user, per attribute and group --------------------------
+
+    public String getBarAttribute() {
+        return barsVisible ? barAttribute : null;
+    }
+
+    public String getBackgroundAttribute() {
+        return backgroundsVisible ? backgroundAttribute : null;
+    }
+
+    /** The groups of an attribute in the order they were last drawn, top to bottom. */
+    public List<Object> getValuesInOrder(String attribute) {
+        List<Object> order = valueOrder.get(attribute);
+        return order == null ? new ArrayList<Object>() : new ArrayList<Object>(order);
+    }
+
+    /** The colour a group is drawn in right now - the user's own, or the built-in one. */
+    public Color getColour(String attribute, Object value) {
+        ColourDecorator decorator = attribute != null && attribute.equals(backgroundAttribute) ?
+                backgroundDecorator : barDecorator;
+        return getColourFor(value, decorator, attribute);
+    }
+
+    /** Sets the user's colour for one group; null goes back to the built-in colour. */
+    public void setCustomColour(String attribute, Object value, Color colour) {
+        Map<String, Color> map = customColours.get(attribute);
+        if (colour == null) {
+            if (map != null) map.remove(String.valueOf(value));
+        } else {
+            if (map == null) {
+                map = new LinkedHashMap<String, Color>();
+                customColours.put(attribute, map);
+            }
+            map.put(String.valueOf(value), colour);
+        }
+        firePainterChanged();
+    }
+
+    /** A copy of all the user's colours: attribute -> (group -> colour). */
+    public Map<String, Map<String, Color>> getCustomColours() {
+        Map<String, Map<String, Color>> copy = new LinkedHashMap<String, Map<String, Color>>();
+        for (Map.Entry<String, Map<String, Color>> entry : customColours.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                copy.put(entry.getKey(), new LinkedHashMap<String, Color>(entry.getValue()));
+            }
+        }
+        return copy;
+    }
+
+    public void setCustomColours(Map<String, Map<String, Color>> colours) {
+        customColours.clear();
+        if (colours != null) {
+            for (Map.Entry<String, Map<String, Color>> entry : colours.entrySet()) {
+                customColours.put(entry.getKey(), new LinkedHashMap<String, Color>(entry.getValue()));
+            }
+        }
+        firePainterChanged();
+    }
+
     private Color getColourFor(Object value, ColourDecorator decorator, String attribute) {
+        Map<String, Color> custom = customColours.get(attribute);
+        if (custom != null) {
+            Color own = custom.get(String.valueOf(value));
+            if (own != null) return own;
+        }
         if (decorator != null) {
             try {
                 decorator.setItem(value);
@@ -638,5 +708,7 @@ public class GroupBarPainter {
     private Font backgroundLabelFont = new Font("sansserif", Font.PLAIN, 11);
 
     private final Map<String, Map<Object, Color>> paletteCache = new HashMap<String, Map<Object, Color>>();
+    private final Map<String, Map<String, Color>> customColours = new HashMap<String, Map<String, Color>>();
+    private final Map<String, List<Object>> valueOrder = new HashMap<String, List<Object>>();
     private final List<PainterListener> listeners = new ArrayList<PainterListener>();
 }

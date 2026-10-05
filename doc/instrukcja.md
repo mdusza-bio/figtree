@@ -408,10 +408,15 @@ Działa tylko w układzie prostokątnym.
     `Outgroup|Trichiales` na dwie linie. Okazy outgroupu dostają jedno wspólne
     tło i jeden napis, jak w artykułach; słownik zostaje nietknięty, zmiana jest
     tylko w `.tree`.
-- Kolory: na razie **nie da się ich wybrać** — paski i tła biorą wbudowaną paletę
-  pastelową, w kolejności pojawiania się grup. Lista *Colour by* w *Appearance*
-  nie pokazuje atrybutów liści, więc tamtą drogą się do nich nie dostaniesz.
-  Wybór kolorów grupy to zadanie 6.8.
+- **Colours…** — własny kolor każdej grupy. Okno ma listę grup teł i pasków
+  (w kolejności z ryciny, od góry), przy każdej przycisk z kolorem: kliknij,
+  wybierz, drzewo zmienia się od razu. *Cancel* cofa wszystko, co zmieniłaś w
+  tym oknie; **Back to built-in colours** wraca do wbudowanej palety. Kolor
+  jest przypisany do pary atrybut + nazwa grupy, więc ta sama rodzina ma ten
+  sam kolor w każdym miejscu drzewa. Przy płaskich tłach kolor jest rozjaśniany
+  przez *Opacity*; przy gradiencie z *Opacity* 100 widać go w pełni. Kolory
+  zapisują się w `.tree`. Grupy bez własnego koloru biorą wbudowaną paletę
+  pastelową, w kolejności pojawiania się.
 
 ## 8a. Panel *Figure Text* (tekst w rogu ryciny)
 

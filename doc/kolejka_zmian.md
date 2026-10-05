@@ -302,7 +302,7 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   (`applyAnnotationTable`, `doExportGroupTemplate`, `genusOf`, `isSingleWord`),
   nowa pozycja w obu fabrykach menu File. Dokumentacja: `doc/instrukcja.md` §9,
   `doc/slowniki/README.md`. **Czeka na przeklikanie.**
-- [ ] 6.8 🟡 **Kolory grup: przycisk *Colours…* w panelu Group Bars** — zgłoszone
+- [x] 6.8 🟡 **Kolory grup: przycisk *Colours…* w panelu Group Bars** (zrobione jako 7.1, 2026-10-05) — zgłoszone
   2026-08-23 przy przeklikiwaniu 6.3. Miało być tak, że kolory ustawia się
   w *Appearance* → *Colour by* → *Setup: Colours*, ale ta lista **w ogóle nie
   pokazuje atrybutów liści**: `AttributeComboHelper` bez `PainterIntent` chodzi
@@ -456,10 +456,15 @@ Dane najpierw, żeby każdy kolejny punkt oglądać od razu na prawdziwym drzewi
 kolory na końcu, bo to największy kawałek, a rycina bez nich jest już czytelna.
 Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
 
-- [ ] 7.1 🟡 **Własne kolory teł i pasków** (= stare 6.8) — okienko z listą
+- [x] 7.1 🟡 **Własne kolory teł i pasków** (= stare 6.8) — okienko z listą
   grup i kolorem przy każdej (outgroupy szare, klady jak na wzorze). Kolory
   zapisują się w `.tree`. Opcjonalnie kolumna `colour` w słowniku (`#E8A0C8`),
   żeby kolory przechodziły z drzewa na drzewo. Robić na końcu.
+  **Zrobione 2026-10-05**: przycisk **Colours…** w *Group Bars* — lista grup
+  pasków i teł, przy każdej przycisk koloru, zmiana widoczna od razu, *Cancel*
+  cofa, *Back to built-in colours* wraca do palety. Zapis w `.tree`
+  (`groupBars.colours`). Kolumna `colour` w słowniku — niezrobiona, do
+  rozważenia, gdy kolory mają wędrować między drzewami.
 - [x] 7.2 🟢 **Tło do prawej krawędzi kolumny z napisami kladów** (z 7.4), nie
   tylko do końca najdłuższej nazwy okazu; **cienka biała przerwa** (1–2 pkt)
   między sąsiednimi tłami, żeby klady się nie zlewały. Robić razem z 7.3 i

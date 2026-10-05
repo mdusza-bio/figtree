@@ -107,6 +107,12 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.1 — własne kolory teł i pasków (2026-10-05)
+*Group Bars → Colours…*: okno z listą grup (osobno tła i paski, w kolejności z
+ryciny) i przyciskiem koloru przy każdej. Zmiana widoczna od razu, *Cancel*
+cofa, **Back to built-in colours** przywraca paletę. Zapis w `.tree` jako
+`groupBars.colours`. Zamyka też stare zadanie 6.8.
+
 ### Etap 7.7 — tekst w rogu ryciny, kierunek gradientu, słowa bez kursywy (2026-10-02)
 - Nowy panel **Figure Text**: kilka linii tekstu w wybranym rogu ryciny
   (legenda gwiazdek, podpis), z wielkością, marginesem, pogrubieniem i

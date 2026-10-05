@@ -17,6 +17,7 @@ import jam.controlpalettes.ControllerListener;
 import jam.panels.OptionsPanel;
 
 import javax.swing.*;
+import java.awt.Color;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
@@ -55,6 +56,7 @@ public class GroupBarController extends AbstractController {
     public static final String BACKGROUND_GAP_KEY = "backgroundGap";
     public static final String BACKGROUND_GRADIENT_KEY = "backgroundGradient";
     public static final String NOT_ITALIC_WORDS_KEY = "notItalicWords";
+    public static final String COLOURS_KEY = "colours";
 
     public GroupBarController(final GroupBarPainter painter,
                               final AttributeColourController colourController,
@@ -267,6 +269,18 @@ public class GroupBarController extends AbstractController {
         final JLabel label1 = optionsPanel.addComponentWithLabel("Attribute:", attributeCombo);
         optionsPanel.addSpanningComponent(hintLabel);
         optionsPanel.addSpanningComponent(assignButton);
+
+        // Etap 7.1: the user's own colour for every group of the bars and of the backgrounds
+        coloursButton = new JButton("Colours...");
+        coloursButton.putClientProperty("JComponent.sizeVariant", "small");
+        coloursButton.setToolTipText("<html>Pick your own colour for each group of the bars and<br>" +
+                "of the backgrounds (grey outgroups, one colour per clade...).</html>");
+        coloursButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                editColours();
+            }
+        });
+        optionsPanel.addSpanningComponent(coloursButton);
         final JLabel label2 = optionsPanel.addComponentWithLabel("Bar width:", barWidthSpinner);
         final JLabel label3 = optionsPanel.addComponentWithLabel("Gap from labels:", gapSpinner);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
@@ -457,6 +471,179 @@ public class GroupBarController extends AbstractController {
         }
     }
 
+    /** A small colour patch for the buttons of the Colours dialog. */
+    private static class Swatch implements Icon {
+        Color colour;
+
+        Swatch(Color colour) {
+            this.colour = colour;
+        }
+
+        public int getIconWidth() {
+            return 36;
+        }
+
+        public int getIconHeight() {
+            return 14;
+        }
+
+        public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {
+            g.setColor(colour);
+            g.fillRect(x, y, getIconWidth(), getIconHeight());
+            g.setColor(Color.GRAY);
+            g.drawRect(x, y, getIconWidth() - 1, getIconHeight() - 1);
+        }
+    }
+
+    /** How a group's value reads in the Colours dialog: no bold marker, "|" shown as a slash. */
+    private static String plainName(Object value) {
+        return String.valueOf(value).replaceAll("(?i)</?b>", "").replace("|", " / ").trim();
+    }
+
+    /**
+     * MyFigTree (Etap 7.1): one row per group with a colour button, for the bars and for the
+     * backgrounds. A pick shows on the tree at once; Cancel puts the previous colours back.
+     */
+    private void editColours() {
+        String barAttribute = painter.getBarAttribute();
+        String backgroundAttribute = painter.getBackgroundAttribute();
+
+        // attribute -> heading; one section when bars and backgrounds share the attribute
+        Map<String, String> sections = new java.util.LinkedHashMap<String, String>();
+        if (backgroundAttribute != null && !painter.getValuesInOrder(backgroundAttribute).isEmpty()) {
+            sections.put(backgroundAttribute, backgroundAttribute.equals(barAttribute) ?
+                    "Bars and backgrounds: " + backgroundAttribute : "Backgrounds: " + backgroundAttribute);
+        }
+        if (barAttribute != null && !sections.containsKey(barAttribute) &&
+                !painter.getValuesInOrder(barAttribute).isEmpty()) {
+            sections.put(barAttribute, "Bars: " + barAttribute);
+        }
+        if (sections.isEmpty()) {
+            JOptionPane.showMessageDialog(optionsPanel,
+                    "There are no groups on the tree yet.\n\n" +
+                            "Turn on Group Bars or Backgrounds and pick an attribute first.",
+                    "Group Colours",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        final Map<String, Map<String, Color>> before = painter.getCustomColours();
+        // every button with what it colours, so that "defaults" can repaint them all
+        final java.util.List<Object[]> buttons = new java.util.ArrayList<Object[]>();
+
+        JPanel rows = new JPanel(new java.awt.GridBagLayout());
+        java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
+        gbc.gridy = 0;
+        gbc.anchor = java.awt.GridBagConstraints.WEST;
+        gbc.insets = new java.awt.Insets(2, 4, 2, 8);
+
+        for (Map.Entry<String, String> section : sections.entrySet()) {
+            final String attribute = section.getKey();
+            JLabel heading = new JLabel("<html><b>" + section.getValue() + "</b></html>");
+            gbc.gridx = 0;
+            gbc.gridwidth = 2;
+            rows.add(heading, gbc);
+            gbc.gridwidth = 1;
+            gbc.gridy++;
+
+            for (final Object value : painter.getValuesInOrder(attribute)) {
+                final Swatch swatch = new Swatch(painter.getColour(attribute, value));
+                final JButton button = new JButton(swatch);
+                button.setMargin(new java.awt.Insets(2, 2, 2, 2));
+                button.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        Color picked = JColorChooser.showDialog(button,
+                                "Colour of " + plainName(value), swatch.colour);
+                        if (picked != null) {
+                            swatch.colour = picked;
+                            button.repaint();
+                            painter.setCustomColour(attribute, value, picked);
+                        }
+                    }
+                });
+                buttons.add(new Object[]{attribute, value, swatch, button});
+                gbc.gridx = 0;
+                rows.add(button, gbc);
+                gbc.gridx = 1;
+                rows.add(new JLabel(plainName(value)), gbc);
+                gbc.gridy++;
+            }
+        }
+
+        JButton defaultsButton = new JButton("Back to built-in colours");
+        defaultsButton.putClientProperty("JComponent.sizeVariant", "small");
+        defaultsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                for (Object[] row : buttons) {
+                    painter.setCustomColour((String) row[0], row[1], null);
+                }
+                for (Object[] row : buttons) {
+                    ((Swatch) row[2]).colour = painter.getColour((String) row[0], row[1]);
+                    ((JButton) row[3]).repaint();
+                }
+            }
+        });
+
+        JScrollPane scroll = new JScrollPane(rows);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        java.awt.Dimension size = rows.getPreferredSize();
+        scroll.setPreferredSize(new java.awt.Dimension(Math.min(size.width + 40, 520), Math.min(size.height + 10, 420)));
+
+        JPanel content = new JPanel(new java.awt.BorderLayout(0, 8));
+        content.add(new JLabel("<html>Click a colour to change it - the tree follows at once.<br>" +
+                "<i>With flat backgrounds the colour is paled by Opacity.</i></html>"), java.awt.BorderLayout.NORTH);
+        content.add(scroll, java.awt.BorderLayout.CENTER);
+        content.add(defaultsButton, java.awt.BorderLayout.SOUTH);
+
+        int result = JOptionPane.showConfirmDialog(optionsPanel, content, "Group Colours",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            painter.setCustomColours(before);
+        }
+    }
+
+    // ---- the colours in the .tree file: attribute:group:rrggbb,... with the names URL-encoded ----
+
+    private static String encodeColours(Map<String, Map<String, Color>> colours) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            for (Map.Entry<String, Map<String, Color>> attribute : colours.entrySet()) {
+                for (Map.Entry<String, Color> group : attribute.getValue().entrySet()) {
+                    if (sb.length() > 0) sb.append(',');
+                    sb.append(java.net.URLEncoder.encode(attribute.getKey(), "UTF-8")).append(':')
+                            .append(java.net.URLEncoder.encode(group.getKey(), "UTF-8")).append(':')
+                            .append(String.format("%06x", group.getValue().getRGB() & 0xFFFFFF));
+                }
+            }
+        } catch (java.io.UnsupportedEncodingException e) {
+            // UTF-8 is always there
+        }
+        return sb.toString();
+    }
+
+    private static Map<String, Map<String, Color>> decodeColours(String text) {
+        Map<String, Map<String, Color>> colours = new java.util.LinkedHashMap<String, Map<String, Color>>();
+        if (text == null) return colours;
+        for (String item : text.split(",")) {
+            String[] parts = item.trim().split(":");
+            if (parts.length != 3) continue;
+            try {
+                String attribute = java.net.URLDecoder.decode(parts[0], "UTF-8");
+                String group = java.net.URLDecoder.decode(parts[1], "UTF-8");
+                Color colour = new Color(Integer.parseInt(parts[2], 16));
+                Map<String, Color> map = colours.get(attribute);
+                if (map == null) {
+                    map = new java.util.LinkedHashMap<String, Color>();
+                    colours.put(attribute, map);
+                }
+                map.put(group, colour);
+            } catch (Exception e) {
+                // a damaged entry - skip it, keep the rest
+            }
+        }
+        return colours;
+    }
+
     /** Says what to do when there is nothing to group by yet, instead of showing an empty list. */
     private void updateHint() {
         boolean empty = attributeCombo.getItemCount() == 0;
@@ -573,6 +760,8 @@ public class GroupBarController extends AbstractController {
         backgroundGradientCombo.setSelectedItem(direction);
         String words = getString(settings, NOT_ITALIC_WORDS_KEY);
         notItalicWordsField.setText(words == null ? "Outgroup" : words);
+        // a tree without the key has no colours of its own - do not keep the previous tree's
+        painter.setCustomColours(decodeColours(getString(settings, COLOURS_KEY)));
     }
 
     public void getSettings(Map<String, Object> settings) {
@@ -595,6 +784,10 @@ public class GroupBarController extends AbstractController {
         settings.put(CONTROLLER_KEY + "." + BACKGROUND_GRADIENT_KEY,
                 ((GroupBarPainter.Gradient) backgroundGradientCombo.getSelectedItem()).name());
         settings.put(CONTROLLER_KEY + "." + NOT_ITALIC_WORDS_KEY, notItalicWordsField.getText());
+        String colours = encodeColours(painter.getCustomColours());
+        if (colours.length() > 0) {
+            settings.put(CONTROLLER_KEY + "." + COLOURS_KEY, colours);
+        }
     }
 
     public String getTitle() {
@@ -608,6 +801,7 @@ public class GroupBarController extends AbstractController {
     private final OptionsPanel optionsPanel;
 
     private final JButton assignButton;
+    private final JButton coloursButton;
     private final JLabel hintLabel;
     private String lastAssignedName = "group";
     private String lastAssignedValue = "";
