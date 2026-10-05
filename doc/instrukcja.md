@@ -562,6 +562,26 @@ potem na **nowym** tekście, więc `Trichia sordida HOLOTYPE` wyjdzie jako
 
 Jeśli menu *Annotate…* jest wyszarzone — nic nie jest zaznaczone w drzewie.
 
+## 12a. Kolorowanie okazów i gałęzi — ten sam odcień co wcześniej
+
+Przyciski **Colour** i **Hilight** na pasku narzędzi otwierają okno koloru,
+które nad zwykłą paletą ma pasek **Already on this tree**: wszystkie kolory
+nadane już ręcznie na tym drzewie, od najczęściej użytego. Przy każdym widać,
+ile nazw, gałęzi i podświetleń go nosi; po najechaniu myszą dymek pokazuje
+kod koloru i przykładowe okazy.
+
+- **Dokładanie okazu do grupy:** zaznacz nowy okaz, *Colour*, kliknij kolor
+  grupy na pasku, *OK*. Odcień jest dokładnie ten sam — nie trzeba szukać go
+  w palecie ani kolorować całej grupy od nowa.
+- **Jaki kolor ma ten okaz?** Zaznacz go i kliknij *Colour*: okno otwiera się
+  na jego kolorze, a na pasku jest on obwiedziony czarną ramką. *Cancel*
+  zamyka okno bez zmian.
+- Gdy zaznaczone okazy mają różne kolory (albo żadnego), okno startuje od
+  ostatnio wybranego koloru, jak dotąd.
+
+Pasek pokazuje kolory nadane przyciskiem *Colour* / *Hilight*; kolory teł i
+pasków grup ustawia się osobno w *Group Bars → Colours…*.
+
 ## 13. Zmiana oryginalnej nazwy okazu w pliku
 
 Rozdział 12 podmienia tylko **podpis na rycinie** — oryginalna nazwa zostaje.

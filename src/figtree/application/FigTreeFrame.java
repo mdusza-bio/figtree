@@ -551,7 +551,9 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
     }
 
     private void hilightSelected() {
-        Color color = JColorChooser.showDialog(this, "Select Colour", lastColor);
+        Color own = selectionColour("!hilight");
+        Color color = UsedColourChooser.showDialog(this, "Select Colour", own != null ? own : lastColor,
+                collectUsedColours());
         if (color != null) {
             treeViewer.hilightSelectedNodes(color);
             setDirty();
@@ -678,12 +680,94 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
 //        }
     }
 
+    /** The one colour the selected names / branches share for this attribute, or null. */
+    private Color selectionColour(String attribute) {
+        Set<Color> found = new HashSet<Color>();
+        Tree tree = treeViewer.getCurrentTree();
+        if (tree == null) {
+            return null;
+        }
+        if (!attribute.equals("!hilight")) {
+            for (Node tip : treeViewer.getSelectedTips()) {
+                Taxon taxon = tree.getTaxon(tip);
+                Object value = taxon == null ? null : taxon.getAttribute(attribute);
+                if (value instanceof Color) {
+                    found.add((Color) value);
+                }
+            }
+        }
+        for (Node node : treeViewer.getSelectedNodes()) {
+            Object value = node.getAttribute(attribute);
+            if (value instanceof Color) {
+                found.add((Color) value);
+            }
+        }
+        return found.size() == 1 ? found.iterator().next() : null;
+    }
+
+    /** Every colour set by hand on the current tree, with what carries it; most used first. */
+    private Map<Color, UsedColourChooser.Usage> collectUsedColours() {
+        final Map<Color, UsedColourChooser.Usage> used = new LinkedHashMap<Color, UsedColourChooser.Usage>();
+        Tree tree = treeViewer.getCurrentTree();
+        if (tree == null) {
+            return used;
+        }
+        for (Taxon taxon : tree.getTaxa()) {
+            Object value = taxon.getAttribute("!color");
+            if (value instanceof Color) {
+                UsedColourChooser.Usage usage = usageOf(used, (Color) value);
+                usage.names++;
+                if (usage.examples.size() < 6) {
+                    usage.examples.add(taxon.getName());
+                }
+            }
+        }
+        for (Node node : tree.getNodes()) {
+            Object value = node.getAttribute("!color");
+            if (value instanceof Color) {
+                usageOf(used, (Color) value).branches++;
+            }
+            Object hilight = node.getAttribute("!hilight");
+            if (hilight instanceof Color) {
+                usageOf(used, (Color) hilight).highlights++;
+            }
+        }
+        List<Color> order = new ArrayList<Color>(used.keySet());
+        Collections.sort(order, new Comparator<Color>() {
+            public int compare(Color a, Color b) {
+                UsedColourChooser.Usage ua = used.get(a);
+                UsedColourChooser.Usage ub = used.get(b);
+                return (ub.names + ub.branches + ub.highlights) - (ua.names + ua.branches + ua.highlights);
+            }
+        });
+        Map<Color, UsedColourChooser.Usage> sorted = new LinkedHashMap<Color, UsedColourChooser.Usage>();
+        for (Color colour : order) {
+            sorted.put(colour, used.get(colour));
+        }
+        return sorted;
+    }
+
+    private static UsedColourChooser.Usage usageOf(Map<Color, UsedColourChooser.Usage> used, Color colour) {
+        // without the alpha: a colour read back from a file and the same one just picked are one colour
+        Color key = new Color(colour.getRGB() & 0xFFFFFF);
+        UsedColourChooser.Usage usage = used.get(key);
+        if (usage == null) {
+            usage = new UsedColourChooser.Usage();
+            used.put(key, usage);
+        }
+        return usage;
+    }
+
     private static Color lastColor = Color.GRAY;
 
     private void colourSelected() {
         treeViewer.setToolMode(TreePaneSelector.ToolMode.SELECT);
 
-        Color color = JColorChooser.showDialog(this, "Select Colour", lastColor);
+        // MyFigTree (Etap 7.9): start on the selection's own colour and list the colours
+        // that are on the tree already, so a group can be extended in exactly its shade
+        Color own = selectionColour("!color");
+        Color color = UsedColourChooser.showDialog(this, "Select Colour", own != null ? own : lastColor,
+                collectUsedColours());
         if (color != null) {
             treeViewer.annotateSelected("!color", color);
             setDirty();

@@ -533,6 +533,14 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   wartość, około 20 razy. Klady parafiletycznych rodzin (*Lamprodermataceae
   1–4*) muszą mieć osobne wartości, inaczej tła się połączą lub rozerwą.
 
+- [x] 7.9 🟢 **Okno koloru zna kolory z drzewa** — zgłoszone 2026-10-05: przy
+  dokładaniu okazu do pokolorowanej grupy trzeba było szukać tego samego
+  odcienia w palecie. **Zrobione**: przyciski *Colour* i *Hilight* otwierają
+  okno z paskiem **Already on this tree** nad paletą (kolor + ile nazw, gałęzi,
+  podświetleń; w dymku przykładowe okazy), kliknięcie wybiera dokładnie ten
+  kolor. Okno startuje od koloru zaznaczonego okazu i obwodzi go ramką. Nowy
+  plik `UsedColourChooser.java`.
+
 Mniej ważne / do decyzji: kolejność kladów na rycinie (*Order nodes*) i to, czy
 jednogatunkowe klady (*Clade 13*, *Clade 16*) mają mieć wąski pasek tła jak na
 wzorze — dziś też to zrobi, jeśli okaz ma swoją wartość w tabelce.

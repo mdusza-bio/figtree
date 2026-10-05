@@ -107,6 +107,13 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 7.9 — okno koloru zna kolory z drzewa (2026-10-05)
+Przyciski *Colour* i *Hilight*: nad paletą pasek **Already on this tree** z
+kolorami nadanymi już na drzewie (ile nazw / gałęzi / podświetleń, w dymku
+przykładowe okazy). Kliknięcie wybiera dokładnie ten odcień. Okno startuje od
+koloru zaznaczonego okazu i obwodzi go ramką — widać, jaki kolor ma
+zaznaczenie, i łatwo dołożyć okaz do istniejącej grupy.
+
 ### Etap 7.1 — własne kolory teł i pasków (2026-10-05)
 *Group Bars → Colours…*: okno z listą grup (osobno tła i paski, w kolejności z
 ryciny) i przyciskiem koloru przy każdej. Zmiana widoczna od razu, *Cancel*
