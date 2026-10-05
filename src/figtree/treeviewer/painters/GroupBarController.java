@@ -584,22 +584,209 @@ public class GroupBarController extends AbstractController {
             }
         });
 
+        // Etap 7.1b: the colours as a small table, to carry them from one tree to the next
+        final JButton saveButton = new JButton("Save colours...");
+        saveButton.putClientProperty("JComponent.sizeVariant", "small");
+        saveButton.setToolTipText("<html>Writes the colours shown here to a small table<br>" +
+                "(attribute, group, colour) that Load colours... reads on another tree.</html>");
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                Map<String, Map<String, Color>> shown = new java.util.LinkedHashMap<String, Map<String, Color>>();
+                for (Object[] row : buttons) {
+                    Map<String, Color> map = shown.get((String) row[0]);
+                    if (map == null) {
+                        map = new java.util.LinkedHashMap<String, Color>();
+                        shown.put((String) row[0], map);
+                    }
+                    map.put(String.valueOf(row[1]), ((Swatch) row[2]).colour);
+                }
+                java.io.File file = chooseFile(saveButton, "Save Colours", true, "kolory_grup.tsv");
+                if (file == null) return;
+                try {
+                    writeColourTable(file, shown);
+                } catch (java.io.IOException ioe) {
+                    JOptionPane.showMessageDialog(saveButton,
+                            "<html>The colours could <b>not</b> be written:<br><tt>" + ioe + "</tt></html>",
+                            "Save Colours", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        final JButton loadButton = new JButton("Load colours...");
+        loadButton.putClientProperty("JComponent.sizeVariant", "small");
+        loadButton.setToolTipText("<html>Reads a table written by Save colours... and gives the<br>" +
+                "groups of this tree the same colours.</html>");
+        loadButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent actionEvent) {
+                java.io.File file = chooseFile(loadButton, "Load Colours", false, null);
+                if (file == null) return;
+                Map<String, Map<String, Color>> loaded;
+                try {
+                    loaded = readColourTable(file);
+                } catch (java.io.IOException ioe) {
+                    JOptionPane.showMessageDialog(loadButton,
+                            "<html>The file could <b>not</b> be read:<br><tt>" + ioe + "</tt></html>",
+                            "Load Colours", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                int total = 0;
+                for (Map<String, Color> map : loaded.values()) {
+                    total += map.size();
+                }
+                // on top of what is set already; groups that are not in the file keep their colour
+                Map<String, Map<String, Color>> merged = painter.getCustomColours();
+                for (Map.Entry<String, Map<String, Color>> entry : loaded.entrySet()) {
+                    Map<String, Color> map = merged.get(entry.getKey());
+                    if (map == null) {
+                        map = new java.util.LinkedHashMap<String, Color>();
+                        merged.put(entry.getKey(), map);
+                    }
+                    map.putAll(entry.getValue());
+                }
+                painter.setCustomColours(merged);
+
+                int here = 0;
+                for (Object[] row : buttons) {
+                    Map<String, Color> map = loaded.get((String) row[0]);
+                    if (map != null && map.containsKey(String.valueOf(row[1]))) here++;
+                    ((Swatch) row[2]).colour = painter.getColour((String) row[0], row[1]);
+                    ((JButton) row[3]).repaint();
+                }
+                if (total == 0) {
+                    JOptionPane.showMessageDialog(loadButton,
+                            "No colours were found in this file.\n\n" +
+                                    "It should have three columns separated by tabs:\n" +
+                                    "attribute, group, colour (such as #B05AC8).",
+                            "Load Colours", JOptionPane.WARNING_MESSAGE);
+                } else if (here == 0) {
+                    JOptionPane.showMessageDialog(loadButton,
+                            "The file holds " + total + (total == 1 ? " colour" : " colours") +
+                                    ", but none for the groups of this tree.\n\n" +
+                                    "The attribute and group names have to match exactly\n" +
+                                    "(the file has: " + loaded.keySet() + ").",
+                            "Load Colours", JOptionPane.WARNING_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(loadButton,
+                            "Coloured " + here + " of the " + buttons.size() +
+                                    (buttons.size() == 1 ? " group" : " groups") + " of this tree" +
+                                    " (the file holds " + total + (total == 1 ? " colour" : " colours") + ").",
+                            "Load Colours", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        });
+
         JScrollPane scroll = new JScrollPane(rows);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         java.awt.Dimension size = rows.getPreferredSize();
         scroll.setPreferredSize(new java.awt.Dimension(Math.min(size.width + 40, 520), Math.min(size.height + 10, 420)));
 
+        JPanel buttonRow = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 6, 0));
+        buttonRow.add(defaultsButton);
+        buttonRow.add(saveButton);
+        buttonRow.add(loadButton);
+
         JPanel content = new JPanel(new java.awt.BorderLayout(0, 8));
         content.add(new JLabel("<html>Click a colour to change it - the tree follows at once.<br>" +
                 "<i>With flat backgrounds the colour is paled by Opacity.</i></html>"), java.awt.BorderLayout.NORTH);
         content.add(scroll, java.awt.BorderLayout.CENTER);
-        content.add(defaultsButton, java.awt.BorderLayout.SOUTH);
+        content.add(buttonRow, java.awt.BorderLayout.SOUTH);
 
         int result = JOptionPane.showConfirmDialog(optionsPanel, content, "Group Colours",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result != JOptionPane.OK_OPTION) {
             painter.setCustomColours(before);
         }
+    }
+
+    // ---- Etap 7.1b: the colours as a table on disk: attribute <TAB> group <TAB> #rrggbb ----------
+
+    /** The system file window, opened from inside the Colours dialog. Null when cancelled. */
+    private static java.io.File chooseFile(java.awt.Component from, String title, boolean save, String suggested) {
+        java.awt.Window window = SwingUtilities.getWindowAncestor(from);
+        java.awt.FileDialog dialog;
+        int mode = save ? java.awt.FileDialog.SAVE : java.awt.FileDialog.LOAD;
+        if (window instanceof java.awt.Dialog) {
+            dialog = new java.awt.FileDialog((java.awt.Dialog) window, title, mode);
+        } else {
+            dialog = new java.awt.FileDialog((java.awt.Frame) (window instanceof java.awt.Frame ? window : null), title, mode);
+        }
+        if (suggested != null) dialog.setFile(suggested);
+        dialog.setVisible(true);
+        if (dialog.getFile() == null) return null;
+        return new java.io.File(dialog.getDirectory(), dialog.getFile());
+    }
+
+    /** Written to a temporary file first and moved into place once complete, like the tree itself. */
+    private static void writeColourTable(java.io.File file, Map<String, Map<String, Color>> colours) throws java.io.IOException {
+        java.io.File folder = file.getAbsoluteFile().getParentFile();
+        java.io.File temp = java.io.File.createTempFile("figtree", ".part", folder);
+        try {
+            java.io.Writer writer = new java.io.OutputStreamWriter(new java.io.FileOutputStream(temp), "UTF-8");
+            try {
+                writer.write("# Group colours from MyFigTree (Group Bars > Colours... > Save colours...).\n");
+                writer.write("# Load them on another tree with Load colours... - attribute and group\n");
+                writer.write("# names have to match. Colours are #RRGGBB; lines starting with # are ignored.\n");
+                writer.write("attribute\tgroup\tcolour\n");
+                for (Map.Entry<String, Map<String, Color>> attribute : colours.entrySet()) {
+                    for (Map.Entry<String, Color> group : attribute.getValue().entrySet()) {
+                        writer.write(attribute.getKey() + "\t" + group.getKey() + "\t" +
+                                String.format("#%06X", group.getValue().getRGB() & 0xFFFFFF) + "\n");
+                    }
+                }
+            } finally {
+                writer.close();
+            }
+            java.nio.file.Files.move(temp.toPath(), file.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } finally {
+            temp.delete();
+        }
+    }
+
+    /** A cell as a spreadsheet may have left it: quotes around it, doubled quotes inside. */
+    private static String cell(String raw) {
+        String text = raw.trim();
+        if (text.length() >= 2 && text.startsWith("\"") && text.endsWith("\"")) {
+            text = text.substring(1, text.length() - 1).replace("\"\"", "\"");
+        }
+        return text;
+    }
+
+    /**
+     * Reads the table back: tab-separated, UTF-8 or the "Unicode Text" (UTF-16) that Excel saves.
+     * Rows without a colour in the third column - the header, stray notes - are skipped.
+     */
+    private static Map<String, Map<String, Color>> readColourTable(java.io.File file) throws java.io.IOException {
+        byte[] bytes = java.nio.file.Files.readAllBytes(file.toPath());
+        String charset = "UTF-8";
+        int skip = 0;
+        if (bytes.length >= 3 && (bytes[0] & 0xFF) == 0xEF && (bytes[1] & 0xFF) == 0xBB && (bytes[2] & 0xFF) == 0xBF) {
+            skip = 3;
+        } else if (bytes.length >= 2 && (bytes[0] & 0xFF) == 0xFF && (bytes[1] & 0xFF) == 0xFE) {
+            charset = "UTF-16LE";
+            skip = 2;
+        } else if (bytes.length >= 2 && (bytes[0] & 0xFF) == 0xFE && (bytes[1] & 0xFF) == 0xFF) {
+            charset = "UTF-16BE";
+            skip = 2;
+        }
+        String text = new String(bytes, skip, bytes.length - skip, charset);
+
+        Map<String, Map<String, Color>> colours = new java.util.LinkedHashMap<String, Map<String, Color>>();
+        for (String line : text.split("\\r?\\n|\\r")) {
+            if (line.trim().length() == 0 || line.trim().startsWith("#")) continue;
+            String[] cells = line.split("\t");
+            if (cells.length < 3) continue;
+            String attribute = cell(cells[0]);
+            String group = cell(cells[1]);
+            String hex = cell(cells[2]).replace("#", "");
+            if (attribute.length() == 0 || group.length() == 0 || !hex.matches("[0-9a-fA-F]{6}")) continue;
+            Map<String, Color> map = colours.get(attribute);
+            if (map == null) {
+                map = new java.util.LinkedHashMap<String, Color>();
+                colours.put(attribute, map);
+            }
+            map.put(group, new Color(Integer.parseInt(hex, 16)));
+        }
+        return colours;
     }
 
     // ---- the colours in the .tree file: attribute:group:rrggbb,... with the names URL-encoded ----

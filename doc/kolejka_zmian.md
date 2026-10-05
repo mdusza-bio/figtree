@@ -463,8 +463,11 @@ Poprawki z przeglądu 2026-10-01 (porównanie listy z powiększeniami wzoru).
   **Zrobione 2026-10-05**: przycisk **Colours…** w *Group Bars* — lista grup
   pasków i teł, przy każdej przycisk koloru, zmiana widoczna od razu, *Cancel*
   cofa, *Back to built-in colours* wraca do palety. Zapis w `.tree`
-  (`groupBars.colours`). Kolumna `colour` w słowniku — niezrobiona, do
-  rozważenia, gdy kolory mają wędrować między drzewami.
+  (`groupBars.colours`). Zamiast kolumny `colour` w słowniku (jedna kolumna
+  nie rozróżnia rodziny od rzędu, kolor powtarzałby się w każdym rodzaju, a
+  ręczne grupy typu „Outgroup” nie są w słowniku) — **Save colours… / Load
+  colours…** w tym samym oknie: tabelka `atrybut / grupa / kolor`, którą
+  wczytuje się na następnym drzewie (zrobione 2026-10-05).
 - [x] 7.2 🟢 **Tło do prawej krawędzi kolumny z napisami kladów** (z 7.4), nie
   tylko do końca najdłuższej nazwy okazu; **cienka biała przerwa** (1–2 pkt)
   między sąsiednimi tłami, żeby klady się nie zlewały. Robić razem z 7.3 i

@@ -417,6 +417,16 @@ Działa tylko w układzie prostokątnym.
   przez *Opacity*; przy gradiencie z *Opacity* 100 widać go w pełni. Kolory
   zapisują się w `.tree`. Grupy bez własnego koloru biorą wbudowaną paletę
   pastelową, w kolejności pojawiania się.
+  - **Save colours…** zapisuje kolory z okna do małej tabelki (domyślnie
+    `kolory_grup.tsv`): trzy kolumny rozdzielone tabulatorem — atrybut, grupa,
+    kolor `#RRGGBB`, jedna grupa w wierszu. Da się ją otworzyć i poprawić w
+    Excelu albo Notatniku.
+  - **Load colours…** wczytuje taką tabelkę na innym drzewie: grupy o tej
+    samej nazwie atrybutu i grupy dostają te same kolory, reszta zostaje jak
+    była. Okno mówi, ile grup tego drzewa dostało kolor. Nazwy muszą się
+    zgadzać co do znaku (także `|` i `<b>…</b>`, jeśli są w wartości).
+    Tak przenosi się kolory z ryciny na rycinę — słownik rodzajów zostaje bez
+    zmian.
 
 ## 8a. Panel *Figure Text* (tekst w rogu ryciny)
 

@@ -113,6 +113,10 @@ ryciny) i przyciskiem koloru przy każdej. Zmiana widoczna od razu, *Cancel*
 cofa, **Back to built-in colours** przywraca paletę. Zapis w `.tree` jako
 `groupBars.colours`. Zamyka też stare zadanie 6.8.
 
+**Save colours… / Load colours…** w tym samym oknie: kolory jako tabelka
+`atrybut / grupa / #RRGGBB`, do przenoszenia między drzewami (czyta UTF-8 i
+„Tekst Unicode” z Excela).
+
 ### Etap 7.7 — tekst w rogu ryciny, kierunek gradientu, słowa bez kursywy (2026-10-02)
 - Nowy panel **Figure Text**: kilka linii tekstu w wybranym rogu ryciny
   (legenda gwiazdek, podpis), z wielkością, marginesem, pogrubieniem i
