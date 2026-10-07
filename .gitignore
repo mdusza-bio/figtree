@@ -8,3 +8,6 @@ out/*
 tests/*
 examples/*
 .DS_Store
+
+# lokalne ustawienia Claude Code (uprawnienia, sciezki na tym komputerze)
+.claude/settings.local.json
