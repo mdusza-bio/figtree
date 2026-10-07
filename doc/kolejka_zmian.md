@@ -611,6 +611,33 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   albo w preferencjach. *Publication preset* nie powinien zależeć od tego,
   czy sekcja jest rozwinięta.
 
+- [ ] 8.2 🟡 **Wybór czcionki w panelach etykiet ma być widoczny** — zgłoszenie
+  2026-10-07: użytkowniczka nie znalazła, gdzie zmienia się czcionkę w *Tip
+  Labels*. Jest przycisk **Font** w wierszu *Setup* (obok *Colour*), ale
+  wygląda jak część ustawień koloru i nie pokazuje, co jest ustawione. Do
+  zrobienia: osobny wiersz **Font:** z nazwą bieżącej czcionki (np. *Times
+  New Roman, 8 pt*) i przyciskiem *Change…* obok; po zmianie napis się
+  odświeża. To samo w *Node Labels* i *Branch Labels* (wspólny
+  `LabelPainterController`, przycisk `fontButton` koło wiersza 190; sam
+  wybór to `FontDialog` z `figtree.ui.FontChooserPanel`). Przy okazji w
+  `doc/instrukcja.md` dopisać, gdzie jest czcionka i że *Publication preset*
+  ustawia Times New Roman.
+- [ ] 8.3 🟡 **Kursywa ma przeżyć eksport do PDF przy „Embed fonts”** —
+  zgłoszenie koleżanki (Mac, 2026-10-07): na ekranie kursywa jest, w PDF
+  nazwy proste. Przyczyna (sprawdzona na Windows): gdy wybrana czcionka nie
+  ma na komputerze osobnego pliku odmiany pochyłej (np. Bahnschrift), Java na
+  ekranie przechyla litery sama, a `DefaultFontMapper` iTexta przy osadzaniu
+  znajduje plik odmiany zwykłej i w PDF kursywa ginie. Bez *Embed fonts*
+  wszystko działa (Times-Italic / Helvetica-Oblique z PDF). Do zrobienia w
+  `FigTreeFrame.getEmbeddingFontMapper()`: własny mapper, który dla czcionki
+  z `isItalic()`/`isBold()` sprawdza, czy znaleziony plik to ten sam, co dla
+  odmiany zwykłej, i wtedy bierze kursywę z czcionki standardowej PDF
+  (albo próbuje nazw „Rodzina Italic” / „Rodzina,Italic”). Przy okazji
+  dodać foldery czcionek Maca, których teraz nie przeszukujemy:
+  `/System/Library/Fonts/Supplemental` (tam Apple trzyma Times New Roman i
+  Arial) i `~/Library/Fonts`. Czekamy na odpowiedź koleżanki, co u niej
+  pomogło (odznaczenie *Embed fonts* czy zmiana czcionki).
+
 ---
 
 ## Do zrobienia przez użytkowniczkę (stan na 2026-08-25, wieczór)
