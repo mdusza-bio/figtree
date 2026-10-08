@@ -167,17 +167,18 @@ Kursywa i skład nazwy:
 - **Not italic words** — słowa, które zostają pismem prostym w środku nazwy
   (domyślnie `var subsp ssp f sp cf aff nov x`). Nie przerywają kursywy dla
   dalszych członów.
-- **Add dot** — dopisuje kropkę: `var` → `var.`, `sp` → `sp.` (w nagłówkach FASTA
-  kropek zwykle nie ma). Kropkę dostają tylko **skróty, do 5 liter** — słowo
-  wypisane w całości, np. `holotypus`, zostaje bez kropki. Znak krzyżówki `x`
-  też kropki nie dostaje.
+- **Dot after** — lista skrótów, które mają dostać kropkę (w nagłówkach FASTA
+  kropek zwykle nie ma): `var` → `var.`, `sp` → `sp.`, a w numerze okazu
+  `CA` → `CA.` (`UARK CA. 6-131`). Domyślnie `var subsp ssp f sp cf aff nov CA`.
+  Jedna lista dla nazwy i numeru; wpisuj dokładnie tak, jak w nagłówku —
+  wielkość liter ma znaczenie (`f` to forma, `F` może być kodem zielnika).
+  Puste pole = żadnych kropek. Słowo, które ma zostać bez kropki (np. `holotypus`
+  albo znak krzyżówki `x`), po prostu nie wpisuj.
 - **ALL CAPS** — kończy kursywę także na członie pisanym samymi wielkimi literami
   bez cyfr, np. `KRAM` w numerze `KRAM M-1234`.
 - **Join number** — skleja numer okazu rozbity przez podkreślniki w postać, w której
   się go cytuje: `KRAM M 1156` → `KRAM M-1156`, `UK100 1b` → `UK100-1b`,
   `Ron324 2 3` → `Ron324 2/3`. Nazwy, które mają już myślnik, zostają bez zmian.
-- **Dot after codes** — lista skrótów kolekcji cytowanych z kropką, domyślnie `CA`
-  (`UARK CA. 6-131`). Puste pole = żadnych kropek.
 
 Ręczna poprawka pojedynczego liścia (gdy reguły się mylą):
 - **Style selected tips...** — klikasz w drzewie liść, który wyszedł źle

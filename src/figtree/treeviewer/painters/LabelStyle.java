@@ -170,17 +170,6 @@ public class LabelStyle {
         }
     }
 
-    public boolean isAddRankDots() {
-        return addRankDots;
-    }
-
-    /**
-     * @param addRankDots write "var." / "sp." even when the raw name has no dot
-     */
-    public void setAddRankDots(boolean addRankDots) {
-        this.addRankDots = addRankDots;
-    }
-
     public boolean isFormatCollectionNumber() {
         return formatCollectionNumber;
     }
@@ -195,21 +184,30 @@ public class LabelStyle {
         this.formatCollectionNumber = formatCollectionNumber;
     }
 
-    public String getDotCodes() {
-        return dotCodes;
+    public String getDotWords() {
+        return dotWords;
     }
 
     /**
-     * @param dotCodes collection abbreviations that are cited with a dot, e.g. the
-     *                 CA of "UARK CA. 6-131" (separated by spaces or commas)
+     * MyFigTree (Etap 8.4): one list for every abbreviation that is cited with a
+     * dot, whether it sits inside the name ("var", "sp") or in the collection
+     * number (the CA of "UARK CA. 6-131"). FASTA headers usually lack the dots.
+     *
+     * @param words the abbreviations, separated by spaces or commas. They are
+     *              matched exactly - case matters, so "f" is the forma while "F"
+     *              could be a herbarium code - and a trailing dot in the list is
+     *              ignored. An empty list means no dots at all.
      */
-    public void setDotCodes(String dotCodes) {
-        this.dotCodes = (dotCodes == null ? "" : dotCodes);
-        dotCodeSet.clear();
-        for (String c : this.dotCodes.split("[\\s,]+")) {
-            String code = normaliseWord(c);
-            if (code.length() > 0) {
-                dotCodeSet.add(code);
+    public void setDotWords(String words) {
+        this.dotWords = (words == null ? "" : words);
+        dotWordSet.clear();
+        for (String w : this.dotWords.split("[\\s,]+")) {
+            String key = w.trim();
+            while (key.endsWith(".")) {
+                key = key.substring(0, key.length() - 1);
+            }
+            if (key.length() > 0) {
+                dotWordSet.add(key);
             }
         }
     }
@@ -300,25 +298,16 @@ public class LabelStyle {
         return w.toLowerCase();
     }
 
-    /** an abbreviation is short; "holotypus" is a whole word and takes no dot */
-    private static final int MAX_ABBREVIATION_LENGTH = 5;
-
     /**
-     * @return the text of one part as it is drawn (with the dot that FASTA headers
-     *         usually lack, when that option is on). Only abbreviations get the
-     *         dot - "var" -> "var.", but a whole word spelled out in the not-italic
-     *         list, such as "holotypus", is left exactly as it is.
+     * @return the text of one part as it is drawn: a word from the "dot after"
+     *         list gets the dot that FASTA headers usually lack ("var" -> "var.",
+     *         "CA" -> "CA."), anything else is left exactly as it is
      */
-    private String displayPart(String part) {
-        if (addRankDots
-                && italicMode == ItalicMode.UNTIL_NUMBER
-                && isNonItalicWord(part)
-                && part.length() <= MAX_ABBREVIATION_LENGTH
-                && !part.endsWith(".")
-                && !isHybridMarker(part)) {
-            return part + ".";
+    private String withDot(String part) {
+        if (part.endsWith(".") || !dotWordSet.contains(part)) {
+            return part;
         }
-        return part;
+        return part + ".";
     }
 
     /**
@@ -342,7 +331,7 @@ public class LabelStyle {
      * <ul>
      *     <li>a code that is a single capital letter binds to the number that
      *         follows it: <code>KRAM M 1156</code> -&gt; <code>KRAM M-1156</code>;</li>
-     *     <li>a code from {@link #getDotCodes()} is written with a dot:
+     *     <li>a code from {@link #getDotWords()} is written with a dot:
      *         <code>UARK CA 6 131</code> -&gt; <code>UARK CA. 6-131</code>;</li>
      *     <li>the pieces of a herbarium number are joined with hyphens:
      *         <code>UK100 1b</code> -&gt; <code>UK100-1b</code>;</li>
@@ -359,7 +348,7 @@ public class LabelStyle {
         int n = parts.length;
         if (!formatCollectionNumber) {
             for (int i = start; i < n; i++) {
-                number.add(parts[i]);
+                number.add(withDot(parts[i]));
             }
             return number;
         }
@@ -405,7 +394,7 @@ public class LabelStyle {
 
         // whatever is left (e.g. "new") is drawn as it is
         while (i < n) {
-            number.add(parts[i]);
+            number.add(withDot(parts[i]));
             i++;
         }
         return number;
@@ -447,13 +436,6 @@ public class LabelStyle {
         return small && digit;
     }
 
-    private String withDot(String code) {
-        if (code.endsWith(".") || !dotCodeSet.contains(normaliseWord(code))) {
-            return code;
-        }
-        return code + ".";
-    }
-
     private static boolean containsDigit(String part) {
         for (int i = 0; i < part.length(); i++) {
             if (Character.isDigit(part.charAt(i))) {
@@ -465,11 +447,6 @@ public class LabelStyle {
 
     private static boolean startsWithDigit(String part) {
         return part.length() > 0 && Character.isDigit(part.charAt(0));
-    }
-
-    /** the hybrid sign is never followed by a dot */
-    private static boolean isHybridMarker(String part) {
-        return part.equalsIgnoreCase("x") || part.equals("\u00d7");
     }
 
     public PartStyle getItalicGroup() {
@@ -549,14 +526,14 @@ public class LabelStyle {
      *         painter can use its plain single-string drawing path
      */
     public boolean isPlain() {
-        if (!highlightList.isEmpty() || !otherGroup.isPlain()) {
+        if (!highlightList.isEmpty() || !otherGroup.isPlain() || !dotWordSet.isEmpty()) {
             return false;
         }
         switch (italicMode) {
             case OFF:
                 return true;
             case UNTIL_NUMBER:
-                return italicGroup.isPlain() && !addRankDots && !formatCollectionNumber;
+                return italicGroup.isPlain() && !formatCollectionNumber;
             default:
                 return italicParts == 0 || italicGroup.isPlain();
         }
@@ -676,14 +653,14 @@ public class LabelStyle {
         if (italicMode != ItalicMode.UNTIL_NUMBER) {
             boolean[] mask = italicMask(parts);
             for (int i = 0; i < parts.length; i++) {
-                items.add(parts[i]);
+                items.add(withDot(parts[i]));
                 italic.add(mask[i]);
             }
             return;
         }
         int start = numberStart(parts);
         for (int i = 0; i < start; i++) {
-            items.add(displayPart(parts[i]));
+            items.add(withDot(parts[i]));
             italic.add(!isNonItalicWord(parts[i]));
         }
         for (String piece : collectionNumber(parts, start)) {
@@ -705,25 +682,24 @@ public class LabelStyle {
     /** the rank/qualifier words that stay upright unless the user changes them */
     public static final String DEFAULT_NON_ITALIC_WORDS = "var subsp ssp f sp cf aff nov x";
 
-    /** the collection abbreviations that are cited with a dot */
-    public static final String DEFAULT_DOT_CODES = "CA";
+    /** the abbreviations - in the name and in the collection number - that are cited with a dot */
+    public static final String DEFAULT_DOT_WORDS = "var subsp ssp f sp cf aff nov CA";
 
     private int italicParts = 0;
     private ItalicMode italicMode = ItalicMode.UNTIL_NUMBER;
     private String nonItalicWords = "";
     private final Set<String> nonItalicWordSet = new HashSet<String>();
-    private boolean addRankDots = false;
     private boolean upperCaseIsNumber = true;
     private boolean formatCollectionNumber = true;
-    private String dotCodes = "";
-    private final Set<String> dotCodeSet = new HashSet<String>();
+    private String dotWords = "";
+    private final Set<String> dotWordSet = new HashSet<String>();
     private final PartStyle italicGroup = new PartStyle();
     private final PartStyle otherGroup = new PartStyle();
 
     {
         italicGroup.italic = true;
         setNonItalicWords(DEFAULT_NON_ITALIC_WORDS);
-        setDotCodes(DEFAULT_DOT_CODES);
+        setDotWords(DEFAULT_DOT_WORDS);
     }
 
     private String highlight = "";

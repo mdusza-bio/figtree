@@ -109,10 +109,12 @@ public class LabelPainterController extends AbstractController {
     // MyFigTree: smarter italics (Etap 6.1)
     public static final String ITALIC_MODE_KEY = "italicMode";
     public static final String NON_ITALIC_WORDS_KEY = "nonItalicWords";
-    public static final String ADD_RANK_DOTS_KEY = "addRankDots";
+    public static final String DOT_WORDS_KEY = "dotWords";
+    /** files from before Etap 8.4: an "Add dot" checkbox plus a separate list of collection codes */
+    private static final String OLD_ADD_RANK_DOTS_KEY = "addRankDots";
+    private static final String OLD_DOT_CODES_KEY = "dotCodes";
     public static final String UPPER_CASE_NUMBER_KEY = "upperCaseIsNumber";
     public static final String FORMAT_NUMBER_KEY = "formatCollectionNumber";
-    public static final String DOT_CODES_KEY = "dotCodes";
 
     private static final String NO_COLOUR = "none";
 
@@ -447,8 +449,6 @@ public class LabelPainterController extends AbstractController {
                 public void changedUpdate(DocumentEvent e) { applyItalicMode(); }
             });
 
-            addRankDotsCheck = new JCheckBox("Add dot");
-            addRankDotsCheck.setToolTipText("Draw \"var.\" / \"sp.\" even when the name has no dot");
             upperCaseNumberCheck = new JCheckBox("ALL CAPS");
             upperCaseNumberCheck.setToolTipText("<html>Also stop the italics at an ALL-CAPS part with no digits<br>" +
                     "(a herbarium code such as KRAM or BR).</html>");
@@ -462,10 +462,14 @@ public class LabelPainterController extends AbstractController {
                     "<b>Ron324 2 3</b> &rarr; Ron324 2/3 (a field collection split in three)</html>");
             formatNumberCheck.setSelected(style.isFormatCollectionNumber());
 
-            dotCodesText = new JTextField(style.getDotCodes(), 6);
-            dotCodesText.setToolTipText("<html>Collection abbreviations written with a dot, e.g. the CA of<br>" +
-                    "UARK CA. 6-131 (separated by spaces). Leave empty for none.</html>");
-            dotCodesText.getDocument().addDocumentListener(new DocumentListener() {
+            // MyFigTree (Etap 8.4): one list of abbreviations that get a dot, in the
+            // name (var, sp) and in the collection number (CA) alike
+            dotWordsText = new JTextField(style.getDotWords(), 10);
+            dotWordsText.setToolTipText("<html>Abbreviations written with a dot, which FASTA headers lack:<br>" +
+                    "<b>var</b> &rarr; var., <b>sp</b> &rarr; sp., the <b>CA</b> of UARK CA. 6-131.<br>" +
+                    "Separated by spaces; exact match (f and F are different words).<br>" +
+                    "Leave empty for no dots.</html>");
+            dotWordsText.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applyItalicMode(); }
                 public void removeUpdate(DocumentEvent e) { applyItalicMode(); }
                 public void changedUpdate(DocumentEvent e) { applyItalicMode(); }
@@ -488,7 +492,6 @@ public class LabelPainterController extends AbstractController {
                 }
             };
             italicModeCombo.addActionListener(italicModeListener);
-            addRankDotsCheck.addActionListener(italicModeListener);
             upperCaseNumberCheck.addActionListener(italicModeListener);
             formatNumberCheck.addActionListener(italicModeListener);
             updateItalicEnabled();
@@ -540,10 +543,9 @@ public class LabelPainterController extends AbstractController {
             italicModeCombo = null;
             styleTipsButton = null;
             nonItalicWordsText = null;
-            addRankDotsCheck = null;
             upperCaseNumberCheck = null;
             formatNumberCheck = null;
-            dotCodesText = null;
+            dotWordsText = null;
             italicCaseCombo = null;
             otherCaseCombo = null;
             italicBoldCheck = null;
@@ -582,13 +584,11 @@ public class LabelPainterController extends AbstractController {
             addComponent(italicPartsSpinner);
             addComponent(optionsPanel.addComponentWithLabel("Not italic words:", nonItalicWordsText));
             addComponent(nonItalicWordsText);
-            addComponent(optionsPanel.addComponentWithLabel("Rank words:", addRankDotsCheck));
-            addComponent(addRankDotsCheck);
+            addComponent(optionsPanel.addComponentWithLabel("Dot after:", dotWordsText));
+            addComponent(dotWordsText);
             addComponent(optionsPanel.addComponentWithLabel("Collection number:", checkPanel(upperCaseNumberCheck, formatNumberCheck)));
             addComponent(upperCaseNumberCheck);
             addComponent(formatNumberCheck);
-            addComponent(optionsPanel.addComponentWithLabel("Dot after codes:", dotCodesText));
-            addComponent(dotCodesText);
             optionsPanel.addSpanningComponent(styleTipsButton);
             addComponent(styleTipsButton);
             addComponent(optionsPanel.addComponentWithLabel("Case (italic parts):", italicCaseCombo));
@@ -695,15 +695,47 @@ public class LabelPainterController extends AbstractController {
         return panel;
     }
 
+    /**
+     * MyFigTree (Etap 8.4): a file saved before the "Dot after" list existed had
+     * an "Add dot" checkbox (a dot after every short word of the not-italic list,
+     * except the hybrid "x") and a separate list of collection codes. Both are
+     * folded into the one list, so an old figure draws exactly as it did.
+     */
+    private String dotWordsFromOldSettings(Map<String, Object> settings) {
+        StringBuilder words = new StringBuilder();
+        if (Boolean.TRUE.equals(settings.get(key + "." + OLD_ADD_RANK_DOTS_KEY))) {
+            for (String w : nonItalicWordsText.getText().split("[\\s,]+")) {
+                String word = w.trim();
+                while (word.endsWith(".")) {
+                    word = word.substring(0, word.length() - 1);
+                }
+                if (word.length() > 0 && word.length() <= 5
+                        && !word.equalsIgnoreCase("x") && !word.equals("\u00d7")) {
+                    if (words.length() > 0) {
+                        words.append(' ');
+                    }
+                    words.append(word);
+                }
+            }
+        }
+        Object codes = settings.get(key + "." + OLD_DOT_CODES_KEY);
+        if (codes != null && codes.toString().trim().length() > 0) {
+            if (words.length() > 0) {
+                words.append(' ');
+            }
+            words.append(codes.toString().trim());
+        }
+        return words.toString();
+    }
+
     /** MyFigTree (Etap 6.1) */
     private void applyItalicMode() {
         LabelStyle style = labelPainter.getLabelStyle();
         style.setItalicMode((LabelStyle.ItalicMode) italicModeCombo.getSelectedItem());
         style.setNonItalicWords(nonItalicWordsText.getText());
-        style.setAddRankDots(addRankDotsCheck.isSelected());
         style.setUpperCaseIsNumber(upperCaseNumberCheck.isSelected());
         style.setFormatCollectionNumber(formatNumberCheck.isSelected());
-        style.setDotCodes(dotCodesText.getText());
+        style.setDotWords(dotWordsText.getText());
         updateItalicEnabled();
         labelPainter.labelStyleChanged();
     }
@@ -714,10 +746,8 @@ public class LabelPainterController extends AbstractController {
         italicPartsSpinner.setEnabled(mode == LabelStyle.ItalicMode.FIRST_N);
         boolean untilNumber = (mode == LabelStyle.ItalicMode.UNTIL_NUMBER);
         nonItalicWordsText.setEnabled(untilNumber);
-        addRankDotsCheck.setEnabled(untilNumber);
         upperCaseNumberCheck.setEnabled(untilNumber);
         formatNumberCheck.setEnabled(untilNumber);
-        dotCodesText.setEnabled(untilNumber && formatNumberCheck.isSelected());
     }
 
     /**
@@ -1139,10 +1169,6 @@ public class LabelPainterController extends AbstractController {
         if (words != null) {
             nonItalicWordsText.setText(words.toString());
         }
-        Object dots = settings.get(key + "." + ADD_RANK_DOTS_KEY);
-        if (dots instanceof Boolean) {
-            addRankDotsCheck.setSelected((Boolean) dots);
-        }
         Object caps = settings.get(key + "." + UPPER_CASE_NUMBER_KEY);
         if (caps instanceof Boolean) {
             upperCaseNumberCheck.setSelected((Boolean) caps);
@@ -1151,9 +1177,16 @@ public class LabelPainterController extends AbstractController {
         if (join instanceof Boolean) {
             formatNumberCheck.setSelected((Boolean) join);
         }
-        Object dots2 = settings.get(key + "." + DOT_CODES_KEY);
-        if (dots2 != null) {
-            dotCodesText.setText(dots2.toString());
+        // the old keys win when they are there: they come from a file (or a saved
+        // preset) written before the one list existed, so they are what it meant
+        if (settings.containsKey(key + "." + OLD_ADD_RANK_DOTS_KEY)
+                || settings.containsKey(key + "." + OLD_DOT_CODES_KEY)) {
+            dotWordsText.setText(dotWordsFromOldSettings(settings));
+        } else {
+            Object dotWords = settings.get(key + "." + DOT_WORDS_KEY);
+            if (dotWords != null) {
+                dotWordsText.setText(dotWords.toString());
+            }
         }
         applyItalicMode();
 
@@ -1204,10 +1237,9 @@ public class LabelPainterController extends AbstractController {
     private void getStyleSettings(Map<String, Object> settings) {
         settings.put(key + "." + ITALIC_MODE_KEY, ((LabelStyle.ItalicMode) italicModeCombo.getSelectedItem()).name());
         settings.put(key + "." + NON_ITALIC_WORDS_KEY, nonItalicWordsText.getText());
-        settings.put(key + "." + ADD_RANK_DOTS_KEY, addRankDotsCheck.isSelected());
         settings.put(key + "." + UPPER_CASE_NUMBER_KEY, upperCaseNumberCheck.isSelected());
         settings.put(key + "." + FORMAT_NUMBER_KEY, formatNumberCheck.isSelected());
-        settings.put(key + "." + DOT_CODES_KEY, dotCodesText.getText());
+        settings.put(key + "." + DOT_WORDS_KEY, dotWordsText.getText());
         settings.put(key + "." + ITALIC_PARTS_KEY, italicPartsSpinner.getValue());
         settings.put(key + "." + ITALIC_CASE_KEY, ((LabelStyle.Case) italicCaseCombo.getSelectedItem()).name());
         settings.put(key + "." + ITALIC_BOLD_KEY, italicBoldCheck.isSelected());
@@ -1305,10 +1337,9 @@ public class LabelPainterController extends AbstractController {
     private final JComboBox italicModeCombo;
     private final JButton styleTipsButton;
     private final JTextField nonItalicWordsText;
-    private final JCheckBox addRankDotsCheck;
     private final JCheckBox upperCaseNumberCheck;
     private final JCheckBox formatNumberCheck;
-    private final JTextField dotCodesText;
+    private final JTextField dotWordsText;
     private final JComboBox italicCaseCombo;
     private final JComboBox otherCaseCombo;
     private final JCheckBox italicBoldCheck;

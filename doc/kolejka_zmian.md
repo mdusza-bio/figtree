@@ -600,7 +600,7 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
     values*, *Move selected label…*, formaty liczb.
   - *Tip Labels* — na wierzchu: *Italic mode*, *Not italic words*, *Hide
     parts*, *Font size*; pod *More…*: *Hide regex*, style grup, *Highlight…*,
-    *Type mark*, *Dot after codes*, *Style selected tips…*.
+    *Type mark*, *Dot after*, *Style selected tips…*.
   - *Layout* — na wierzchu: *Min tip spacing*, *Shorten selected branch*;
     pod *More…*: *Shorten branches longer than*, *Write 2x / 3x above //*,
     *2x / 3x size*.
@@ -637,6 +637,14 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   `/System/Library/Fonts/Supplemental` (tam Apple trzyma Times New Roman i
   Arial) i `~/Library/Fonts`. Czekamy na odpowiedź koleżanki, co u niej
   pomogło (odznaczenie *Embed fonts* czy zmiana czcionki).
+- [x] 8.4 🟢 **Jedno pole *Dot after* zamiast *Add dot* + *Dot after codes*** —
+  zrobione 2026-10-08 na pytanie użytkowniczki („czy zamiast dwóch osobnych pól
+  do dodawania kropek nie możemy zrobić jednego, gdzie użytkownik sam wpisuje,
+  po czym chce mieć kropkę?”). W *Tip Labels* jest teraz jedna lista
+  `var subsp ssp f sp cf aff nov CA` (dopasowanie dokładne, puste = brak
+  kropek); przełącznik, drugie pole i reguła „do 5 liter, nie po x” usunięte.
+  Klucz `tipLabels.dotWords`; stare klucze są przeliczane przy wczytaniu
+  (`LabelPainterController.dotWordsFromOldSettings`).
 
 ---
 

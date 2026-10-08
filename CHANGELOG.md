@@ -107,6 +107,23 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 8.4 — jedno pole *Dot after* zamiast *Add dot* i *Dot after codes* (2026-10-08)
+**Skąd się wzięło.** Pytanie użytkowniczki: po co dwa osobne miejsca na kropki —
+przełącznik *Add dot* (kropka po `var`, `sp`) i pole *Dot after codes* (kropka
+po `CA` w numerze)? Oba były skutkiem kolejności powstawania, nie decyzji.
+
+*Tip Labels*:
+- **Dot after** — jedna lista skrótów, które dostają kropkę, w nazwie i w numerze
+  okazu tak samo: domyślnie `var subsp ssp f sp cf aff nov CA`. Dopasowanie
+  dokładne (wielkość liter ma znaczenie), puste pole = brak kropek. Działa
+  niezależnie od *Italic mode* i *Join number*.
+- Zniknęły: przełącznik *Add dot*, pole *Dot after codes* i wpisana w kod reguła
+  „kropka tylko do 5 liter, nie po `x`” — teraz o tym decyduje sama lista.
+
+Zapis: `tipLabels.dotWords`. Stare pliki `.tree` i zapisany preset (klucze
+`tipLabels.addRankDots`, `tipLabels.dotCodes`) są przy wczytaniu przeliczane na
+nową listę, więc rycina wygląda jak dotąd; po *Save* plik ma już tylko nowy klucz.
+
 ### Etap 7.12 — małe „T” przy sekwencji typu (2026-10-05)
 *Tip Labels*: nowy sposób oznaczania typów obok pogrubienia —
 - **Type mark: superscript T** — okazy złapane przez *Highlight names

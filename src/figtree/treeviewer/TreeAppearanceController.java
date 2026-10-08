@@ -380,10 +380,9 @@ public class TreeAppearanceController extends AbstractController {
         settings.put("tipLabels.italicMode", LabelStyle.ItalicMode.UNTIL_NUMBER.name());
         settings.put("tipLabels.nonItalicWords",
                 LabelStyle.DEFAULT_NON_ITALIC_WORDS + " " + TYPE_WORDS);
-        settings.put("tipLabels.addRankDots", Boolean.TRUE);
         settings.put("tipLabels.upperCaseIsNumber", Boolean.TRUE);
         settings.put("tipLabels.formatCollectionNumber", Boolean.TRUE);
-        settings.put("tipLabels.dotCodes", LabelStyle.DEFAULT_DOT_CODES);
+        settings.put("tipLabels.dotWords", LabelStyle.DEFAULT_DOT_WORDS);
         settings.put("tipLabels.italicParts", 2);
         settings.put("tipLabels.replaceUnderscores", Boolean.TRUE);
 
