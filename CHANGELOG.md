@@ -107,6 +107,15 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Poprawka — wiersz *Position* w *Node Labels* był przesunięty w prawo (2026-10-09)
+Zgłoszone ze zrzutem ekranu: etykieta *Position:* i jej lista stały o kolumnę
+dalej niż reszta panelu. Przyczyna: pole *Replace '_' with space* jest w
+panelach *Node Labels* / *Branch Labels* chowane (etap 6.20), ale biblioteka
+dokładała przed nim pusty, niewidoczny panel-wypełniacz, którego nikt nie
+chował. Ten wypełniacz trzymał początek wiersza, więc następny widoczny
+element — *Position* — trafiał do drugiej kolumny. Teraz pole ma własną
+(pustą) etykietę, chowaną razem z nim. *Tip Labels* bez zmian.
+
 ### Etap 8.4 — jedno pole *Dot after* zamiast *Add dot* i *Dot after codes* (2026-10-08)
 **Skąd się wzięło.** Pytanie użytkowniczki: po co dwa osobne miejsca na kropki —
 przełącznik *Add dot* (kropka po `var`, `sp`) i pole *Dot after codes* (kropka

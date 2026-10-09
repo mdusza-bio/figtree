@@ -570,7 +570,12 @@ public class LabelPainterController extends AbstractController {
             label7 = optionsPanel.addComponentWithLabel("Box Size:", boxSizeSpinner);
             optionsPanel.addComponent(tipPathCheck, true);
         }
-        optionsPanel.addComponent(replaceUnderscoresCheck, true);
+        // MyFigTree: added with an (empty) label of its own rather than through
+        // addComponent(), which puts an anonymous spacer panel in the label column.
+        // That spacer stayed visible when the checkbox was hidden for node/branch
+        // labels, so it held the start of a row and the next visible row - the
+        // "Position:" label and its combo - got pushed one column to the right.
+        replaceUnderscoresLabel = optionsPanel.addComponentWithLabel("", replaceUnderscoresCheck, true);
         final JLabel label8 = optionsPanel.addComponentWithLabel("Hide parts:", hidePartsText);
         final JLabel label9 = optionsPanel.addComponentWithLabel("Hide regex:", hideRegexText);
         hidePartsLabel = label8;
@@ -1021,6 +1026,7 @@ public class LabelPainterController extends AbstractController {
             return;
         }
         boolean names = LabelPainter.NAMES.equals(displayAttributeCombo.getSelectedItem());
+        replaceUnderscoresLabel.setVisible(names);
         replaceUnderscoresCheck.setVisible(names);
         hidePartsLabel.setVisible(names);
         hidePartsText.setVisible(names);
@@ -1316,6 +1322,7 @@ public class LabelPainterController extends AbstractController {
     private final JCheckBox tipPathCheck;
 
     private final JCheckBox replaceUnderscoresCheck;
+    private JLabel replaceUnderscoresLabel = null;
     private JLabel hidePartsLabel = null;
     private JLabel hideRegexLabel = null;
     private final JTextField hidePartsText;

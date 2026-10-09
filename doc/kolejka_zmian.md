@@ -645,6 +645,13 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   kropek); przełącznik, drugie pole i reguła „do 5 liter, nie po x” usunięte.
   Klucz `tipLabels.dotWords`; stare klucze są przeliczane przy wczytaniu
   (`LabelPainterController.dotWordsFromOldSettings`).
+- [x] 8.5 🟢 **Wiersz *Position* w *Node Labels* przesunięty w prawo** — zgłoszone
+  2026-10-09 ze zrzutem ekranu, naprawione tego samego dnia. `OptionsPanel.addComponent(c, fill)`
+  z jam.jar dokłada w kolumnie etykiet pusty `JPanel`, a chowanie samego
+  `replaceUnderscoresCheck` (6.20) zostawiało ten wypełniacz widoczny, więc
+  `GridBagLayout` wrzucał *Position:* do następnej kolumny tego samego wiersza.
+  Fix: `addComponentWithLabel("", check, true)` i chowanie zwróconej etykiety.
+  Sprawdzone programem `LayoutProbe` (zrzut pozycji elementów panelu, bez GUI).
 
 ---
 
