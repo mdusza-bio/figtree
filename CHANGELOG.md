@@ -107,6 +107,27 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 8.7 — podpowiedzi przy opcjach w panelach (2026-10-09)
+Prośba użytkowniczki: mniej oczywiste nowe opcje mają dostawać krótkie
+wyjaśnienie po angielsku po najechaniu myszką, żeby nie zaglądać ciągle do
+instrukcji. Nowe albo rozszerzone podpowiedzi mają m.in. *Min tip spacing*,
+*Shorten branches longer than* (że tnie wszystkie gałęzie naraz i nie mówi,
+o ile), *Show tip callouts*, *Hide parts* / *Hide regex* (z przykładem `_new`
+i `_new$`), *Italic mode* (po co jest *Until first number*), *Not italic words*
+i *Dot after* (słowa po spacji), *Collection number* (ALL CAPS / Join number),
+*Too low shows as* (`-/1`, `75/-`), *Avoid overlap* (że nie działa idealnie na
+każdym drzewie i co wtedy: Offset X/Y, przeciąganie myszą, strzałki), wszystkie
+pola *Group Bars* oraz *Figure Text* (że to taka legenda ryciny).
+
+Dwie poprawki techniczne, bez których podpowiedzi „nie było widać":
+- podpowiedź pojawia się też po najechaniu na **nazwę** opcji po lewej, nie
+  tylko na samo pole, a w polach liczbowych także nad samą liczbą — wcześniej
+  Swing pokazywał ją tam tylko nad strzałkami góra/dół;
+- podpowiedź znika dopiero po minucie, a nie po 4 sekundach jak dotąd (za
+  krótko na kilka linii tekstu).
+
+Nowa klasa `figtree.ui.ToolTips` (`set`, `copy`, `install`).
+
 ### Usunięty przycisk *Move selected label…* (2026-10-09)
 Na prośbę użytkowniczki: przycisk z okienkiem do wpisywania przesunięcia (etap
 6.16) znika z paneli *Node Labels* / *Branch Labels* — od czasu przeciągania

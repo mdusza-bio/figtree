@@ -20,6 +20,8 @@
 
 package figtree.treeviewer.painters;
 
+import figtree.ui.ToolTips;
+
 import figtree.treeviewer.AttributeColourController;
 import figtree.treeviewer.TreeViewer;
 import figtree.treeviewer.decorators.Decorator;
@@ -207,6 +209,7 @@ public class NodeShapeController extends AbstractController {
         optionsPanel.addSeparator();
         final JLabel label11 = optionsPanel.addComponentWithLabel("Threshold attribute:", thresholdAttributeCombo);
         final JLabel label12 = optionsPanel.addComponentWithLabel("Show only if >=:", thresholdText);
+        ToolTips.copy(label12, thresholdText);
 
         new AttributeComboHelper(thresholdAttributeCombo, treeViewer, NodeShapePainter.NONE).addListener(new AttributeComboHelperListener() {
             @Override

@@ -658,6 +658,17 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   przycisk i metoda `moveSelectedLabels` w `LabelPainterController`; atrybuty
   `!labelDX` / `!labelDY` i ich rysowanie w `TreePane` bez zmian, więc stare
   pliki z przesuniętymi liczbami wyglądają jak dotąd.
+- [x] 8.7 🟢 **Podpowiedzi (tooltipy) przy opcjach** — prośba użytkowniczki
+  2026-10-09: krótkie wyjaśnienia po angielsku po najechaniu myszką na mniej
+  oczywiste nowe opcje (*Min tip spacing*, *Shorten branches longer than*,
+  *Show tip callouts*, *Hide parts* / *Hide regex*, *Italic mode*, *Not italic
+  words*, *Dot after*, *Collection number*, *Too low shows as*, *Avoid overlap*,
+  *Group Bars*, *Figure Text*). Nowa klasa `figtree.ui.ToolTips`: `set()` kładzie
+  ten sam tekst na etykietę wiersza i pole (w `JSpinner` także na pole tekstowe
+  edytora, które zasłania spinner i bez tego nie pokazuje podpowiedzi), `copy()`
+  przepisuje tooltip pola na etykietę, `install()` w `main()` wydłuża czas
+  wyświetlania z 4 s do minuty. Skompilowane, jeszcze nie oglądane w działającym
+  programie.
 
 ---
 

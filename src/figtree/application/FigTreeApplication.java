@@ -397,6 +397,9 @@ public class FigTreeApplication extends MultiDocApplication {
         String websiteURLString = "http://tree.bio.ed.ac.uk/software/figtree/";
         String helpURLString = "http://tree.bio.ed.ac.uk/software/figtree/";
 
+        // MyFigTree (Etap 8.7): the explanations of the options stay open long enough to be read
+        figtree.ui.ToolTips.install();
+
         FigTreeApplication.application = new FigTreeApplication(new FigTreeMenuBarFactory(), nameString, titleString, aboutString, icon,
                 websiteURLString, helpURLString);
 

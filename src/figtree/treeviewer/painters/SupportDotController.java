@@ -6,6 +6,8 @@
 
 package figtree.treeviewer.painters;
 
+import figtree.ui.ToolTips;
+
 import figtree.treeviewer.ControllerOptionsPanel;
 import figtree.treeviewer.TreeViewer;
 import figtree.treeviewer.TreeViewerListener;
@@ -110,6 +112,8 @@ public class SupportDotController extends AbstractController {
         final JLabel label2 = optionsPanel.addComponentWithLabel("Dot if >=:", thresholdSpinner);
         final JLabel label3 = optionsPanel.addComponentWithLabel("and support:", attribute2Combo);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Dot if >=:", threshold2Spinner);
+        ToolTips.copy(label2, thresholdSpinner);
+        ToolTips.copy(label4, threshold2Spinner);
         final JLabel label5 = optionsPanel.addComponentWithLabel("Position:", positionCombo);
         final JLabel label6 = optionsPanel.addComponentWithLabel("Dot size:", sizeSpinner);
         optionsPanel.addComponent(hideLabelsCheck, true);

@@ -20,6 +20,8 @@
 
 package figtree.treeviewer.painters;
 
+import figtree.ui.ToolTips;
+
 import figtree.ui.PercentFormat;
 import figtree.ui.components.ColorWellButton;
 import figtree.ui.RomanFormat;
@@ -265,6 +267,9 @@ public class LabelPainterController extends AbstractController {
             });
 
             tipPathCheck = new JCheckBox("Show tip callouts");
+            tipPathCheck.setToolTipText("<html>With Align Tip Labels on (Layout panel) the names stand in one column on<br>" +
+                    "the right, and a thin dotted line leads from each tip to its name.<br>" +
+                    "Untick to leave out the lines. No effect while the names sit at the tips.</html>");
             tipPathCheck.setSelected(true);
             tipPathCheck.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent changeEvent) {
@@ -279,6 +284,8 @@ public class LabelPainterController extends AbstractController {
 
         // MyFigTree: display-only name formatting controls
         replaceUnderscoresCheck = new JCheckBox("Replace '_' with space");
+        replaceUnderscoresCheck.setToolTipText("<html>Shows the underscores of the FASTA headers as spaces - on screen and in<br>" +
+                "the exported figure only; the tree file itself is not changed.</html>");
         replaceUnderscoresCheck.setSelected(intent == LabelPainter.PainterIntent.TIP);
         labelPainter.setReplaceUnderscores(replaceUnderscoresCheck.isSelected());
         replaceUnderscoresCheck.addChangeListener(new ChangeListener() {
@@ -288,7 +295,11 @@ public class LabelPainterController extends AbstractController {
         });
 
         hidePartsText = new JTextField("", 10);
-        hidePartsText.setToolTipText("Comma-separated text to remove from names, e.g. EBOV|,_contig1");
+        hidePartsText.setToolTipText("<html>Text to cut out of the names - several pieces separated by commas<br>" +
+                "(e.g. _contig1, HOLOTYPE). Cut literally and everywhere it occurs, also in<br>" +
+                "the middle of a name: _new turns Arcyria_newtoniana into Arcyriatoniana.<br>" +
+                "Write it as in the file, with underscores. Only the display changes;<br>" +
+                "the tree file stays as it is.</html>");
         hidePartsText.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { labelPainter.setHideParts(hidePartsText.getText()); }
             public void removeUpdate(DocumentEvent e) { labelPainter.setHideParts(hidePartsText.getText()); }
@@ -296,7 +307,11 @@ public class LabelPainterController extends AbstractController {
         });
 
         hideRegexText = new JTextField("", 10);
-        hideRegexText.setToolTipText("Regular expression; matching text is removed from names");
+        hideRegexText.setToolTipText("<html>Like Hide parts, but a regular expression (pattern), so you can say where<br>" +
+                "to cut: _new$ removes _new at the end of the name only ($ = end of name).<br>" +
+                "A wrong pattern is simply ignored - the names stay as they are.<br>" +
+                "The characters . | ( ) [ ] $ ^ * + ? have a special meaning in a pattern,<br>" +
+                "so cut a piece like EBOV| with Hide parts instead.</html>");
         hideRegexText.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
             public void removeUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
@@ -321,6 +336,7 @@ public class LabelPainterController extends AbstractController {
 
             if (intent == LabelPainter.PainterIntent.NODE) {
                 positionCombo = new JComboBox(LabelPainter.LabelPosition.values());
+                positionCombo.setToolTipText("Where the value is written: on the node itself, above the branch or below it.");
                 positionCombo.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent event) {
                         labelPainter.setLabelPosition((LabelPainter.LabelPosition) positionCombo.getSelectedItem());
@@ -329,11 +345,13 @@ public class LabelPainterController extends AbstractController {
 
                 // MyFigTree (Etap 6.6)
                 avoidOverlapCheck = new JCheckBox("Avoid overlap");
-                avoidOverlapCheck.setToolTipText("<html>Slide clashing support values to the left, along their<br>" +
-                        "own branch, where they would be drawn on top of each other<br>" +
-                        "(clades that add one taxon at a time). A value moved far from<br>" +
-                        "its node gets a thin grey pointer line back to it.<br>" +
-                        "Only the labels move - the tree itself is not redrawn.</html>");
+                avoidOverlapCheck.setToolTipText("<html>Spreads support values that would be drawn on top of each other<br>" +
+                        "(clades that add one taxon at a time): a clashing value slides to the<br>" +
+                        "left along its own branch, and one moved far from its node gets a thin<br>" +
+                        "grey pointer line back to it. Only the text moves - the tree is not redrawn.<br>" +
+                        "It does not work perfectly on every tree. For a value still in the wrong<br>" +
+                        "place: drag it with the mouse, or select it and nudge it with the arrow<br>" +
+                        "keys (1 pt, with Shift 10 pt), or shift all values with Offset X / Y.</html>");
                 avoidOverlapCheck.setSelected(labelPainter.isAvoidOverlap());
                 avoidOverlapCheck.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent event) {
@@ -367,6 +385,8 @@ public class LabelPainterController extends AbstractController {
             });
 
             secondAttributeCombo = new JComboBox(new String[] { BasicLabelPainter.NONE });
+            secondAttributeCombo.setToolTipText("<html>A second support value written next to the first one - e.g. posterior<br>" +
+                    "probability next to the bootstrap - as a / b or one above the other (Layout).</html>");
             new AttributeComboHelper(secondAttributeCombo, treeViewer, BasicLabelPainter.NONE, intent).addListener(new AttributeComboHelperListener() {
                 @Override
                 public void attributeComboChanged() {
@@ -378,8 +398,9 @@ public class LabelPainterController extends AbstractController {
             secondThresholdText = new JTextField("", 6);
             secondThresholdText.setToolTipText("Show the second value only if >= this number; empty = always");
             placeholderText = new JTextField("", 6);
-            placeholderText.setToolTipText("<html>With a second value: what to write in place of a value that is<br>" +
-                    "below its threshold or missing, e.g. - gives -/1 and 76/-.<br>" +
+            placeholderText.setToolTipText("<html>With a second value: what stands in for a value that is below its<br>" +
+                    "threshold or missing altogether. Type - to get -/1 (no bootstrap,<br>" +
+                    "PP 1) and 75/- (bootstrap 75, no PP).<br>" +
                     "Empty = a first value below its threshold hides the whole label.</html>");
             DocumentListener secondListener = new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applySecondThreshold(); }
@@ -390,6 +411,7 @@ public class LabelPainterController extends AbstractController {
             placeholderText.getDocument().addDocumentListener(secondListener);
 
             secondLayoutCombo = new JComboBox(LabelPainter.SecondValueLayout.values());
+            secondLayoutCombo.setToolTipText("How the two values are combined: side by side as a / b, or stacked one above the other.");
             secondLayoutCombo.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent event) {
                     labelPainter.setSecondValueLayout((LabelPainter.SecondValueLayout) secondLayoutCombo.getSelectedItem());
@@ -412,7 +434,8 @@ public class LabelPainterController extends AbstractController {
         final LabelStyle style = labelPainter.getLabelStyle();
         if (intent == LabelPainter.PainterIntent.TIP && style != null) {
             italicPartsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 20, 1));
-            italicPartsSpinner.setToolTipText("How many leading parts of the name (e.g. genus + species = 2) are drawn in italics; 0 = off");
+            italicPartsSpinner.setToolTipText("<html>How many leading parts of the name are italic (genus + species = 2); 0 = off.<br>" +
+                    "Used by the First N parts mode only.</html>");
             italicPartsSpinner.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent changeEvent) {
                     style.setItalicParts((Integer) italicPartsSpinner.getValue());
@@ -425,12 +448,15 @@ public class LabelPainterController extends AbstractController {
             italicModeCombo.setSelectedItem(style.getItalicMode());
             italicModeCombo.setToolTipText("<html>How much of the name is italic:<br>" +
                     "<b>Off</b> - nothing;<br>" +
-                    "<b>First N parts</b> - always the same number of parts;<br>" +
-                    "<b>Until first number</b> - everything before the collection number.</html>");
+                    "<b>First N parts</b> - always the same number of parts (set below);<br>" +
+                    "<b>Until first number</b> - everything up to the collection number, i.e. the<br>" +
+                    "first part with a digit in it: <i>Arcyria cinerea</i> KRAM M-1156. This tells<br>" +
+                    "the species name from the specimen number without counting parts.</html>");
 
             nonItalicWordsText = new JTextField(style.getNonItalicWords(), 10);
-            nonItalicWordsText.setToolTipText("<html>Words that stay upright inside an italic name (var, sp, ...),<br>" +
-                    "separated by spaces. They do NOT end the italics.</html>");
+            nonItalicWordsText.setToolTipText("<html>Words that stay upright inside an italic name, separated by spaces:<br>" +
+                    "var subsp ssp f sp cf aff nov x. They do not end the italics - what<br>" +
+                    "follows them (e.g. the variety name) is italic again.</html>");
             nonItalicWordsText.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applyItalicMode(); }
                 public void removeUpdate(DocumentEvent e) { applyItalicMode(); }
@@ -447,7 +473,8 @@ public class LabelPainterController extends AbstractController {
                     "<b>KRAM M 1156</b> &rarr; KRAM M-1156<br>" +
                     "<b>UK100 1b</b> &rarr; UK100-1b<br>" +
                     "<b>UARK CA 6 131</b> &rarr; UARK CA. 6-131<br>" +
-                    "<b>Ron324 2 3</b> &rarr; Ron324 2/3 (a field collection split in three)</html>");
+                    "<b>Ron324 2 3</b> &rarr; Ron324 2/3 (a field collection split in three).<br>" +
+                    "Follows a few general rules; a number it does not recognise is left as it is.</html>");
             formatNumberCheck.setSelected(style.isFormatCollectionNumber());
 
             // MyFigTree (Etap 8.4): one list of abbreviations that get a dot, in the
@@ -566,65 +593,87 @@ public class LabelPainterController extends AbstractController {
         replaceUnderscoresLabel = optionsPanel.addComponentWithLabel("", replaceUnderscoresCheck, true);
         final JLabel label8 = optionsPanel.addComponentWithLabel("Hide parts:", hidePartsText);
         final JLabel label9 = optionsPanel.addComponentWithLabel("Hide regex:", hideRegexText);
-        hidePartsLabel = label8;
-        hideRegexLabel = label9;
+        hidePartsLabel = ToolTips.copy(label8, hidePartsText);
+        hideRegexLabel = ToolTips.copy(label9, hideRegexText);
         updateNameOptions();
 
         if (italicPartsSpinner != null) {
-            addComponent(optionsPanel.addComponentWithLabel("Italic mode:", italicModeCombo));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Italic mode:", italicModeCombo), italicModeCombo));
             addComponent(italicModeCombo);
-            addComponent(optionsPanel.addComponentWithLabel("Italic first N parts:", italicPartsSpinner));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Italic first N parts:", italicPartsSpinner), italicPartsSpinner));
             addComponent(italicPartsSpinner);
-            addComponent(optionsPanel.addComponentWithLabel("Not italic words:", nonItalicWordsText));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Not italic words:", nonItalicWordsText), nonItalicWordsText));
             addComponent(nonItalicWordsText);
-            addComponent(optionsPanel.addComponentWithLabel("Dot after:", dotWordsText));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Dot after:", dotWordsText), dotWordsText));
             addComponent(dotWordsText);
-            addComponent(optionsPanel.addComponentWithLabel("Collection number:", checkPanel(upperCaseNumberCheck, formatNumberCheck)));
+            final JLabel collectionLabel = optionsPanel.addComponentWithLabel("Collection number:", checkPanel(upperCaseNumberCheck, formatNumberCheck));
+            collectionLabel.setToolTipText("<html>The specimen (collection) number is the first part of the name with a<br>" +
+                    "digit in it; with Until first number the italics stop there.<br>" +
+                    "<b>ALL CAPS</b> - a part in capital letters without digits (KRAM, BR) counts<br>" +
+                    "as the start of the number too.<br>" +
+                    "<b>Join number</b> - puts a number broken up by underscores back together<br>" +
+                    "the way it is cited (KRAM M 1156 &rarr; KRAM M-1156). It follows a few<br>" +
+                    "general rules; a number it does not recognise is left as it is.</html>");
+            addComponent(collectionLabel);
             addComponent(upperCaseNumberCheck);
             addComponent(formatNumberCheck);
             optionsPanel.addSpanningComponent(styleTipsButton);
             addComponent(styleTipsButton);
-            addComponent(optionsPanel.addComponentWithLabel("Case (italic parts):", italicCaseCombo));
+            final JLabel italicCaseLabel = optionsPanel.addComponentWithLabel("Case (italic parts):", italicCaseCombo);
+            ToolTips.set("Letter case of the italic parts of the name: as in the file, UPPER, lower or Sentence case.",
+                    italicCaseLabel, italicCaseCombo);
+            addComponent(italicCaseLabel);
             addComponent(italicCaseCombo);
             addComponent(optionsPanel.addComponentWithLabel("Italic parts style:", stylePanel(italicBoldCheck, italicColourButton)));
             addComponent(italicBoldCheck);
             addComponent(italicColourButton);
-            addComponent(optionsPanel.addComponentWithLabel("Case (other parts):", otherCaseCombo));
+            final JLabel otherCaseLabel = optionsPanel.addComponentWithLabel("Case (other parts):", otherCaseCombo);
+            ToolTips.set("Letter case of the upright parts of the name (collection number etc.): as in the file, UPPER, lower or Sentence case.",
+                    otherCaseLabel, otherCaseCombo);
+            addComponent(otherCaseLabel);
             addComponent(otherCaseCombo);
             addComponent(optionsPanel.addComponentWithLabel("Other parts style:", stylePanel(otherBoldCheck, otherColourButton)));
             addComponent(otherBoldCheck);
             addComponent(otherColourButton);
-            addComponent(optionsPanel.addComponentWithLabel("Highlight names containing:", highlightText));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Highlight names containing:", highlightText), highlightText));
             addComponent(highlightText);
-            addComponent(optionsPanel.addComponentWithLabel("Highlight style:", stylePanel(highlightBoldCheck, highlightColourButton)));
+            final JLabel highlightStyleLabel = optionsPanel.addComponentWithLabel("Highlight style:", stylePanel(highlightBoldCheck, highlightColourButton));
+            highlightStyleLabel.setToolTipText("<html>Bold and/or a colour for the tips whose name contains one of the<br>" +
+                    "highlight texts above - e.g. to mark type specimens.</html>");
+            addComponent(highlightStyleLabel);
             addComponent(highlightBoldCheck);
             addComponent(highlightColourButton);
-            addComponent(optionsPanel.addComponentWithLabel("Type mark:", highlightSuperCheck));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Type mark:", highlightSuperCheck), highlightSuperCheck));
             addComponent(highlightSuperCheck);
         }
 
         if (xPaddingSpinner != null) {
             if (positionCombo != null) {
-                addComponent(optionsPanel.addComponentWithLabel("Position:", positionCombo));
+                addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Position:", positionCombo), positionCombo));
                 addComponent(positionCombo);
             }
-            addComponent(optionsPanel.addComponentWithLabel("Offset X:", xPaddingSpinner));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Offset X:", xPaddingSpinner), xPaddingSpinner));
             addComponent(xPaddingSpinner);
-            addComponent(optionsPanel.addComponentWithLabel("Offset Y:", yPaddingSpinner));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Offset Y:", yPaddingSpinner), yPaddingSpinner));
             addComponent(yPaddingSpinner);
-            addComponent(optionsPanel.addComponentWithLabel("Show only if >=:", thresholdText));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Show only if >=:", thresholdText), thresholdText));
             addComponent(thresholdText);
-            addComponent(optionsPanel.addComponentWithLabel("Second value:", secondAttributeCombo));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Second value:", secondAttributeCombo), secondAttributeCombo));
             addComponent(secondAttributeCombo);
-            addComponent(optionsPanel.addComponentWithLabel("Layout:", secondLayoutCombo));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Layout:", secondLayoutCombo), secondLayoutCombo));
             addComponent(secondLayoutCombo);
-            addComponent(optionsPanel.addComponentWithLabel("Second only if >=:", secondThresholdText));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Second only if >=:", secondThresholdText), secondThresholdText));
             addComponent(secondThresholdText);
-            addComponent(optionsPanel.addComponentWithLabel("Too low shows as:", placeholderText));
+            addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Too low shows as:", placeholderText), placeholderText));
             addComponent(placeholderText);
             if (avoidOverlapCheck != null) {
-                addComponent(optionsPanel.addComponentWithLabel("Crowded values:",
-                        checkPanel(avoidOverlapCheck, labelBackingCheck)));
+                final JLabel crowdedLabel = optionsPanel.addComponentWithLabel("Crowded values:",
+                        checkPanel(avoidOverlapCheck, labelBackingCheck));
+                crowdedLabel.setToolTipText("<html><b>Avoid overlap</b> spreads support values that would be drawn on top of<br>" +
+                        "each other; <b>White backing</b> puts a patch of background colour under<br>" +
+                        "every value, so no branch line crosses the digits.<br>" +
+                        "Hover over each box for details.</html>");
+                addComponent(crowdedLabel);
                 addComponent(avoidOverlapCheck);
                 addComponent(labelBackingCheck);
             }

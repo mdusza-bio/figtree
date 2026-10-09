@@ -6,6 +6,8 @@
 
 package figtree.treeviewer.painters;
 
+import figtree.ui.ToolTips;
+
 import figtree.treeviewer.AttributeColourController;
 import figtree.treeviewer.ExtendedTreeViewer;
 import figtree.treeviewer.ControllerOptionsPanel;
@@ -151,6 +153,7 @@ public class GroupBarController extends AbstractController {
         });
 
         barItalicCheckBox = new JCheckBox("Italic names");
+        barItalicCheckBox.setToolTipText("Group names on the bars in italics, except the words listed in Not italic words (below).");
         barItalicCheckBox.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
                 painter.setBarItalic(barItalicCheckBox.isSelected());
@@ -169,6 +172,8 @@ public class GroupBarController extends AbstractController {
         });
 
         backgroundsCheckBox = new JCheckBox("Backgrounds");
+        backgroundsCheckBox.setToolTipText("<html>Pastel rectangles behind whole clades, from the clade's node to the tip<br>" +
+                "names, with their own attribute, opacity, gap and gradient below.</html>");
         backgroundsCheckBox.setSelected(painter.isBackgroundsVisible());
         backgroundsCheckBox.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
@@ -240,6 +245,8 @@ public class GroupBarController extends AbstractController {
         painter.setBackgroundLabelFontSize((float) defaultLabelSize);
 
         backgroundLabelBoldCheckBox = new JCheckBox("Bold names");
+        backgroundLabelBoldCheckBox.setToolTipText("<html>All the clade names in the backgrounds in bold. For one bold name only,<br>" +
+                "write it as &lt;b&gt;name&lt;/b&gt; in the value instead.</html>");
         backgroundLabelBoldCheckBox.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
                 painter.setBackgroundLabelBold(backgroundLabelBoldCheckBox.isSelected());
@@ -247,6 +254,7 @@ public class GroupBarController extends AbstractController {
         });
 
         backgroundLabelItalicCheckBox = new JCheckBox("Italic names");
+        backgroundLabelItalicCheckBox.setToolTipText("Clade names in the backgrounds in italics, except the words listed in Not italic words.");
         backgroundLabelItalicCheckBox.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
                 painter.setBackgroundLabelItalic(backgroundLabelItalicCheckBox.isSelected());
@@ -256,6 +264,12 @@ public class GroupBarController extends AbstractController {
         // Etap 6.3: assigning a group to a whole clade at once, instead of Annotate tip by tip
         assignButton = new JButton("Assign to selection...");
         assignButton.putClientProperty("JComponent.sizeVariant", "small");
+        assignButton.setToolTipText("<html>Gives all the selected tips one value of an attribute at once: select a clade<br>" +
+                "(Selection Mode: Clade) or several tip names, click here, type the attribute<br>" +
+                "name (e.g. family) and the value. Handy for a few groups or an Outgroup label;<br>" +
+                "for many groups import a table instead (File &rarr; Import Annotations...).<br>" +
+                "In the value, | starts a new line (ECHINO-|STELIALES), and * or ** instead of<br>" +
+                "a name marks a group too small for its name - explain the stars in Figure Text.</html>");
         assignButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
                 assignToSelection(treeViewer);
@@ -267,6 +281,10 @@ public class GroupBarController extends AbstractController {
                 "Drawn in the rectangular layout only.</html>");
 
         final JLabel label1 = optionsPanel.addComponentWithLabel("Attribute:", attributeCombo);
+        ToolTips.set("<html>The tip attribute whose value defines the groups - e.g. family: neighbouring<br>" +
+                "tips with the same value share one bar. Only attributes read from a file<br>" +
+                "(File &rarr; Import Annotations...) or given with Assign to selection... are listed.</html>",
+                label1, attributeCombo);
         optionsPanel.addSpanningComponent(hintLabel);
         optionsPanel.addSpanningComponent(assignButton);
 
@@ -285,6 +303,11 @@ public class GroupBarController extends AbstractController {
         final JLabel label3 = optionsPanel.addComponentWithLabel("Gap from labels:", gapSpinner);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
         final JLabel label5 = optionsPanel.addComponentWithLabel("Text reads:", textDirectionCombo);
+        ToolTips.set("Thickness of the bars, in points.", label2, barWidthSpinner);
+        ToolTips.set("Space between the longest tip name and the bars, in points.", label3, gapSpinner);
+        ToolTips.set("Size of the group names written along the bars, in points.", label4, fontSizeSpinner);
+        ToolTips.set("<html>Direction of the group names along the bars: running upwards (facing<br>" +
+                "the tree) or downwards (facing away from it).</html>", label5, textDirectionCombo);
         optionsPanel.addSpanningComponent(barItalicCheckBox);
         optionsPanel.addSpanningComponent(hideUnfittingCheckBox);
         optionsPanel.addSeparator();
@@ -298,6 +321,16 @@ public class GroupBarController extends AbstractController {
         optionsPanel.addSpanningComponent(backgroundLabelBoldCheckBox);
         optionsPanel.addSpanningComponent(backgroundLabelItalicCheckBox);
         backgroundLabel6 = optionsPanel.addComponentWithLabel("Not italic words:", notItalicWordsField);
+        ToolTips.set("The tip attribute that defines the clades of the backgrounds; it may differ from the one of the bars.",
+                backgroundLabel1, backgroundAttributeCombo);
+        ToolTips.set("How strong the background colour is, in percent: low values give pale pastel shades.",
+                backgroundLabel2, backgroundAlphaSpinner);
+        ToolTips.set("White gap between two neighbouring backgrounds, in points.", backgroundLabel4, backgroundGapSpinner);
+        ToolTips.copy(backgroundLabel5, backgroundGradientCombo);
+        ToolTips.set("<html>Font size of the clade names in the backgrounds, in points. At 10 or less,<br>" +
+                "Java on Windows draws bold text no heavier than regular text - not a bug of the program.</html>",
+                backgroundLabel3, backgroundLabelSizeSpinner);
+        ToolTips.copy(backgroundLabel6, notItalicWordsField);
 
         addComponent(label1);
         addComponent(attributeCombo);

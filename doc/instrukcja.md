@@ -3,6 +3,9 @@
 Krótki opis tego, co robi każda opcja **dodana w tym forku**. Opcje odziedziczone
 po zwykłym FigTree działają jak dotąd i nie są tu opisane.
 
+Większość nowych opcji ma też **podpowiedź w samym programie** (po angielsku):
+wystarczy najechać myszką na nazwę opcji albo na jej pole i chwilę poczekać.
+
 > **Stan: w budowie.** Powstaje po kawałku, razem z kolejnymi zmianami w programie.
 > Zrzuty ekranu i przykłady „przed / po" dojdą później — zadanie 6.10 w
 > [kolejce zmian](kolejka_zmian.md).
