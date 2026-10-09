@@ -298,34 +298,20 @@ w drzewach z RAxML-a, IQ-TREE czy MrBayesa w tym miejscu stoją liczby.
   razem). Gdy nic nie jest zaznaczone, strzałki normalnie przewijają widok.
 
 - **Linia wskazująca przy ręcznym przesunięciu** — wartość odsunięta ręcznie
-  (strzałkami, myszką albo okienkiem) **dalej niż o wysokość własnej cyfry**
+  (strzałkami albo myszką) **dalej niż o wysokość własnej cyfry**
   dostaje automatycznie tę samą cienką szarą linię do swojego węzła, którą
   rysuje *Avoid overlap* — żeby na rycinie nie było wątpliwości, do której
   gałęzi należy. Małe dosunięcie (kilka punktów „dla oddechu") linii nie
   dostaje. Przy przeciąganiu linia pojawia się i znika na żywo, więc od razu
   widać, kiedy liczba jest już „za daleko".
 
-- **Move selected label…** (tylko *Node Labels*) — to samo, ale z wpisywaniem
-  dokładnych liczb, gdy trzeba np. przesunąć kilka etykiet o identyczny odcinek:
-  1. kliknij w drzewie **samą liczbę** — to zaznacza dokładnie jej węzeł,
-     niezależnie od kafelka trybu zaznaczania (*Clade*/*Node*/*Taxa*/*Tips*)
-     u góry okna. Działa też na liczbie odsuniętej od węzła (przez *Avoid
-     overlap* albo wcześniejsze ręczne przesunięcie),
-  2. naciśnij przycisk,
-  3. wpisz przesunięcie w punktach — **w lewo/prawo** i **góra/dół**; wartości
-     ujemne przesuwają w lewo i do góry.
-
-  Można też kliknąć gałąź zamiast liczby, ale uwaga: w trybie *Clade* klik
-  w gałąź zaznacza **cały klad**, więc to samo przesunięcie poszłoby na
-  wszystkie liczby w kladzie (okno wtedy uprzedza, ilu etykiet dotyczy).
-  Do pojedynczej gałęzi przełącz kafelek na *Node* — albo po prostu klikaj
-  w liczbę.
-
-  Różnica względem *Offset X / Offset Y*: tamte przesuwają **wszystkie** wartości
-  naraz, ta — tylko zaznaczone. Etykieta przesunięta ręcznie **zostaje tam, gdzie
-  ją postawisz**: *Avoid overlap* jej nie rusza, a jedynie omija ją przy
-  rozsuwaniu pozostałych. **Back to default** kasuje przesunięcie. Ustawienie
+- Etykieta przesunięta ręcznie (myszą albo strzałkami) **zostaje tam, gdzie ją
+  postawisz**: *Avoid overlap* jej nie rusza, a jedynie omija ją przy rozsuwaniu
+  pozostałych. W odróżnieniu od *Offset X / Offset Y*, które przesuwają
+  **wszystkie** wartości naraz, dotyczy to tylko tej jednej liczby. Ustawienie
   siedzi na węźle (`!labelDX`, `!labelDY`) i zapisuje się z drzewem.
+  Dawny przycisk *Move selected label…* z wpisywaniem liczb został usunięty
+  2026-10-09 — przeciąganie i strzałki w zupełności go zastąpiły.
 
 ### Przepis: duże drzewo ML z wartościami bootstrap
 

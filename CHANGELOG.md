@@ -107,6 +107,13 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Usunięty przycisk *Move selected label…* (2026-10-09)
+Na prośbę użytkowniczki: przycisk z okienkiem do wpisywania przesunięcia (etap
+6.16) znika z paneli *Node Labels* / *Branch Labels* — od czasu przeciągania
+liczby myszą i dosuwania strzałkami nikt go nie używał. Same przesunięcia
+działają jak dotąd: zapisane w plikach `!labelDX` / `!labelDY` są nadal
+rysowane, a przeciąganie i strzałki dalej je ustawiają.
+
 ### Poprawka — wiersz *Position* w *Node Labels* był przesunięty w prawo (2026-10-09)
 Zgłoszone ze zrzutem ekranu: etykieta *Position:* i jej lista stały o kolumnę
 dalej niż reszta panelu. Przyczyna: pole *Replace '_' with space* jest w

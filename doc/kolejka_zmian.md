@@ -597,7 +597,7 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   - *Node Labels* / *Branch Labels* — na wierzchu: *Display*, *Show only
     if >=*, *Second value*, *Position*, *Font size*; pod *More…*: *Layout*,
     *Second only if >=*, *Too low shows as*, *Offset X / Y*, *Crowded
-    values*, *Move selected label…*, formaty liczb.
+    values*, formaty liczb.
   - *Tip Labels* — na wierzchu: *Italic mode*, *Not italic words*, *Hide
     parts*, *Font size*; pod *More…*: *Hide regex*, style grup, *Highlight…*,
     *Type mark*, *Dot after*, *Style selected tips…*.
@@ -652,6 +652,12 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   `GridBagLayout` wrzucał *Position:* do następnej kolumny tego samego wiersza.
   Fix: `addComponentWithLabel("", check, true)` i chowanie zwróconej etykiety.
   Sprawdzone programem `LayoutProbe` (zrzut pozycji elementów panelu, bez GUI).
+- [x] 8.6 🟢 **Usunięty przycisk *Move selected label…*** — prośba użytkowniczki
+  2026-10-09 („są już inne, bardziej użyteczne”): przeciąganie liczby myszą
+  i dosuwanie strzałkami zastąpiły okienko z wpisywaniem punktów. Usunięty
+  przycisk i metoda `moveSelectedLabels` w `LabelPainterController`; atrybuty
+  `!labelDX` / `!labelDY` i ich rysowanie w `TreePane` bez zmian, więc stare
+  pliki z przesuniętymi liczbami wyglądają jak dotąd.
 
 ---
 
@@ -686,11 +692,8 @@ przemianowany na `HOLOTYPE`. Wystarczy dopisać spację albo kliknąć
 - [ ] **Publication preset** (6.14) — czy jednym kliknięciem daje to, co dotąd
   ustawiała ręcznie. Można go bezpiecznie wypróbować na gotowej rycinie:
   przycisk zmienia się wtedy w *Undo preset* i cofa wszystko.
-- [ ] **Move selected label…** (6.16) — przesuwanie **jednej** wartości poparcia:
-  kliknąć samą liczbę (od 2026-09-02 to zaznacza dokładnie jej węzeł), przycisk
-  w panelu *Node Labels*, wpisać przesunięcie w punktach.
-  Sprawdzić, czy wpisywanie liczb jest znosne — jeśli męczące, do zrobienia
-  przeciąganie myszą (patrz 6.16 wyżej).
+- [x] **Move selected label…** (6.16) — nieaktualne: przycisk usunięty 2026-10-09
+  na prośbę użytkowniczki, przeciąganie myszą i strzałki w zupełności wystarczają.
 - [ ] **Clear Hilighting** (6.15) — *Tree → Clear Hilighting…* działa teraz zawsze:
   bez zaznaczenia czyści wszystkie podświetlenia, z zaznaczonym kladem — tylko jego.
 - [ ] **Style selected tips…** (6.11) — ręczna kursywa/pogrubienie na pojedynczym
