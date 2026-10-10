@@ -667,8 +667,9 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   ten sam tekst na etykietę wiersza i pole (w `JSpinner` także na pole tekstowe
   edytora, które zasłania spinner i bez tego nie pokazuje podpowiedzi), `copy()`
   przepisuje tooltip pola na etykietę, `install()` w `main()` wydłuża czas
-  wyświetlania z 4 s do minuty. Skompilowane, jeszcze nie oglądane w działającym
-  programie.
+  wyświetlania z 4 s do minuty. Obejrzane 2026-10-10: działa, ale teksty za
+  długie — skrócone wg zasady: oczywiste opcje bez podpowiedzi, gdzie wystarczy
+  przykład tylko przykład, instrukcja najwyżej dwie linijki.
 
 ---
 

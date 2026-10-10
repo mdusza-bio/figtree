@@ -128,6 +128,12 @@ Dwie poprawki techniczne, bez których podpowiedzi „nie było widać":
 
 Nowa klasa `figtree.ui.ToolTips` (`set`, `copy`, `install`).
 
+Po obejrzeniu (2026-10-10) użytkowniczka uznała pierwsze teksty za zbyt długie
+i opisowe. Zasada od teraz: opcja oczywista (*Replace '_' with space*, *Bar
+width*, *Bold*) nie ma podpowiedzi wcale; tam, gdzie wystarczy przykład, jest
+sam przykład (*Dot after*: `var sp f CA`); instrukcja ma najwyżej dwie linijki.
+Skrócone też starsze podpowiedzi (*Publication preset*, *Support Dots*).
+
 ### Usunięty przycisk *Move selected label…* (2026-10-09)
 Na prośbę użytkowniczki: przycisk z okienkiem do wpisywania przesunięcia (etap
 6.16) znika z paneli *Node Labels* / *Branch Labels* — od czasu przeciągania

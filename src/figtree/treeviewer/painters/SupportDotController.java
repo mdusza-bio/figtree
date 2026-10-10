@@ -42,8 +42,7 @@ public class SupportDotController extends AbstractController {
 
         titleCheckBox = new JCheckBox(getTitle());
         titleCheckBox.setSelected(painter.isVisible());
-        titleCheckBox.setToolTipText("<html>A black dot on every branch that reached the maximum support -<br>" +
-                "in one analysis, or in both when a second one is chosen.</html>");
+        titleCheckBox.setToolTipText("A black dot on every branch with maximum support - in one analysis, or in both.");
 
         attributeCombo = new JComboBox();
         AttributeComboHelper.attributesOnly(attributeCombo, treeViewer, LabelPainter.PainterIntent.NODE).addListener(new AttributeComboHelperListener() {
@@ -73,8 +72,7 @@ public class SupportDotController extends AbstractController {
 
         // 100 for bootstrap, 1 for posterior probability; the arrows step by 1 and 0.01
         thresholdSpinner = new JSpinner(new SpinnerNumberModel(100.0, 0.0, 1000.0, 1.0));
-        thresholdSpinner.setToolTipText("<html>Values at or above this get a dot - 100 for bootstrap,<br>" +
-                "1 for posterior probability. Type decimals with a dot (0.95).</html>");
+        thresholdSpinner.setToolTipText("Values at or above this get a dot: 100 for bootstrap, 1 for posterior probability.");
         threshold2Spinner = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 1000.0, 0.01));
         threshold2Spinner.setToolTipText(thresholdSpinner.getToolTipText());
         ChangeListener thresholdListener = new ChangeListener() {
@@ -100,8 +98,7 @@ public class SupportDotController extends AbstractController {
         });
 
         hideLabelsCheck = new JCheckBox("Hide values at dots");
-        hideLabelsCheck.setToolTipText("<html>Node and branch labels leave out the values of branches<br>" +
-                "with a dot, so a fully supported branch shows only the dot.</html>");
+        hideLabelsCheck.setToolTipText("A branch with a dot shows no value, only the dot.");
         hideLabelsCheck.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 painter.setHidingLabels(hideLabelsCheck.isSelected());

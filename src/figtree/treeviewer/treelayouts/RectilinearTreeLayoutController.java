@@ -112,11 +112,8 @@ public class RectilinearTreeLayoutController extends AbstractController {
                 treeViewer.setMinTipSpacing(value);
             }
         });
-        ToolTips.set("<html>Smallest vertical distance between neighbouring tip names, in points (0 = off).<br>" +
-                "Set it once for the final font size of the figure: the tree stretches on its own<br>" +
-                "until no two names overlap - on screen and in the exported PDF alike.<br>" +
-                "It only keeps the tip names apart; support values on the inner nodes can<br>" +
-                "still clash - for those use Avoid overlap in the Node Labels panel.</html>",
+        ToolTips.set("<html>Smallest gap between neighbouring tip names, in points. Set it for the<br>" +
+                "final font size: the tree stretches on its own until no names overlap.</html>",
                 optionsPanel.addComponentWithLabel("Min tip spacing:", minTipSpacingSpinner), minTipSpacingSpinner);
 
         // MyFigTree: cap very long branches and draw a "//" break mark on them
@@ -128,12 +125,8 @@ public class RectilinearTreeLayoutController extends AbstractController {
                 treeLayout.setMaxBranchLength(value);
             }
         });
-        ToolTips.set("<html>Every branch longer than this (in the units of the scale bar) is drawn cut<br>" +
-                "to this length, with a // mark. Applies to all branches of the tree at once<br>" +
-                "and does not say by how much each one was shortened - a cut branch no<br>" +
-                "longer matches the scale bar. 0 = off. Type the number with a dot (0.2),<br>" +
-                "a comma is not accepted. To shorten one chosen branch by an exact factor<br>" +
-                "use Shorten selected branch below.</html>",
+        ToolTips.set("<html>Cuts every branch longer than this (scale-bar units) and marks it with //.<br>" +
+                "Applies to all branches at once and does not say by how much. Use a dot: 0.2</html>",
                 optionsPanel.addComponentWithLabel("Shorten branches longer than:", maxBranchLengthSpinner), maxBranchLengthSpinner);
 
         // MyFigTree (Etap 7.10): one chosen branch drawn 2 or 3 times shorter, with the factor above its //
@@ -145,9 +138,6 @@ public class RectilinearTreeLayoutController extends AbstractController {
             final int factor = factors[i];
             JButton button = new JButton(names[i]);
             button.putClientProperty("JComponent.sizeVariant", "small");
-            button.setToolTipText(factor > 1 ?
-                    "<html>Draws the selected branch " + factor + " times shorter than it is,<br>with a // mark and " + factor + "x above it.</html>" :
-                    "Draws the selected branch at its full length again.");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
                     int count = treeViewer.shortenSelectedBranches(factor);
@@ -165,14 +155,11 @@ public class RectilinearTreeLayoutController extends AbstractController {
             });
             shortenButtons.add(button);
         }
-        ToolTips.set("<html>Draws the one branch selected in the tree exactly 2 or 3 times shorter,<br>" +
-                "with a // mark and 2x or 3x written above it; Full restores its length.<br>" +
-                "Select a branch first (Selection Mode: Node) or click the name of a tip.<br>" +
-                "The factor is saved with the branch in the .tree file.</html>",
+        ToolTips.set("<html>Draws the selected branch exactly 2 or 3 times shorter, with 2x / 3x above its //.<br>" +
+                "Full restores it. Select a branch first (Selection Mode: Node).</html>",
                 optionsPanel.addComponentWithLabel("Shorten selected branch:", shortenButtons), shortenButtons);
 
         breakLabelsCheck = new JCheckBox("Write 2x / 3x above //");
-        breakLabelsCheck.setToolTipText("Shows or hides the 2x / 3x written above the // mark of a shortened branch.");
         breakLabelsCheck.setOpaque(false);
         breakLabelsCheck.setSelected(treeLayout.isBreakLabelsVisible());
         breakLabelsCheck.addChangeListener(new ChangeListener() {
@@ -188,8 +175,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
                 treeLayout.setBreakLabelFontSize(((Number) breakLabelSizeSpinner.getValue()).doubleValue());
             }
         });
-        ToolTips.set("Font size of the 2x / 3x written above the // mark, in points.",
-                optionsPanel.addComponentWithLabel("2x / 3x size:", breakLabelSizeSpinner), breakLabelSizeSpinner);
+        optionsPanel.addComponentWithLabel("2x / 3x size:", breakLabelSizeSpinner);
     }
 
     public JComponent getTitleComponent() {

@@ -246,8 +246,7 @@ public class TreeAppearanceController extends AbstractController {
         // recompiling - the current state of every panel goes into a small file in
         // the home directory and the preset button replays it from then on.
         saveAsPresetButton = new JButton("Save current as preset");
-        saveAsPresetButton.setToolTipText("<html>Remember the settings currently shown in all panels<br>" +
-                "as the new <b>Publication preset</b>.</html>");
+        saveAsPresetButton.setToolTipText("Remembers the settings of all panels as the new Publication preset.");
         saveAsPresetButton.setEnabled(false);
         saveAsPresetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
@@ -570,16 +569,10 @@ public class TreeAppearanceController extends AbstractController {
     /** The preset button describes whichever set it will actually apply. */
     private void updatePresetTooltip() {
         if (getPresetFile().exists()) {
-            publicationPresetButton.setToolTipText("<html>Apply your own saved publication settings<br>" +
-                    "(remembered with <b>Save current as preset</b>).<br>" +
-                    "Press again to undo.</html>");
+            publicationPresetButton.setToolTipText("Applies your own saved preset (Save current as preset). Press again to undo.");
         } else {
-            publicationPresetButton.setToolTipText("<html>Apply the user's publication settings:<br>" +
-                    "decreasing node order, white background, 1pt branches,<br>" +
-                    "Times New Roman 11pt tip labels, italics up to the collection number,<br>" +
-                    "holotypus / paratypus / isotypus upright and in bold,<br>" +
-                    "support values 9pt above the branch, only >= 70, overlap avoided<br>" +
-                    "with white backing. Press again to undo.</html>");
+            publicationPresetButton.setToolTipText("<html>Applies the built-in style: Times 11 pt, italics up to the collection number,<br>" +
+                    "support values >= 70 above the branch, white background. Press again to undo.</html>");
         }
     }
 

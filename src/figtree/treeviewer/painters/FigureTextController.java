@@ -45,14 +45,11 @@ public class FigureTextController extends AbstractController {
 
         titleCheckBox = new JCheckBox(getTitle());
         titleCheckBox.setSelected(painter.isVisible());
-        titleCheckBox.setToolTipText("<html>A small legend: a few lines of your own text in a corner of the<br>" +
-                "figure - e.g. what the asterisks on the group bars stand for, or<br>" +
-                "which analyses the support values come from.</html>");
+        titleCheckBox.setToolTipText("A legend: a few lines of your own text in a corner of the figure.");
 
         textArea = new JTextArea(3, 14);
         textArea.setLineWrap(false);
-        textArea.setToolTipText("<html>The text of the legend, one line per line here (Enter starts a new line).<br>" +
-                "Saved in the .tree file and exported with the figure.</html>");
+        textArea.setToolTipText("One line per line, e.g. * group too small for its name");
         textArea.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { apply(); }
             public void removeUpdate(DocumentEvent e) { apply(); }
@@ -105,9 +102,6 @@ public class FigureTextController extends AbstractController {
         final JLabel label3 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Margin (pt):", marginSpinner);
         ToolTips.copy(label1, textArea);
-        ToolTips.set("Which corner of the figure the text goes in.", label2, cornerCombo);
-        ToolTips.set("Size of the text, in points.", label3, fontSizeSpinner);
-        ToolTips.set("Distance of the text from the edges of the figure, in points.", label4, marginSpinner);
         optionsPanel.addSpanningComponent(boldCheckBox);
         optionsPanel.addSpanningComponent(italicCheckBox);
 

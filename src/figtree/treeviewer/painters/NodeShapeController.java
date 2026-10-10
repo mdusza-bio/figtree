@@ -200,7 +200,7 @@ public class NodeShapeController extends AbstractController {
         // Threshold: draw the shape only on nodes whose attribute is >= a number
         thresholdAttributeCombo = new JComboBox();
         thresholdText = new JTextField("", 6);
-        thresholdText.setToolTipText("Draw the shape only if the threshold attribute is >= this number; empty = all nodes");
+        thresholdText.setToolTipText("Shape only where the threshold attribute is at least this, e.g. 95; empty = all nodes");
         thresholdText.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { applyThreshold(nodeShapePainter); }
             public void removeUpdate(DocumentEvent e) { applyThreshold(nodeShapePainter); }
