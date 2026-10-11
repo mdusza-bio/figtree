@@ -246,7 +246,6 @@ public class TreeAppearanceController extends AbstractController {
         // recompiling - the current state of every panel goes into a small file in
         // the home directory and the preset button replays it from then on.
         saveAsPresetButton = new JButton("Save current as preset");
-        saveAsPresetButton.setToolTipText("Remembers the settings of all panels as the new Publication preset.");
         saveAsPresetButton.setEnabled(false);
         saveAsPresetButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
@@ -569,10 +568,9 @@ public class TreeAppearanceController extends AbstractController {
     /** The preset button describes whichever set it will actually apply. */
     private void updatePresetTooltip() {
         if (getPresetFile().exists()) {
-            publicationPresetButton.setToolTipText("Applies your own saved preset (Save current as preset). Press again to undo.");
+            publicationPresetButton.setToolTipText("Your saved preset. Press again to undo.");
         } else {
-            publicationPresetButton.setToolTipText("<html>Applies the built-in style: Times 11 pt, italics up to the collection number,<br>" +
-                    "support values >= 70 above the branch, white background. Press again to undo.</html>");
+            publicationPresetButton.setToolTipText("Built-in style (Times 11 pt, italics up to the number, support >= 70). Press again to undo.");
         }
     }
 

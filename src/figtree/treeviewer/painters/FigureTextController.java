@@ -45,11 +45,10 @@ public class FigureTextController extends AbstractController {
 
         titleCheckBox = new JCheckBox(getTitle());
         titleCheckBox.setSelected(painter.isVisible());
-        titleCheckBox.setToolTipText("A legend: a few lines of your own text in a corner of the figure.");
+        titleCheckBox.setToolTipText("A legend in a corner of the figure");
 
         textArea = new JTextArea(3, 14);
         textArea.setLineWrap(false);
-        textArea.setToolTipText("One line per line, e.g. * group too small for its name");
         textArea.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { apply(); }
             public void removeUpdate(DocumentEvent e) { apply(); }
@@ -101,7 +100,6 @@ public class FigureTextController extends AbstractController {
         final JLabel label2 = optionsPanel.addComponentWithLabel("Corner:", cornerCombo);
         final JLabel label3 = optionsPanel.addComponentWithLabel("Font size:", fontSizeSpinner);
         final JLabel label4 = optionsPanel.addComponentWithLabel("Margin (pt):", marginSpinner);
-        ToolTips.copy(label1, textArea);
         optionsPanel.addSpanningComponent(boldCheckBox);
         optionsPanel.addSpanningComponent(italicCheckBox);
 

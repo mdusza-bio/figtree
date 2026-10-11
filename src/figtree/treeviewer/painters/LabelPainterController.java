@@ -267,7 +267,7 @@ public class LabelPainterController extends AbstractController {
             });
 
             tipPathCheck = new JCheckBox("Show tip callouts");
-            tipPathCheck.setToolTipText("Dotted lines from the tips to their names when the names are aligned on the right.");
+            tipPathCheck.setToolTipText("Dotted lines from the tips to the aligned names");
             tipPathCheck.setSelected(true);
             tipPathCheck.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent changeEvent) {
@@ -291,8 +291,7 @@ public class LabelPainterController extends AbstractController {
         });
 
         hidePartsText = new JTextField("", 10);
-        hidePartsText.setToolTipText("<html>Text to cut out of the names, comma-separated: _contig1, HOLOTYPE<br>" +
-                "Cut everywhere it occurs, also inside a name.</html>");
+        hidePartsText.setToolTipText("e.g. _contig1, HOLOTYPE - cut wherever it occurs");
         hidePartsText.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { labelPainter.setHideParts(hidePartsText.getText()); }
             public void removeUpdate(DocumentEvent e) { labelPainter.setHideParts(hidePartsText.getText()); }
@@ -300,8 +299,7 @@ public class LabelPainterController extends AbstractController {
         });
 
         hideRegexText = new JTextField("", 10);
-        hideRegexText.setToolTipText("<html>Pattern (regular expression) to cut out: _new$ cuts _new at the end of the name only.<br>" +
-                "A wrong pattern is ignored.</html>");
+        hideRegexText.setToolTipText("e.g. _new$ cuts _new at the end of the name only");
         hideRegexText.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
             public void removeUpdate(DocumentEvent e) { labelPainter.setHideRegex(hideRegexText.getText()); }
@@ -311,9 +309,7 @@ public class LabelPainterController extends AbstractController {
         // MyFigTree: placement and support-value controls (node and branch labels only)
         if (intent == LabelPainter.PainterIntent.NODE || intent == LabelPainter.PainterIntent.BRANCH) {
             xPaddingSpinner = new JSpinner(new SpinnerNumberModel(0.0, -500.0, 500.0, 1.0));
-            xPaddingSpinner.setToolTipText("Horizontal distance from the node/branch in points (may be negative)");
             yPaddingSpinner = new JSpinner(new SpinnerNumberModel(0.0, -500.0, 500.0, 1.0));
-            yPaddingSpinner.setToolTipText("Vertical distance from the branch line in points (may be negative)");
             ChangeListener paddingListener = new ChangeListener() {
                 public void stateChanged(ChangeEvent changeEvent) {
                     labelPainter.setPadding(
@@ -334,8 +330,7 @@ public class LabelPainterController extends AbstractController {
 
                 // MyFigTree (Etap 6.6)
                 avoidOverlapCheck = new JCheckBox("Avoid overlap");
-                avoidOverlapCheck.setToolTipText("<html>Spreads support values that would overlap; a value moved far away gets a grey pointer line.<br>" +
-                        "Not perfect on every tree - for the rest drag with the mouse, use the arrow keys or Offset X / Y.</html>");
+                avoidOverlapCheck.setToolTipText("Spreads overlapping support values. Not perfect - the rest can be dragged with the mouse or arrow keys.");
                 avoidOverlapCheck.setSelected(labelPainter.isAvoidOverlap());
                 avoidOverlapCheck.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent event) {
@@ -344,7 +339,6 @@ public class LabelPainterController extends AbstractController {
                 });
 
                 labelBackingCheck = new JCheckBox("White backing");
-                labelBackingCheck.setToolTipText("A patch of background colour under each value, so branch lines do not cross the digits.");
                 labelBackingCheck.setSelected(labelPainter.isLabelBacking());
                 labelBackingCheck.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent event) {
@@ -358,7 +352,7 @@ public class LabelPainterController extends AbstractController {
             }
 
             thresholdText = new JTextField("", 6);
-            thresholdText.setToolTipText("Values below this are hidden, e.g. 70; empty = all shown");
+            thresholdText.setToolTipText("e.g. 70");
             thresholdText.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applyThreshold(); }
                 public void removeUpdate(DocumentEvent e) { applyThreshold(); }
@@ -366,7 +360,6 @@ public class LabelPainterController extends AbstractController {
             });
 
             secondAttributeCombo = new JComboBox(new String[] { BasicLabelPainter.NONE });
-            secondAttributeCombo.setToolTipText("A second value next to the first, e.g. posterior probability next to the bootstrap.");
             new AttributeComboHelper(secondAttributeCombo, treeViewer, BasicLabelPainter.NONE, intent).addListener(new AttributeComboHelperListener() {
                 @Override
                 public void attributeComboChanged() {
@@ -376,9 +369,9 @@ public class LabelPainterController extends AbstractController {
 
             // MyFigTree (Etap 7.11): the second value's own threshold, and the dash of "-/1"
             secondThresholdText = new JTextField("", 6);
-            secondThresholdText.setToolTipText("Threshold for the second value only, e.g. 0.95; empty = always shown");
+            secondThresholdText.setToolTipText("e.g. 0.95");
             placeholderText = new JTextField("", 6);
-            placeholderText.setToolTipText("Stands in for a value below its threshold or missing: - gives -/1 and 75/-");
+            placeholderText.setToolTipText("e.g. - gives -/1 or 75/-");
             DocumentListener secondListener = new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applySecondThreshold(); }
                 public void removeUpdate(DocumentEvent e) { applySecondThreshold(); }
@@ -410,7 +403,6 @@ public class LabelPainterController extends AbstractController {
         final LabelStyle style = labelPainter.getLabelStyle();
         if (intent == LabelPainter.PainterIntent.TIP && style != null) {
             italicPartsSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 20, 1));
-            italicPartsSpinner.setToolTipText("How many parts are italic (genus + species = 2); First N parts mode only.");
             italicPartsSpinner.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent changeEvent) {
                     style.setItalicParts((Integer) italicPartsSpinner.getValue());
@@ -421,11 +413,10 @@ public class LabelPainterController extends AbstractController {
             // MyFigTree (Etap 6.1): italics that stop at the collection number
             italicModeCombo = new JComboBox(LabelStyle.ItalicMode.values());
             italicModeCombo.setSelectedItem(style.getItalicMode());
-            italicModeCombo.setToolTipText("<html>Until first number: italics up to the collection number (the first part with a digit).<br>" +
-                    "First N parts: always the same number of parts.</html>");
+            italicModeCombo.setToolTipText("Until first number: italics up to the collection number");
 
             nonItalicWordsText = new JTextField(style.getNonItalicWords(), 10);
-            nonItalicWordsText.setToolTipText("Words kept upright inside the italic name, e.g. var subsp sp cf aff x");
+            nonItalicWordsText.setToolTipText("e.g. var subsp sp cf aff x");
             nonItalicWordsText.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applyItalicMode(); }
                 public void removeUpdate(DocumentEvent e) { applyItalicMode(); }
@@ -433,17 +424,16 @@ public class LabelPainterController extends AbstractController {
             });
 
             upperCaseNumberCheck = new JCheckBox("ALL CAPS");
-            upperCaseNumberCheck.setToolTipText("A part in capitals without digits (KRAM, BR) also ends the italics.");
+            upperCaseNumberCheck.setToolTipText("A part in capitals (KRAM, BR) also ends the italics");
             upperCaseNumberCheck.setSelected(style.isUpperCaseIsNumber());
             formatNumberCheck = new JCheckBox("Join number");
-            formatNumberCheck.setToolTipText("<html>Joins a number split by underscores the way it is cited: KRAM M 1156 &rarr; KRAM M-1156,<br>" +
-                    "UK100 1b &rarr; UK100-1b, Ron324 2 3 &rarr; Ron324 2/3. Forms it does not know stay as they are.</html>");
+            formatNumberCheck.setToolTipText("<html>KRAM M 1156 &rarr; KRAM M-1156, UK100 1b &rarr; UK100-1b</html>");
             formatNumberCheck.setSelected(style.isFormatCollectionNumber());
 
             // MyFigTree (Etap 8.4): one list of abbreviations that get a dot, in the
             // name (var, sp) and in the collection number (CA) alike
             dotWordsText = new JTextField(style.getDotWords(), 10);
-            dotWordsText.setToolTipText("Words to write with a dot, e.g. var sp f CA");
+            dotWordsText.setToolTipText("e.g. var sp f");
             dotWordsText.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applyItalicMode(); }
                 public void removeUpdate(DocumentEvent e) { applyItalicMode(); }
@@ -452,7 +442,7 @@ public class LabelPainterController extends AbstractController {
 
             styleTipsButton = new JButton("Style selected tips...");
             styleTipsButton.putClientProperty("JComponent.sizeVariant", "small");
-            styleTipsButton.setToolTipText("Italics and bold by hand for the selected tips, when the rules get a name wrong (e.g. holotypus).");
+            styleTipsButton.setToolTipText("Italics and bold by hand for the selected tips");
             styleTipsButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     styleSelectedTips(treeViewer);
@@ -489,7 +479,7 @@ public class LabelPainterController extends AbstractController {
             otherColourButton.addActionListener(groupListener);
 
             highlightText = new JTextField("", 10);
-            highlightText.setToolTipText("Names containing this text get the highlight style, e.g. HOLOTYPE, PARATYPE");
+            highlightText.setToolTipText("e.g. HOLOTYPE PARATYPE");
             highlightText.getDocument().addDocumentListener(new DocumentListener() {
                 public void insertUpdate(DocumentEvent e) { applyHighlight(); }
                 public void removeUpdate(DocumentEvent e) { applyHighlight(); }
@@ -507,7 +497,7 @@ public class LabelPainterController extends AbstractController {
             // MyFigTree (Etap 7.12): the mycologists' way of marking a type - a small raised T
             highlightSuperCheck = new JCheckBox("superscript T");
             highlightSuperCheck.setOpaque(false);
-            highlightSuperCheck.setToolTipText("A small raised T after the highlighted names - the mark of a type specimen.");
+            highlightSuperCheck.setToolTipText("A small raised T after the highlighted names");
             highlightSuperCheck.addActionListener(highlightListener);
 
         } else {
@@ -564,7 +554,7 @@ public class LabelPainterController extends AbstractController {
             addComponent(ToolTips.copy(optionsPanel.addComponentWithLabel("Dot after:", dotWordsText), dotWordsText));
             addComponent(dotWordsText);
             final JLabel collectionLabel = optionsPanel.addComponentWithLabel("Collection number:", checkPanel(upperCaseNumberCheck, formatNumberCheck));
-            collectionLabel.setToolTipText("The first part of the name with a digit in it; the italics stop there.");
+            collectionLabel.setToolTipText("The first part of the name with a digit; the italics stop there");
             addComponent(collectionLabel);
             addComponent(upperCaseNumberCheck);
             addComponent(formatNumberCheck);
@@ -881,10 +871,8 @@ public class LabelPainterController extends AbstractController {
                     fireChanged();
                 }
             };
-            well.setToolTipText(title + " (empty = same as the label colour)");
             ControllerOptionsPanel.setComponentLook(well);
             JButton clearButton = new JButton("x");
-            clearButton.setToolTipText("Use the normal label colour");
             ControllerOptionsPanel.setComponentLook(clearButton);
             clearButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

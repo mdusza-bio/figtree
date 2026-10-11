@@ -42,7 +42,7 @@ public class SupportDotController extends AbstractController {
 
         titleCheckBox = new JCheckBox(getTitle());
         titleCheckBox.setSelected(painter.isVisible());
-        titleCheckBox.setToolTipText("A black dot on every branch with maximum support - in one analysis, or in both.");
+        titleCheckBox.setToolTipText("A dot on every branch with maximum support");
 
         attributeCombo = new JComboBox();
         AttributeComboHelper.attributesOnly(attributeCombo, treeViewer, LabelPainter.PainterIntent.NODE).addListener(new AttributeComboHelperListener() {
@@ -72,7 +72,7 @@ public class SupportDotController extends AbstractController {
 
         // 100 for bootstrap, 1 for posterior probability; the arrows step by 1 and 0.01
         thresholdSpinner = new JSpinner(new SpinnerNumberModel(100.0, 0.0, 1000.0, 1.0));
-        thresholdSpinner.setToolTipText("Values at or above this get a dot: 100 for bootstrap, 1 for posterior probability.");
+        thresholdSpinner.setToolTipText("100 for bootstrap, 1 for posterior probability");
         threshold2Spinner = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 1000.0, 0.01));
         threshold2Spinner.setToolTipText(thresholdSpinner.getToolTipText());
         ChangeListener thresholdListener = new ChangeListener() {
@@ -98,7 +98,6 @@ public class SupportDotController extends AbstractController {
         });
 
         hideLabelsCheck = new JCheckBox("Hide values at dots");
-        hideLabelsCheck.setToolTipText("A branch with a dot shows no value, only the dot.");
         hideLabelsCheck.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 painter.setHidingLabels(hideLabelsCheck.isSelected());

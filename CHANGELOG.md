@@ -133,6 +133,13 @@ i opisowe. Zasada od teraz: opcja oczywista (*Replace '_' with space*, *Bar
 width*, *Bold*) nie ma podpowiedzi wcale; tam, gdzie wystarczy przykład, jest
 sam przykład (*Dot after*: `var sp f CA`); instrukcja ma najwyżej dwie linijki.
 Skrócone też starsze podpowiedzi (*Publication preset*, *Support Dots*).
+Drugie cięcie 2026-10-11: zostały głównie same przykłady (*Dot after*: `e.g. var
+sp f`, *Highlight names containing*: `e.g. HOLOTYPE PARATYPE`) i pojedyncze
+zdania tam, gdzie nie da się domyślić (*Show tip callouts*, *Avoid overlap*,
+*Join number*). Zniknęły podpowiedzi przy przyciskach koloru („x", „empty =
+same as the label colour"), *White backing*, *Second value*, *Offset X/Y*,
+*Save/Load colours…* i innych oczywistych. Przy okazji pole *Highlight names
+containing* przyjmuje teraz listę rozdzieloną spacjami, nie tylko przecinkami.
 
 ### Usunięty przycisk *Move selected label…* (2026-10-09)
 Na prośbę użytkowniczki: przycisk z okienkiem do wpisywania przesunięcia (etap

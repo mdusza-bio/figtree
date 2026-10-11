@@ -112,8 +112,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
                 treeViewer.setMinTipSpacing(value);
             }
         });
-        ToolTips.set("<html>Smallest gap between neighbouring tip names, in points. Set it for the<br>" +
-                "final font size: the tree stretches on its own until no names overlap.</html>",
+        ToolTips.set("Smallest gap between neighbouring tip names. Set it for the final font size.",
                 optionsPanel.addComponentWithLabel("Min tip spacing:", minTipSpacingSpinner), minTipSpacingSpinner);
 
         // MyFigTree: cap very long branches and draw a "//" break mark on them
@@ -125,8 +124,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
                 treeLayout.setMaxBranchLength(value);
             }
         });
-        ToolTips.set("<html>Cuts every branch longer than this (scale-bar units) and marks it with //.<br>" +
-                "Applies to all branches at once and does not say by how much. Use a dot: 0.2</html>",
+        ToolTips.set("All branches longer than this are cut and marked //, without saying by how much. E.g. 0.2",
                 optionsPanel.addComponentWithLabel("Shorten branches longer than:", maxBranchLengthSpinner), maxBranchLengthSpinner);
 
         // MyFigTree (Etap 7.10): one chosen branch drawn 2 or 3 times shorter, with the factor above its //
@@ -155,8 +153,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
             });
             shortenButtons.add(button);
         }
-        ToolTips.set("<html>Draws the selected branch exactly 2 or 3 times shorter, with 2x / 3x above its //.<br>" +
-                "Full restores it. Select a branch first (Selection Mode: Node).</html>",
+        ToolTips.set("Select a branch first (Selection Mode: Node).",
                 optionsPanel.addComponentWithLabel("Shorten selected branch:", shortenButtons), shortenButtons);
 
         breakLabelsCheck = new JCheckBox("Write 2x / 3x above //");

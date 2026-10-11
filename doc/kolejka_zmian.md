@@ -669,7 +669,10 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   przepisuje tooltip pola na etykietę, `install()` w `main()` wydłuża czas
   wyświetlania z 4 s do minuty. Obejrzane 2026-10-10: działa, ale teksty za
   długie — skrócone wg zasady: oczywiste opcje bez podpowiedzi, gdzie wystarczy
-  przykład tylko przykład, instrukcja najwyżej dwie linijki.
+  przykład tylko przykład, instrukcja najwyżej dwie linijki. Drugie cięcie
+  2026-10-11: w zasadzie same przykłady i pojedyncze zdania; podpowiedzi
+  rozpraszają, więc tylko tam, gdzie nie da się domyślić. *Highlight names
+  containing* przyjmuje też listę po spacjach (`split("[,\s]+")`).
 
 ---
 

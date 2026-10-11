@@ -464,13 +464,13 @@ public class LabelStyle {
     }
 
     /**
-     * @param highlight comma-separated substrings; a tip whose raw name contains
+     * @param highlight substrings separated by commas or spaces; a tip whose raw name contains
      *                  any of them is highlighted
      */
     public void setHighlight(String highlight) {
         this.highlight = (highlight == null ? "" : highlight);
         highlightList.clear();
-        for (String s : this.highlight.split(",")) {
+        for (String s : this.highlight.split("[,\\s]+")) {
             s = s.trim();
             if (s.length() > 0) {
                 highlightList.add(s);
