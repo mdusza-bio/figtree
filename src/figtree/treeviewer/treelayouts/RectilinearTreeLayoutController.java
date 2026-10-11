@@ -153,8 +153,7 @@ public class RectilinearTreeLayoutController extends AbstractController {
             });
             shortenButtons.add(button);
         }
-        ToolTips.set("Select a branch first (Selection Mode: Node).",
-                optionsPanel.addComponentWithLabel("Shorten selected branch:", shortenButtons), shortenButtons);
+        optionsPanel.addComponentWithLabel("Shorten selected branch:", shortenButtons);
 
         breakLabelsCheck = new JCheckBox("Write 2x / 3x above //");
         breakLabelsCheck.setOpaque(false);

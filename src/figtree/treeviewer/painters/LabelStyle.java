@@ -231,17 +231,18 @@ public class LabelStyle {
      *     <li>{@link ItalicMode#OFF} - nothing;</li>
      *     <li>{@link ItalicMode#FIRST_N} - the first {@link #getItalicParts()} parts;</li>
      *     <li>{@link ItalicMode#UNTIL_NUMBER} - everything up to (but not including)
-     *         the first "number-like" part, i.e. the collection number. Words from
-     *         {@link #getNonItalicWords()} (var, sp, ...) stay upright but do NOT
-     *         end the italics for the parts after them.</li>
+     *         the first "number-like" part, i.e. the collection number.</li>
      * </ul>
+     * In both modes the words from {@link #getNonItalicWords()} (var, sp, ...)
+     * stay upright but do NOT end the italics for the parts after them
+     * (Etap 8.8: before, FIRST_N ignored that list).
      */
     public boolean[] italicMask(String[] parts) {
         boolean[] mask = new boolean[parts.length];
         if (italicMode == ItalicMode.FIRST_N) {
             int n = Math.min(italicParts, parts.length);
             for (int i = 0; i < n; i++) {
-                mask[i] = true;
+                mask[i] = !isNonItalicWord(parts[i]);
             }
         } else if (italicMode == ItalicMode.UNTIL_NUMBER) {
             for (int i = 0; i < parts.length; i++) {
@@ -535,7 +536,7 @@ public class LabelStyle {
             case UNTIL_NUMBER:
                 return italicGroup.isPlain() && !formatCollectionNumber;
             default:
-                return italicParts == 0 || italicGroup.isPlain();
+                return (italicParts == 0 || italicGroup.isPlain()) && !formatCollectionNumber;
         }
     }
 
@@ -645,23 +646,17 @@ public class LabelStyle {
 
     /**
      * Splits a name into the pieces of text that are drawn ({@code items}) and
-     * says which of them are italic ({@code italic}). In
-     * {@link ItalicMode#UNTIL_NUMBER} the name and the collection number are
-     * handled separately, so that the number can be put back together.
+     * says which of them are italic ({@code italic}). With "Join number" on
+     * (any mode but OFF) the name and the collection number are handled
+     * separately, so that the number can be put back together; the joined
+     * number is always upright. Etap 8.8: this used to be UNTIL_NUMBER only.
      */
     private void buildItems(String[] parts, List<String> items, List<Boolean> italic) {
-        if (italicMode != ItalicMode.UNTIL_NUMBER) {
-            boolean[] mask = italicMask(parts);
-            for (int i = 0; i < parts.length; i++) {
-                items.add(withDot(parts[i]));
-                italic.add(mask[i]);
-            }
-            return;
-        }
-        int start = numberStart(parts);
+        boolean[] mask = italicMask(parts);
+        int start = (italicMode == ItalicMode.OFF || !formatCollectionNumber) ? parts.length : numberStart(parts);
         for (int i = 0; i < start; i++) {
             items.add(withDot(parts[i]));
-            italic.add(!isNonItalicWord(parts[i]));
+            italic.add(mask[i]);
         }
         for (String piece : collectionNumber(parts, start)) {
             items.add(piece);

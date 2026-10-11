@@ -673,6 +673,12 @@ kierunek: nie usuwać funkcji, tylko schować rzadko używane.
   2026-10-11: w zasadzie same przykłady i pojedyncze zdania; podpowiedzi
   rozpraszają, więc tylko tam, gdzie nie da się domyślić. *Highlight names
   containing* przyjmuje też listę po spacjach (`split("[,\s]+")`).
+- [x] 8.8 🟢 ***Not italic words* / *Collection number* w trybie *First N parts*** —
+  pytanie użytkowniczki 2026-10-11. `LabelStyle.italicMask` w FIRST_N omija
+  słowa z listy, `buildItems` skleja numer w każdym trybie poza OFF
+  (`start = numberStart` tylko przy *Join number*), `isPlain` dla FIRST_N
+  uwzględnia *Join number*; `updateItalicEnabled` blokuje te pola tylko przy
+  *Off*.
 
 ---
 

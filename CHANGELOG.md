@@ -107,6 +107,17 @@ Panel *Tip Labels*:
 - Pliki zapisane wcześniej (bez klucza `tipLabels.italicMode`) otwierają się
   w trybie *First N parts*, więc wyglądają tak jak dotąd.
 
+### Etap 8.8 — *Not italic words* i *Collection number* także w trybie *First N parts* (2026-10-11)
+Pytanie użytkowniczki: czemu przy *First N parts* nie da się wpisać *Not italic
+words* ani ruszyć *ALL CAPS* / *Join number* (małe drzewo, gdzie każdy okaz to
+`var` czegoś). Teraz te pola są aktywne w obu trybach kursywy (wyłączone tylko
+przy *Off*): w *First N parts* słowo z listy zostaje proste także wśród
+pierwszych N członów, a numer okazu jest sklejany tak samo jak w *Until first
+number* (sklejony numer jest zawsze pismem prostym). Ta sama zasada w okienku
+*Style selected tips…*.
+
+Podpowiedź przy *Shorten selected branch* usunięta.
+
 ### Etap 8.7 — podpowiedzi przy opcjach w panelach (2026-10-09)
 Prośba użytkowniczki: mniej oczywiste nowe opcje mają dostawać krótkie
 wyjaśnienie po angielsku po najechaniu myszką, żeby nie zaglądać ciągle do

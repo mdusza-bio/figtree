@@ -711,10 +711,11 @@ public class LabelPainterController extends AbstractController {
     private void updateItalicEnabled() {
         LabelStyle.ItalicMode mode = (LabelStyle.ItalicMode) italicModeCombo.getSelectedItem();
         italicPartsSpinner.setEnabled(mode == LabelStyle.ItalicMode.FIRST_N);
-        boolean untilNumber = (mode == LabelStyle.ItalicMode.UNTIL_NUMBER);
-        nonItalicWordsText.setEnabled(untilNumber);
-        upperCaseNumberCheck.setEnabled(untilNumber);
-        formatNumberCheck.setEnabled(untilNumber);
+        // Etap 8.8: the upright words and the collection number work in First N parts too
+        boolean italics = (mode != LabelStyle.ItalicMode.OFF);
+        nonItalicWordsText.setEnabled(italics);
+        upperCaseNumberCheck.setEnabled(italics);
+        formatNumberCheck.setEnabled(italics);
     }
 
     /**
