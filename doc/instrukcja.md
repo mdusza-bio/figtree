@@ -233,7 +233,7 @@ to nazwy rodzajów, rodzina (można samemu ustalić co się chce)
   najpierw zapisać jako tekst.
 - Pierwsza kolumna może też zawierać pełne nazwy okazów (tak działa zwykły FigTree);
   wtedy każdy wiersz opisuje jeden okaz. Do wypróbowania: otwórz `examples/przyklad.tree`
-  i zaimportuj `slowniki/myxomycetes.tsv`.
+  i zaimportuj `dictionaries/myxomycetes.tsv`.
 
 ### Menu *File → Export Group Template…*
 
