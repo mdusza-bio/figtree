@@ -6,6 +6,17 @@ po zwykłym FigTree działają jak dotąd i nie są tu opisane.
 Wersja angielska: [manual.md](manual.md). Pełne notatki robocze (historia pracy,
 odzyskiwanie plików): [instrukcja_pelna.md](instrukcja_pelna.md).
 
+## O programie
+
+MyFigTree MD jest forkiem programu **FigTree** Andrew Rambauta (licencja LGPL,
+https://github.com/rambaut/figtree). Dodatkowe funkcje zaprojektowała **Magdalena Dusza**
+i przetestowała na rzeczywistych drzewach filogenetycznych ML (RAxML) i bayesowskich (MrBayes);
+kod napisano z pomocą asystenta AI (Claude, Anthropic) pod jej kierunkiem. Program jest
+udostępniany bez gwarancji. Ryciny warto sprawdzić przed publikacją.
+
+Kod i nowe wersje: https://github.com/mdusza-bio/figtree
+
+
 ---
 Zapisywanie zmian wprowadzonych na drzewie:
   1. Otwarcie pliku w MyFigTree.
@@ -254,13 +265,3 @@ O czym należy pamiętać:
   i nawiasy to znaki sterujące formatu drzewa — **rozwalą plik**.
 - **Każdy okaz musi zachować unikalną nazwę.** 
 
-## 11. O programie
-
-MyFigTree MD jest forkiem programu **FigTree** Andrew Rambauta (licencja LGPL, https://github.com/rambaut/figtree).
-Dodatkowe funkcje zaprojektowała **Magdalena Dusza** i przetestowała na rzeczywistych drzewach
-filogenetycznych ML (RAxML) i bayesowskich;
-kod napisano z pomocą asystenta AI (Claude, Anthropic) pod jej kierunkiem. Program powstał
-w czasie prywatnym i ze środków prywatnych, bez finansowania instytucjonalnego ani grantowego.
-Jest udostępniany bez gwarancji. Ryciny warto sprawdzić przed publikacją.
-
-Kod i nowe wersje: https://github.com/mdusza-bio/figtree

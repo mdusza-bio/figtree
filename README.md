@@ -20,16 +20,13 @@ Releases; the manual is [doc/manual.md](doc/manual.md) (English) and
 ## O programie / About
 
 Fork **FigTree** Andrew Rambauta (LGPL). Dodatkowe funkcje zaprojektowała **Magdalena Dusza**
-i przetestowała na drzewach ML (RAxML) i bayesowskich; kod napisano z pomocą asystenta AI
-(Claude, Anthropic) pod jej kierunkiem.
-Program powstał w czasie prywatnym i ze środków prywatnych, bez finansowania instytucjonalnego
-ani grantowego. Udostępniany bez gwarancji.
+i przetestowała na drzewach ML (RAxML) i bayesowskich (MrBayes); kod napisano z pomocą
+asystenta AI (Claude, Anthropic) pod jej kierunkiem. Udostępniany bez gwarancji.
 
 *A fork of FigTree by Andrew Rambaut (LGPL). The additional features were designed by Magdalena
-Dusza and tested on maximum-likelihood (RAxML) and Bayesian trees; the code was written with the
-help of an AI assistant (Claude, Anthropic)
-under her direction. Developed in her own time with private resources, without institutional
-or grant funding. Provided without warranty.*
+Dusza and tested on maximum-likelihood (RAxML) and Bayesian (MrBayes) trees; the code was written
+with the help of an AI assistant (Claude, Anthropic) under her direction. Provided without warranty.*
+
 
 ---
 

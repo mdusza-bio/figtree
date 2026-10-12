@@ -5,6 +5,17 @@ the original FigTree work as before and are not described here.
 
 Polish version: [instrukcja.md](instrukcja.md).
 
+## About
+
+MyFigTree MD is a fork of **FigTree** by Andrew Rambaut (LGPL licence,
+https://github.com/rambaut/figtree). The additional features were designed by **Magdalena Dusza**
+and tested on real maximum-likelihood (RAxML) and Bayesian (MrBayes) phylogenetic trees;
+the code was written with the help of an AI assistant (Claude, Anthropic) under her direction.
+The program is provided without warranty. Please check figures before publication.
+
+Code and new versions: https://github.com/mdusza-bio/figtree
+
+
 ---
 Saving the changes you make to a tree:
   1. Open file containing the tree using the MyFigTree programme.
@@ -277,13 +288,3 @@ Keep in mind:
   file**.
 - **Every specimen must keep a unique name.**
 
-## 11. About
-
-MyFigTree MD is a fork of **FigTree** by Andrew Rambaut (LGPL licence, https://github.com/rambaut/figtree).
-The additional features were designed by **Magdalena Dusza** and tested on real maximum-likelihood
-(RAxML) and Bayesian phylogenetic trees;
-the code was written with the help of an AI assistant (Claude, Anthropic) under her direction.
-The program was developed in her own time and with private resources, without institutional or grant funding.
-It is provided without warranty. Please check figures before publication.
-
-Code and new versions: https://github.com/mdusza-bio/figtree
