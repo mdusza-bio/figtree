@@ -17,6 +17,18 @@ overlapping labels, group bars, publication presets). Ready-to-run jar under
 Releases; the manual is [doc/manual.md](doc/manual.md) (English) and
 [doc/instrukcja.md](doc/instrukcja.md) (Polish).*
 
+## O programie / About
+
+Fork **FigTree** Andrew Rambauta (LGPL). Dodatkowe funkcje zaprojektowała i przetestowała
+**Magdalena Dusza**; kod napisano z pomocą asystenta AI (Claude, Anthropic) pod jej kierunkiem.
+Program powstał w czasie prywatnym i ze środków prywatnych, bez finansowania instytucjonalnego
+ani grantowego. Udostępniany bez gwarancji.
+
+*A fork of FigTree by Andrew Rambaut (LGPL). The additional features were designed and tested
+by Magdalena Dusza; the code was written with the help of an AI assistant (Claude, Anthropic)
+under her direction. Developed in her own time with private resources, without institutional
+or grant funding. Provided without warranty.*
+
 ---
 
 ## Original FigTree README

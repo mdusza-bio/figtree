@@ -7,8 +7,8 @@ Polish version: [instrukcja.md](instrukcja.md).
 
 ---
 Saving the changes you make to a tree:
-  1. For an ML tree it is safest to open the `.raxml.support` file first.
-  2. Right away choose *File → Save As* and give the file a new name ending in
+  1. Open file containing the tree using the MyFigTree programme.
+  2. Choose *File → Save As* and give the file a new name ending in
      `.tree`, e.g. `ML_SSU.tree`, in the same folder.
   3. From now on work in the `.tree` file. Panel settings, *Style selected tips*,
      shortened branches and all other edits are saved there.
@@ -276,3 +276,13 @@ Keep in mind:
   brackets are control characters of the tree format — **they will break the
   file**.
 - **Every specimen must keep a unique name.**
+
+## 11. About
+
+MyFigTree MD is a fork of **FigTree** by Andrew Rambaut (LGPL licence, https://github.com/rambaut/figtree).
+The additional features were designed and tested on real phylogenetic trees by **Magdalena Dusza**;
+the code was written with the help of an AI assistant (Claude, Anthropic) under her direction.
+The program was developed in her own time and with private resources, without institutional or grant funding.
+It is provided without warranty. Please check figures before publication.
+
+Code and new versions: https://github.com/mdusza-bio/figtree

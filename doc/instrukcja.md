@@ -8,7 +8,7 @@ odzyskiwanie plików): [instrukcja_pelna.md](instrukcja_pelna.md).
 
 ---
 Zapisywanie zmian wprowadzonych na drzewie:
-  1. Bezpiecznie jest najpierw otworzyć .raxml.support (przy ML).
+  1. Otwarcie pliku w MyFigTree.
   2. Od razu zrobić File → Save As i nadaj nową nazwę z końcówką .tree, na przykład ML_SSU.tree, w tym samym folderze.
   3. Od tej chwili pracować w pliku .tree. Ustawienia paneli, Style selected tips, skrócone gałęzie i inne edycje będą zapisywać się właśnie tam.
 
@@ -253,3 +253,13 @@ O czym należy pamiętać:
   ewentualnie kropki i myślniki. Spacje, przecinki, dwukropki, średniki
   i nawiasy to znaki sterujące formatu drzewa — **rozwalą plik**.
 - **Każdy okaz musi zachować unikalną nazwę.** 
+
+## 11. O programie
+
+MyFigTree MD jest forkiem programu **FigTree** Andrew Rambauta (licencja LGPL, https://github.com/rambaut/figtree).
+Dodatkowe funkcje zaprojektowała i przetestowała na rzeczywistych drzewach filogenetycznych **Magdalena Dusza**;
+kod napisano z pomocą asystenta AI (Claude, Anthropic) pod jej kierunkiem. Program powstał
+w czasie prywatnym i ze środków prywatnych, bez finansowania instytucjonalnego ani grantowego.
+Jest udostępniany bez gwarancji. Ryciny warto sprawdzić przed publikacją.
+
+Kod i nowe wersje: https://github.com/mdusza-bio/figtree
