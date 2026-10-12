@@ -573,7 +573,9 @@ własne (np. `substrat`); więcej w [slowniki/README.md](slowniki/README.md).
 
 - **Export PDF** — okno z wyborem **Page size** (*Fit to tree / A4 portrait /
   A4 landscape*), **Margin (mm)** i **Embed fonts** (osadza czcionki w pliku;
-  pierwsze użycie trwa kilka sekund).
+  pierwsze użycie trwa kilka sekund). Jeśli wybrana czcionka nie ma na
+  komputerze osobnego pliku kursywy lub pogrubienia, PDF bierze je z czcionki
+  standardowej (Times-Italic / Helvetica-Oblique) zamiast gubić styl.
 - Kursywa, pogrubienia i kolory z panelu *Tip Labels* trafiają do PDF i SVG.
 
 ## 11. Co się zapisuje

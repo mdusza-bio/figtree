@@ -2103,30 +2103,12 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
         return options;
     }
 
-    private static DefaultFontMapper embeddingFontMapper = null;
+    private static EmbeddingFontMapper embeddingFontMapper = null;
 
-    /** A font mapper that knows the TrueType fonts installed on this machine, so they get embedded. */
+    /** The mapper for "Embed fonts" (see {@link EmbeddingFontMapper}); built once, the first use takes a few seconds. */
     private static synchronized DefaultFontMapper getEmbeddingFontMapper() {
         if (embeddingFontMapper == null) {
-            DefaultFontMapper mapper = new DefaultFontMapper();
-            java.util.List<String> dirs = new ArrayList<String>();
-            String windir = System.getenv("WINDIR");
-            if (windir != null) dirs.add(windir + File.separator + "Fonts");
-            dirs.add(System.getProperty("user.home") + File.separator + "AppData" + File.separator + "Local" + File.separator + "Microsoft" + File.separator + "Windows" + File.separator + "Fonts");
-            dirs.add("/Library/Fonts");
-            dirs.add("/System/Library/Fonts");
-            dirs.add("/usr/share/fonts/truetype");
-            dirs.add(System.getProperty("java.home") + File.separator + "lib" + File.separator + "fonts");
-            for (String dir : dirs) {
-                try {
-                    if (new File(dir).isDirectory()) {
-                        mapper.insertDirectory(dir);
-                    }
-                } catch (RuntimeException e) {
-                    // ignore a broken font directory
-                }
-            }
-            embeddingFontMapper = mapper;
+            embeddingFontMapper = new EmbeddingFontMapper();
         }
         return embeddingFontMapper;
     }
