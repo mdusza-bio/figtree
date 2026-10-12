@@ -3,7 +3,7 @@
 Tabelki „rodzaj → rodzina → rząd" do opisywania liści drzewa (panel *Group Bars*,
 menu *File → Import Annotations…*). Jeden plik na grupę organizmów:
 
-- [sluzowce.tsv](sluzowce.tsv) — śluzowce (Myxomycetes), 63 rodzaje. **Roboczy,
+- [myxomycetes.tsv](myxomycetes.tsv) — śluzowce (Myxomycetes), 63 rodzaje. **Roboczy,
   do sprawdzenia.**
 
 Nowy plik dla innej grupy (grzyby, porosty, rośliny) robi się tak samo — wystarczy
@@ -41,7 +41,7 @@ uzupełnić. Rodzaje ze słownika, których w drzewie nie ma, są pomijane i tyl
 policzone (to normalne). Jak czytać to okno: `doc/instrukcja.md`, rozdział 8.
 
 Pliki w tym folderze:
-- `sluzowce.tsv` — właściwy słownik do rycin;
+- `myxomycetes.tsv` — właściwy słownik do rycin;
 - `rodzaje_test.tsv` — tylko do testów: pusty szablon z *Export Group Template*
   (same rodzaje, bez rodzin). Import go nie użyje, dopóki nie wypełnisz kolumn.
 
@@ -56,7 +56,7 @@ postacie mogą siedzieć w jednym pliku.
 
 ## Uwaga o ujęciach systematycznych
 
-`sluzowce.tsv` trzyma się układu tradycyjnego (Martin & Alexopoulos, baza
+`myxomycetes.tsv` trzyma się układu tradycyjnego (Martin & Alexopoulos, baza
 nomenklatoryczna Lado): *Trichiales* = Trichiaceae + Arcyriaceae + Dianemataceae,
 *Liceales* razem. Nowsze ujęcie molekularne (Leontyev i in. 2019) łączy te trzy
 rodziny w Trichiaceae, dzieli Liceales na Cribrariales i Reticulariales i zmienia

@@ -375,7 +375,7 @@ i kompilacji.
 - *Undo preset* działa bez zmian — cofa także własny zestaw.
 
 ### Etap 6.7 — słowniki grup: dopasowanie po rodzaju (2026-08-28)
-**Skąd się wzięło.** Import słownika `doc/slowniki/sluzowce.tsv` do prawdziwego
+**Skąd się wzięło.** Import słownika `doc/slowniki/myxomycetes.tsv` do prawdziwego
 drzewa kończył się komunikatem *„Matched 0 of 63"* — bo import porównywał tylko
 **pełne** nazwy okazów, a słownik ma same rodzaje.
 
@@ -578,7 +578,7 @@ otwarciu są już na miejscu.
 
 Słowniki grup organizmów (rodzaj → rodzina → rząd) leżą w
 [doc/slowniki/](doc/slowniki/) — na razie roboczy, do sprawdzenia
-[sluzowce.tsv](doc/slowniki/sluzowce.tsv) z 63 rodzajami śluzowców. Opis formatu
+[myxomycetes.tsv](doc/slowniki/myxomycetes.tsv) z 63 rodzajami śluzowców. Opis formatu
 i sposób użycia w Excelu: [doc/slowniki/README.md](doc/slowniki/README.md).
 
 Pliki do testów: [doc/przyklad.tree](doc/przyklad.tree) (8 okazów) razem

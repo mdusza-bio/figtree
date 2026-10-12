@@ -30,7 +30,7 @@ FigTree zainstalowany obok.
 |---|---|---|
 | `doc/przyklad.tree` | drzewko testowe, 8 okazów śluzowców | *File → Open* |
 | `doc/przyklad_rodziny.tsv` | rodziny i rzędy do tego drzewka | *File → Import Annotations…* |
-| `doc/slowniki/sluzowce.tsv` | słownik rodzaj → rodzina → rząd (63 rodzaje) | *File → Import Annotations…* (dopasowanie po rodzaju), patrz [slowniki/README.md](slowniki/README.md) |
+| `doc/slowniki/myxomycetes.tsv` | słownik rodzaj → rodzina → rząd (63 rodzaje) | *File → Import Annotations…* (dopasowanie po rodzaju), patrz [slowniki/README.md](slowniki/README.md) |
 
 Wszystkie te pliki to zwykły tekst — otwierają się w Notatniku i w Excelu.
 
@@ -498,7 +498,7 @@ Arcyria	Arcyriaceae	Trichiales
 
 - **Nazwa jednowyrazowa** (bez podkreślników i spacji) jest traktowana jak rodzaj:
   jej wartości dostają **wszystkie** okazy, których nazwa zaczyna się od tego
-  rodzaju. Dzięki temu słownik `doc/slowniki/sluzowce.tsv` wczytuje się wprost.
+  rodzaju. Dzięki temu słownik `doc/slowniki/myxomycetes.tsv` wczytuje się wprost.
 - Jeśli jakiś okaz jest w pliku wymieniony i z pełnej nazwy, i „załapuje się"
   przez rodzaj, wygrywa wiersz z pełną nazwą — można więc słownikiem opisać
   całość, a pojedyncze wyjątki nadpisać osobnym wierszem.
@@ -512,7 +512,7 @@ Arcyria	Arcyriaceae	Trichiales
   „Matched 0 of…", prawie zawsze znaczy to, że w pierwszej kolumnie są nazwy
   w innej postaci niż w drzewie.
 
-#### Jak czytać okno po imporcie (na przykładzie słownika `sluzowce.tsv`)
+#### Jak czytać okno po imporcie (na przykładzie słownika `myxomycetes.tsv`)
 
 ```
 Matched 14 of 65 names in the file to tips of the tree
@@ -539,7 +539,7 @@ Jak uzupełnić braki:
 - **Save missing genera…** (przycisk w tym oknie) — zapisuje brakujące rodzaje
   do tabelki z tymi samymi kolumnami, co importowany plik (np. `genus`,
   `family`, `order`), z pustymi komórkami. Uzupełnij ją w Excelu albo
-  Notatniku i **wklej wiersze do słownika** (`sluzowce.tsv`) — przydadzą się
+  Notatniku i **wklej wiersze do słownika** (`myxomycetes.tsv`) — przydadzą się
   przy następnych drzewach. Potem zaimportuj słownik jeszcze raz. (Można też
   wczytać samą uzupełnioną tabelkę przez *Import Annotations…* — dopisze
   brakujące rodziny bez ruszania reszty.)

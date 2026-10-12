@@ -87,7 +87,7 @@ Czyszczenie nazwy:
 Kursywa i skład nazwy:
 - **Italic mode** — sposób wybierania, co ma być kursywą:
   - *Off* — nic,
-  - *First N parts* — pierwsze N członów nazwy (pole **Italic first N parts**),
+  - *First N parts* — pierwsze N członów nazwy,
   - *Until first number* (domyślne) — kursywa aż do pierwszego członu wyglądającego
     na numer okazu.
 - **Not italic words** — słowa, które zostają pismem prostym w środku nazwy
@@ -96,8 +96,7 @@ Kursywa i skład nazwy:
 - **ALL CAPS** — kończy kursywę także na członie pisanym samymi wielkimi literami
   bez cyfr, np. `KRAM` w numerze.
 - **Join number** — skleja numer okazu rozbity przez podkreślniki w postać, w której
-  się go cytuje: `KRAM M 1156` → `KRAM M-1156`, `UK100 1b` → `UK100-1b`,
-  `Ron324 2 3` → `Ron324 2/3`. Działa na podstawie kilku ogólnych reguł, a to, czego nie rozpoznaje, zostawia bez zmian. 
+  się go cytuje: `KRAM M 1156` → `KRAM M-1156`,  `Ron324 2 3` → `Ron324 2/3`. Działa na podstawie kilku ogólnych reguł, a to, czego nie rozpoznaje, zostawia bez zmian. 
 
 Ręczna poprawka pojedynczego liścia (gdy reguły się mylą):
 - **Style selected tips...** — klikasz w drzewie liść, który wyszedł źle
@@ -158,7 +157,7 @@ Wygląd:
 - **Threshold attribute** + **Show only if >=** — kropka pojawia się tylko tam,
   gdzie wybrany atrybut osiąga próg, np. czarne kropki na węzłach z bootstrap ≥ 95.
   To starsze, prostsze narzędzie: kropka zawsze na węźle i tylko według jednej
-  wartości. Do kropek pełnego poparcia lepszy jest panel *Support Dots* (wyżej).
+  wartości. 
 
 ## 6. Panel *Group Bars* (paski grup)
 
@@ -232,6 +231,9 @@ to nazwy rodzajów, rodzina (można samemu ustalić co się chce)
   Unicode* i *CSV*). 
 - Samego pliku `.xlsx` program nie czyta — trzeba go
   najpierw zapisać jako tekst.
+- Pierwsza kolumna może też zawierać pełne nazwy okazów (tak działa zwykły FigTree);
+  wtedy każdy wiersz opisuje jeden okaz. Do wypróbowania: otwórz `examples/przyklad.tree`
+  i zaimportuj `slowniki/myxomycetes.tsv`.
 
 ### Menu *File → Export Group Template…*
 

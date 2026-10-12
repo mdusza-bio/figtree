@@ -1125,7 +1125,7 @@ public class FigTreeFrame extends DocumentFrame implements FigTreeFileMenuHandle
                                     "there are no values (such as family names) to import.\n\n" +
                                     "Is it a template from File > Export Group Template that has not\n" +
                                     "been filled in yet? Fill in the columns (or import a ready\n" +
-                                    "dictionary such as sluzowce.tsv) and try again.",
+                                    "dictionary such as myxomycetes.tsv) and try again.",
                             "Import Annotations",
                             JOptionPane.WARNING_MESSAGE);
                     return;

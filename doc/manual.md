@@ -93,8 +93,7 @@ Cleaning up the name:
 Italics and the structure of the name:
 - **Italic mode** — how the italic part is chosen:
   - *Off* — nothing,
-  - *First N parts* — the first N parts of the name (field **Italic first N
-    parts**),
+  - *First N parts* — the first N parts of the name,
   - *Until first number* (default) — italics up to the first part that looks
     like a specimen number.
 - **Not italic words** — words that stay upright inside the name (default
@@ -103,8 +102,7 @@ Italics and the structure of the name:
 - **ALL CAPS** — also ends the italics at a part written in capital letters
   only, without digits, e.g. `KRAM` in a specimen number.
 - **Join number** — joins a specimen number split by underscores into the form
-  in which it is cited: `KRAM M 1156` → `KRAM M-1156`, `UK100 1b` → `UK100-1b`,
-  `Ron324 2 3` → `Ron324 2/3`. It follows a few general rules and leaves
+  in which it is cited: `KRAM M 1156` → `KRAM M-1156`,  `Ron324 2 3` → `Ron324 2/3`. It follows a few general rules and leaves
   anything it does not recognise unchanged.
 
 Manual fix of a single tip (when the rules get it wrong):
@@ -170,8 +168,7 @@ Appearance:
 - **Threshold attribute** + **Show only if >=** — a dot appears only where the
   chosen attribute reaches the threshold, e.g. black dots on nodes with
   bootstrap ≥ 95. This is the older, simpler tool: the dot is always on the node
-  and follows a single value. For dots of full support the *Support Dots* panel
-  (above) is better.
+  and follows a single value. 
 
 ## 6. *Group Bars* panel
 
@@ -247,6 +244,9 @@ column holds genus names, then family etc. (you decide what you want).
 - Columns separated by tabs, commas or semicolons — in Excel just *Save as →
   Text (tab delimited)* (*Unicode Text* and *CSV* work too).
 - The program does not read `.xlsx` itself — save it as text first.
+- The first column may also hold full specimen names (as in the original FigTree);
+  then every row describes one specimen. To try it out: open `examples/przyklad.tree`
+  and import `slowniki/myxomycetes.tsv`.
 
 ### *File → Export Group Template…* menu
 

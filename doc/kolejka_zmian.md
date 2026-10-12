@@ -288,7 +288,7 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
 - [x] 6.7 🟡 **Słowniki grup: dopasowanie po rodzaju + szablon do wypełnienia** —
   zgłoszone 2026-08-23: pisanie pliku `nazwa<TAB>rodzina` dla setek okazów to
   strata czasu, a rodzina i rząd zależą od **rodzaju**, czyli pierwszego członu
-  nazwy liścia. **Zrobione 2026-08-28** (impuls: import `sluzowce.tsv` do
+  nazwy liścia. **Zrobione 2026-08-28** (impuls: import `myxomycetes.tsv` do
   prawdziwego drzewa dał „Matched 0 of 63"): (a) przy imporcie nazwa
   **jednowyrazowa** (bez `_` i spacji), która nie pasuje do żadnej pełnej nazwy
   okazu, jest traktowana jako rodzaj i dostają ją wszystkie okazy o nazwie
@@ -313,7 +313,7 @@ niezależnie, równolegle, w osobnych rozmowach (np. „zrób sesję A").
   liści w *Colour by*). Uwaga na `setupControls()` — blokuje indeks 0 combo,
   a w *Group Bars* pod zerem jest już prawdziwy atrybut.
 - [ ] 6.9 🔴 **DO ZROBIENIA PRZEZ UŻYTKOWNICZKĘ: sprawdzić słownik śluzowców** —
-  `doc/slowniki/sluzowce.tsv` (63 rodzaje) napisał Claude z pamięci i **wymaga
+  `doc/slowniki/myxomycetes.tsv` (63 rodzaje) napisał Claude z pamięci i **wymaga
   weryfikacji specjalistki**, zanim pójdzie na rycinę do publikacji. Poprawki
   wpisywać wprost w pliku (zwykły tekst, otwiera się w Excelu i Notatniku).
   Rodzaje o spornym umiejscowieniu mają komentarz `#` z alternatywą — pierwsze
@@ -725,7 +725,7 @@ przemianowany na `HOLOTYPE`. Wystarczy dopisać spację albo kliknąć
 - [ ] **Style selected tips…** (6.11) — ręczna kursywa/pogrubienie na pojedynczym
   liściu. Zrobione, ale ani razu nieużyte (w praktyce wystarczyło *Not italic words*).
 - [x] **Group Bars** (6.3) — paski grup i import rodzin z pliku. Przeklikane
-  2026-09-25 / 2026-10-01 na własnym drzewie ze słownikiem `sluzowce.tsv`;
+  2026-09-25 / 2026-10-01 na własnym drzewie ze słownikiem `myxomycetes.tsv`;
   poprawki z tego przeklikania to 6.19 i 6.21.
 - [ ] **Support Dots** (6.20) — kropki pełnego poparcia na prawdziwym drzewie
   ML+Bayes: czy próg dla PP to `1` (czy wartości są zapisane jako 0–1, czy 0–100),
@@ -741,7 +741,7 @@ przemianowany na `HOLOTYPE`. Wystarczy dopisać spację albo kliknąć
 
 ### 5. Sprawdzić słownik śluzowców — patrz 6.9
 
-`doc/slowniki/sluzowce.tsv` (63 rodzaje) napisał Claude z pamięci i **wymaga
+`doc/slowniki/myxomycetes.tsv` (63 rodzaje) napisał Claude z pamięci i **wymaga
 weryfikacji specjalistki**, zanim pójdzie na rycinę do publikacji.
 
 ### Na przyszłość, żeby uniknąć dzisiejszych kłopotów
