@@ -280,7 +280,8 @@ Keep in mind:
 ## 11. About
 
 MyFigTree MD is a fork of **FigTree** by Andrew Rambaut (LGPL licence, https://github.com/rambaut/figtree).
-The additional features were designed and tested on real phylogenetic trees by **Magdalena Dusza**;
+The additional features were designed by **Magdalena Dusza** and tested on real maximum-likelihood
+(RAxML) and Bayesian phylogenetic trees;
 the code was written with the help of an AI assistant (Claude, Anthropic) under her direction.
 The program was developed in her own time and with private resources, without institutional or grant funding.
 It is provided without warranty. Please check figures before publication.

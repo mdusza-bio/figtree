@@ -257,7 +257,8 @@ O czym należy pamiętać:
 ## 11. O programie
 
 MyFigTree MD jest forkiem programu **FigTree** Andrew Rambauta (licencja LGPL, https://github.com/rambaut/figtree).
-Dodatkowe funkcje zaprojektowała i przetestowała na rzeczywistych drzewach filogenetycznych **Magdalena Dusza**;
+Dodatkowe funkcje zaprojektowała **Magdalena Dusza** i przetestowała na rzeczywistych drzewach
+filogenetycznych ML (RAxML) i bayesowskich;
 kod napisano z pomocą asystenta AI (Claude, Anthropic) pod jej kierunkiem. Program powstał
 w czasie prywatnym i ze środków prywatnych, bez finansowania instytucjonalnego ani grantowego.
 Jest udostępniany bez gwarancji. Ryciny warto sprawdzić przed publikacją.
