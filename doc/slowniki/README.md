@@ -38,7 +38,7 @@ zaczyna się od tego rodzaju (`Trichia_lutescens_MA83355`, `Trichia_varia_MA8011
 Okno po imporcie mówi, ile nazw dopasowało się po rodzaju i ile okazów objęły,
 oraz wymienia z nazwy **okazy, które nie dostały grupy** — to jedyne, co trzeba
 uzupełnić. Rodzaje ze słownika, których w drzewie nie ma, są pomijane i tylko
-policzone (to normalne). Jak czytać to okno: `doc/instrukcja.md`, rozdział 9.
+policzone (to normalne). Jak czytać to okno: `doc/instrukcja.md`, rozdział 8.
 
 Pliki w tym folderze:
 - `sluzowce.tsv` — właściwy słownik do rycin;

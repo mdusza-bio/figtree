@@ -3,7 +3,8 @@
 Fork [FigTree](https://github.com/rambaut/figtree) z poprawkami dla rycin drzew
 filogenetycznych: czyszczenie nazw taksonów (podkreślniki, kursywa), rozsuwanie
 nachodzących etykiet, słupki grup, presety publikacyjne i inne. Opis wszystkich
-dodanych opcji: [doc/instrukcja.md](doc/instrukcja.md).
+dodanych opcji: [doc/instrukcja.md](doc/instrukcja.md) (po polsku) i
+[doc/manual.md](doc/manual.md) (po angielsku).
 
 **Pobieranie gotowego programu** (Windows / Mac / Linux, wymaga Javy 8 lub nowszej,
 np. z [adoptium.net](https://adoptium.net)): zakładka
@@ -13,7 +14,8 @@ uruchom `java -jar figtree.jar`.
 
 *A fork of FigTree with fixes for publication figures (taxon-name cleanup,
 overlapping labels, group bars, publication presets). Ready-to-run jar under
-Releases; the Polish manual lives in `doc/instrukcja.md`.*
+Releases; the manual is [doc/manual.md](doc/manual.md) (English) and
+[doc/instrukcja.md](doc/instrukcja.md) (Polish).*
 
 ---
 
