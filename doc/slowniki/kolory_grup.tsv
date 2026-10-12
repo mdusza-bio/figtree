@@ -1,9 +1,0 @@
-# Group colours from MyFigTree (Group Bars > Colours... > Save colours...).
-# Load them on another tree with Load colours... - attribute and group
-# names have to match. Colours are #RRGGBB; lines starting with # are ignored.
-attribute	group	colour
-family	Dianemataceae	#FF0000
-family	Reticulariaceae	#999900
-family	Liceaceae	#0033FF
-family	Trichiaceae	#00FFCC
-family	Arcyriaceae	#CC00CC

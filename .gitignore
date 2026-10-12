@@ -11,3 +11,8 @@ examples/*
 
 # lokalne ustawienia Claude Code (uprawnienia, sciezki na tym komputerze)
 .claude/settings.local.json
+
+# robocze tabelki uzytkowniczki - nie publikowac
+doc/slowniki/rodzaje.tsv
+doc/slowniki/rodzaje_test.tsv
+doc/slowniki/kolory_grup.tsv
