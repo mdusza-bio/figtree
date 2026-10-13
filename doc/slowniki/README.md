@@ -1,9 +1,9 @@
 # Słowniki grup organizmów
 
 Tabelki „rodzaj → rodzina → rząd" do opisywania drzewa (panel *Group Bars*,
+menu *File → Import Annotations…*).
 
 English version: [README_en.md](README_en.md).
-menu *File → Import Annotations…*).
 
 - [myxomycetes.tsv](myxomycetes.tsv) — śluzowce (Myxomycetes)
 
