@@ -1,6 +1,6 @@
-# Slownik rodzajow sluzowcow (Myxomycetes / Myxogastria): rodzaj -> rodzina -> rzad
+# Dictionary of slime mould genera (Myxomycetes / Myxogastria): genus -> family -> order
 #
-# Kolumny mozna dopisywac wlasne (np. substrat, region) - naglowek kolumny staje sie nazwa atrybutu w programie.
+# You can add your own columns (e.g. substrate, region) - a column header becomes an attribute name in the program.
 #
 genus	family	order
 Physarum	Physaraceae	Physarales

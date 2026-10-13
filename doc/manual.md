@@ -245,8 +245,7 @@ column holds genus names, then family etc. (you decide what you want).
   Text (tab delimited)* (*Unicode Text* and *CSV* work too).
 - The program does not read `.xlsx` itself — save it as text first.
 - The first column may also hold full specimen names (as in the original FigTree);
-  then every row describes one specimen. To try it out: open `examples/przyklad.tree`
-  and import `dictionaries/myxomycetes.tsv`.
+  then every row describes one specimen.
 
 ### *File → Export Group Template…* menu
 

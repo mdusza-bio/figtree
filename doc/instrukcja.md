@@ -232,8 +232,7 @@ to nazwy rodzajów, rodzina (można samemu ustalić co się chce)
 - Samego pliku `.xlsx` program nie czyta — trzeba go
   najpierw zapisać jako tekst.
 - Pierwsza kolumna może też zawierać pełne nazwy okazów (tak działa zwykły FigTree);
-  wtedy każdy wiersz opisuje jeden okaz. Do wypróbowania: otwórz `examples/przyklad.tree`
-  i zaimportuj `dictionaries/myxomycetes.tsv`.
+  wtedy każdy wiersz opisuje jeden okaz.
 
 ### Menu *File → Export Group Template…*
 
