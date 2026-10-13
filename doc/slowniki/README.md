@@ -1,10 +1,11 @@
 # Słowniki grup organizmów
 
-Tabelki „rodzaj → rodzina → rząd" do opisywania liści drzewa (panel *Group Bars*,
-menu *File → Import Annotations…*). Jeden plik na grupę organizmów:
+Tabelki „rodzaj → rodzina → rząd" do opisywania drzewa (panel *Group Bars*,
 
-- [myxomycetes.tsv](myxomycetes.tsv) — śluzowce (Myxomycetes), 63 rodzaje. **Roboczy,
-  do sprawdzenia.**
+English version: [README_en.md](README_en.md).
+menu *File → Import Annotations…*).
+
+- [myxomycetes.tsv](myxomycetes.tsv) — śluzowce (Myxomycetes)
 
 Nowy plik dla innej grupy (grzyby, porosty, rośliny) robi się tak samo — wystarczy
 zachować format. Nazwa pliku jest dowolna, np. `grzyby.tsv`, `porosty.tsv`.
@@ -19,7 +20,6 @@ genus	family	order
 Trichia	Trichiaceae	Trichiales
 Arcyria	Arcyriaceae	Trichiales
 ```
-
 - **Pierwsza kolumna** to klucz — nazwa, po której szukamy (tu: rodzaj).
 - **Pozostałe kolumny są dowolne.** Nagłówek kolumny staje się nazwą atrybutu
   w programie, więc `family` i `order` można uzupełnić o cokolwiek, co ma się
@@ -31,19 +31,10 @@ Arcyria	Arcyriaceae	Trichiales
 
 ## Jak tego użyć
 
-Słownik wczytuje się **wprost**: *File → Import Annotations…* i wskazać plik.
+Słownik wczytuje się: *File → Import Annotations…* i wskazać plik.
 Nazwa jednowyrazowa w pierwszej kolumnie (np. `Trichia`) jest traktowana jak
 rodzaj — jej rodzina i rząd trafiają do **wszystkich** okazów, których nazwa
-zaczyna się od tego rodzaju (`Trichia_lutescens_MA83355`, `Trichia_varia_MA80112`…).
-Okno po imporcie mówi, ile nazw dopasowało się po rodzaju i ile okazów objęły,
-oraz wymienia z nazwy **okazy, które nie dostały grupy** — to jedyne, co trzeba
-uzupełnić. Rodzaje ze słownika, których w drzewie nie ma, są pomijane i tylko
-policzone (to normalne). Jak czytać to okno: `doc/instrukcja.md`, rozdział 8.
-
-Pliki w tym folderze:
-- `myxomycetes.tsv` — właściwy słownik do rycin;
-- `rodzaje_test.tsv` — tylko do testów: pusty szablon z *Export Group Template*
-  (same rodzaje, bez rodzin). Import go nie użyje, dopóki nie wypełnisz kolumn.
+zaczyna się od tego rodzaju.
 
 Gdy w drzewie trafi się rodzaj, którego słownik nie zna, doda się go najprościej
 przez *File → Export Group Template…* — program wypisze alfabetyczną listę
@@ -54,11 +45,3 @@ Wyjątki od słownika (np. jeden okaz o spornym przypisaniu) załatwia dodatkowy
 wiersz z **pełną nazwą okazu** — pełna nazwa zawsze wygrywa z rodzajem, obie
 postacie mogą siedzieć w jednym pliku.
 
-## Uwaga o ujęciach systematycznych
-
-`myxomycetes.tsv` trzyma się układu tradycyjnego (Martin & Alexopoulos, baza
-nomenklatoryczna Lado): *Trichiales* = Trichiaceae + Arcyriaceae + Dianemataceae,
-*Liceales* razem. Nowsze ujęcie molekularne (Leontyev i in. 2019) łączy te trzy
-rodziny w Trichiaceae, dzieli Liceales na Cribrariales i Reticulariales i zmienia
-Stemonitales na Stemonitidales. Jeśli publikacja ma iść w tym drugim układzie,
-najprościej zrobić drugi plik, np. `sluzowce_2019.tsv`, i wybierać przy imporcie.
